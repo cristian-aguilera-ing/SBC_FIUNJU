@@ -454,6 +454,7 @@ g.add((fiunju.OEMN, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
 g.add((fiunju.TIC, RDF.type, fiunju.Obligatoria))
 g.add((fiunju.TIC, RDFS.label, Literal("Teoría de la Información y la Comunicación", lang="es")))
 g.add((fiunju.TIC, fiunju.perteneceAlAño, Literal(2, datatype=XSD.integer)))
+g.add((fiunju.TIC, fiunju.tieneRequisito, fiunju.OrgComp))
 g.add((fiunju.TIC, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.TIC, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
 
@@ -617,14 +618,9 @@ g.add((fiunju.ModProNeg, RDF.type, fiunju.Optativa))
 g.add((fiunju.ModProNeg, RDFS.label, Literal("Modelado y Proceso de Negocios", lang="es")))
 g.add((fiunju.ModProNeg, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.ModProNeg, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
+g.add((fiunju.ModProNeg, fiunju.tieneRequisito, fiunju.OEMN))
 g.add((fiunju.ModProNeg, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
 g.add((fiunju.ModProNeg, fiunju.otorgaCreditos, Literal(90, datatype=XSD.integer))) # <-- Créditos
-
-# --- Introducción a la Innovación y Entrepreneurship ---
-g.add((fiunju.IntInnEntrep, RDF.type, fiunju.Optativa))
-g.add((fiunju.IntInnEntrep, RDFS.label, Literal("Introducción a la Innovación y Entrepreneurship", lang="es")))
-g.add((fiunju.IntInnEntrep, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
-g.add((fiunju.IntInnEntrep, fiunju.otorgaCreditos, Literal(90, datatype=XSD.integer))) # <-- Créditos
 
 print("ABox (Datos) poblada.")
 
