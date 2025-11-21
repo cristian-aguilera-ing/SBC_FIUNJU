@@ -13,9 +13,15 @@ class MateriaRecomendada(BaseModel):
     desbloquea_count: int
     creditos_otorgados: int = 0
 
+class ArquetipoInfo(BaseModel):
+    nombre: str
+    color: str
+    consejos: list[str]
+
 class PlanCursadaRecomendado(BaseModel):
     plan_recomendado: list[MateriaRecomendada]
     materias_omitidas: list[MateriaRecomendada]
+    arquetipo: ArquetipoInfo # Nuevo campo
     consejos_adicionales: list[str]
 
 class MateriaExamenRecomendada(BaseModel):
@@ -28,8 +34,8 @@ class MateriaExamenRecomendada(BaseModel):
     
     # Estado
     esta_habilitada: bool = True 
-    motivo_bloqueo: str | None = None # Para créditos u otros motivos
-    correlativas_pendientes: list[str] = [] # Lista de nombres de materias que faltan aprobar
+    motivo_bloqueo: str | None = None
+    correlativas_pendientes: list[str] = []
     
     # Sugerencia personalizada
     consejo_personalizado: str | None = None 
