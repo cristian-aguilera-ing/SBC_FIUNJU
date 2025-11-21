@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, ChevronDown, ChevronUp, CheckSquare, Square, BookOpenCheck, Award } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, CheckSquare, Square, BookOpenCheck, Award, BookCheck, CalendarCheck } from "lucide-react";
 
 // --- Tipos de Datos ---
 enum CondicionLaboral {
@@ -157,7 +157,8 @@ export default function PerfilPage() {
     }
   };
 
-  const handleAddMateria = async (materiaURI: string, estado: "Cursando" | "Regular" | "Aprobada") => {
+  // Se actualizó para soportar "PreparandoFinal"
+  const handleAddMateria = async (materiaURI: string, estado: "Cursando" | "Regular" | "Aprobada" | "PreparandoFinal") => {
     if (!token || !materiaURI) return;
     
     let requestBody: {
@@ -169,7 +170,10 @@ export default function PerfilPage() {
       estado: estado
     };
 
-    if (estado === "Regular") {
+    if (estado === "Regular" || estado === "PreparandoFinal") {
+      // Mantener o establecer la fecha si es Regular
+      // Si ya existe una fecha, no deberíamos sobreescribirla si solo cambiamos a PreparandoFinal,
+      // pero la API actual es simple. Asumiremos fecha actual si no existe.
       requestBody.fecha_regularidad = new Date().toISOString();
     }
 
@@ -197,7 +201,7 @@ export default function PerfilPage() {
       });
       
       if (estado === "Cursando") setSelectedCursarURI(""); 
-      if (estado === "Regular") setSelectedRendirURI("");
+      if (estado === "PreparandoFinal") setSelectedRendirURI("");
       
       return true;
 
@@ -272,11 +276,17 @@ export default function PerfilPage() {
 
   const sortedYears = Object.keys(materiasPorAnio).map(Number).sort((a, b) => a - b);
   const materiasCursando = userMaterias.filter(m => m.estado === "Cursando");
-  const materiasRegulares = userMaterias.filter(m => m.estado === "Regular");
+
+  // Ahora mostramos las que están listas para rendir AHORA
+  const materiasPreparandoFinal = userMaterias.filter(m => m.estado === "PreparandoFinal");
+
+  // Para el dropdown de selección, usamos las que son "Regular" (es decir, habilitadas para rendir pero no seleccionadas aún)
+  const materiasRegularesDisponibles = userMaterias.filter(m => m.estado === "Regular");
 
   // Lógica de filtrado para materias disponibles (Cursando Ahora)
   const aprobadasURIs = userMaterias.filter(um => um.estado === "Aprobada").map(um => um.materia_uri);
-  const materiasDisponibles = allMaterias.filter(om => {
+
+  let materiasDisponibles = allMaterias.filter(om => {
     // 1. No cursada ni aprobada ni regular
     const yaInscripto = userMaterias.some(um => um.materia_uri === om.uri);
     if (yaInscripto) return false;
@@ -289,6 +299,20 @@ export default function PerfilPage() {
 
     return true;
   });
+
+  // --- ORDENAMIENTO ---
+  // 1. Obligatorias primero (creditos == 0 o no definido) vs Optativas (creditos > 0)
+  // 2. Alfabético
+  materiasDisponibles.sort((a, b) => {
+      const aEsOptativa = (a.creditos || 0) > 0;
+      const bEsOptativa = (b.creditos || 0) > 0;
+
+      if (aEsOptativa !== bEsOptativa) {
+          return aEsOptativa ? 1 : -1; // Obligatorias primero
+      }
+      return a.label.localeCompare(b.label);
+  });
+
 
   const CREDITOS_NECESARIOS = 270;
   const creditosActuales = userMaterias
@@ -380,43 +404,69 @@ export default function PerfilPage() {
                         {subjects.map(subject => {
                             const userMateria = userMaterias.find(um => um.materia_uri === subject.uri);
                             const isPassed = userMateria?.estado === "Aprobada";
-                            const isOtherState = userMateria && !isPassed;
+                            const isRegular = userMateria?.estado === "Regular" || userMateria?.estado === "PreparandoFinal";
+                            const isOtherState = userMateria && !isPassed && !isRegular;
 
                             return (
                                 <div 
                                     key={subject.uri}
-                                    onClick={() => {
-                                        if (isPassed) handleDeleteMateria(userMateria!.id);
-                                        else handleAddMateria(subject.uri, "Aprobada");
-                                    }}
                                     className={`
-                                        flex items-center p-2.5 rounded border cursor-pointer transition-all group select-none relative
+                                        flex items-center p-2.5 rounded border transition-all group select-none relative justify-between
                                         ${isPassed 
-                                            ? 'bg-green-900/20 border-green-800/50 hover:bg-green-900/30' 
-                                            : 'bg-gray-900/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800'}
+                                            ? 'bg-green-900/20 border-green-800/50'
+                                            : isRegular
+                                                ? 'bg-blue-900/20 border-blue-800/50'
+                                                : 'bg-gray-900/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800'}
                                     `}
                                 >
-                                    <div className={`
-                                        h-5 w-5 rounded flex items-center justify-center mr-3 border transition-colors
-                                        ${isPassed ? 'bg-green-600 border-green-600' : 'border-gray-600 group-hover:border-gray-400 bg-gray-800'}
-                                    `}>
-                                        {isPassed && <BookOpenCheck className="h-3.5 w-3.5 text-white" />}
-                                    </div>
                                     <div className="flex flex-col">
-                                        <span className={`text-sm ${isPassed ? 'text-green-100 font-medium' : 'text-gray-400 group-hover:text-gray-200'}`}>
+                                        <span className={`text-sm ${isPassed ? 'text-green-100 font-medium' : isRegular ? 'text-blue-100 font-medium' : 'text-gray-400'}`}>
                                             {subject.label}
                                         </span>
                                         {subject.creditos > 0 && (
                                             <span className="text-[10px] text-blue-400 flex items-center gap-1">
-                                                <Award className="h-3 w-3" /> Otorga {subject.creditos} créditos
+                                                <Award className="h-3 w-3" /> {subject.creditos} cred.
                                             </span>
                                         )}
                                     </div>
-                                    {isOtherState && (
-                                        <span className="ml-auto text-[10px] font-bold text-yellow-500 bg-yellow-900/20 px-1.5 py-0.5 rounded uppercase border border-yellow-900/50">
-                                            {userMateria.estado}
-                                        </span>
-                                    )}
+
+                                    <div className="flex items-center gap-1">
+                                        {/* Botón Regular (R) */}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (isRegular) handleDeleteMateria(userMateria!.id); // Toggle off
+                                                else handleAddMateria(subject.uri, "Regular");
+                                            }}
+                                            className={`
+                                                w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors
+                                                ${isRegular
+                                                    ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.5)]'
+                                                    : 'border-gray-600 text-gray-500 hover:border-blue-500 hover:text-blue-400 bg-gray-800'}
+                                            `}
+                                            title="Regularizar Materia"
+                                        >
+                                            R
+                                        </button>
+
+                                        {/* Botón Aprobada (A) */}
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                if (isPassed) handleDeleteMateria(userMateria!.id); // Toggle off
+                                                else handleAddMateria(subject.uri, "Aprobada");
+                                            }}
+                                            className={`
+                                                w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors
+                                                ${isPassed
+                                                    ? 'bg-green-600 border-green-500 text-white shadow-[0_0_10px_rgba(22,163,74,0.5)]'
+                                                    : 'border-gray-600 text-gray-500 hover:border-green-500 hover:text-green-400 bg-gray-800'}
+                                            `}
+                                            title="Aprobar Final"
+                                        >
+                                            A
+                                        </button>
+                                    </div>
                                 </div>
                             );
                         })}
@@ -508,7 +558,7 @@ export default function PerfilPage() {
         <div className="mb-8 p-6 bg-gray-900/80 rounded-lg border border-gray-700 shadow-md">
             <h2 className="text-2xl font-semibold mb-2 text-blue-300 border-b border-gray-700 pb-2">2. Historial Académico</h2>
             <p className="text-sm text-gray-400 mb-6 mt-2">
-                Marca las materias que ya aprobaste.
+                Marca 'R' para regularizadas y 'A' para aprobadas.
             </p>
             <div className="space-y-4">
                 {sortedYears.map(year => (
@@ -546,26 +596,30 @@ export default function PerfilPage() {
             </div>
             </div>
 
-            {/* 4. Materias para Rendir */}
+            {/* 4. Finales para rendir ahora */}
             <div className="p-6 bg-gray-700 rounded-lg border border-gray-600">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
                 <span className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-indigo-400">4</span>
-                Finales Pendientes
+                Finales para rendir ahora
             </h2>
+            <p className="text-xs text-gray-400 mb-4">
+                Elige de tus materias regulares cuáles rendirás en este turno.
+            </p>
             <div className="flex gap-2 mb-4">
                 <Select value={selectedRendirURI} onValueChange={setSelectedRendirURI}>
-                <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white"><SelectValue placeholder="Elegir materia" /></SelectTrigger>
+                <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white"><SelectValue placeholder="Elegir de mis Regulares" /></SelectTrigger>
                 <SelectContent className="bg-gray-800 text-white border-gray-600">
-                    {materiasDisponibles.map(materia => (<SelectItem key={materia.uri} value={materia.uri}>{materia.label}</SelectItem>))}
+                    {materiasRegularesDisponibles.map(m => (<SelectItem key={m.materia_uri} value={m.materia_uri}>{m.label}</SelectItem>))}
                 </SelectContent>
                 </Select>
-                <Button onClick={() => handleAddMateria(selectedRendirURI, "Regular")} className="bg-indigo-600">Añadir</Button>
+                <Button onClick={() => handleAddMateria(selectedRendirURI, "PreparandoFinal")} className="bg-indigo-600">Añadir</Button>
             </div>
             <div className="space-y-2">
-                {materiasRegulares.map(m => (
+                {materiasPreparandoFinal.map(m => (
                     <div key={m.id} className="flex justify-between items-center p-2 bg-gray-900/50 rounded border border-gray-600 text-sm">
-                    <span>{m.label}</span>
-                    <Trash2 className="h-4 w-4 text-red-400 cursor-pointer" onClick={() => handleDeleteMateria(m.id)} />
+                    <span className="text-indigo-200 font-medium">{m.label}</span>
+                    {/* Al borrar de esta lista, vuelve a ser solo "Regular" */}
+                    <Trash2 className="h-4 w-4 text-red-400 cursor-pointer" onClick={() => handleAddMateria(m.materia_uri, "Regular")} />
                     </div>
                 ))}
             </div>

@@ -85,7 +85,8 @@ def _check_cuellos_de_botella(user: User, kg: Graph) -> list[Alerta]:
     return alertas
 
 def generar_alertas_proactivas(user: User, kg: Graph) -> list[Alerta]:
-    materias_regulares = [m for m in user.materias_cursadas if m.estado == "Regular"]
+    # Incluimos también 'PreparandoFinal' ya que siguen siendo regulares
+    materias_regulares = [m for m in user.materias_cursadas if m.estado == "Regular" or m.estado == "PreparandoFinal"]
     alertas_regularidad = _check_riesgo_regularidad(user, materias_regulares, kg)
     alertas_cuello_botella = _check_cuellos_de_botella(user, kg)
     

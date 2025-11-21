@@ -56,19 +56,28 @@ WHERE {{
 
 def evaluar_plan_examen_actual(user: User, kg: Graph) -> list[str]:
     consejos = []
-    materias_rendir = [m for m in user.materias_cursadas if m.estado == "Regular"]
+    # Incluimos 'PreparandoFinal' como finales a rendir
+    materias_rendir = [m for m in user.materias_cursadas if m.estado == "Regular" or m.estado == "PreparandoFinal"]
     
     if not materias_rendir:
         return ["No tienes finales pendientes marcados."]
     
     cant = len(materias_rendir)
     
+    # Si el usuario seleccionó explícitamente "PreparandoFinal", damos consejos sobre esos
+    materias_seleccionadas = [m for m in materias_rendir if m.estado == "PreparandoFinal"]
+    if materias_seleccionadas:
+        cant_seleccionadas = len(materias_seleccionadas)
+        consejos.append(f"Has seleccionado {cant_seleccionadas} finales para esta mesa.")
+        if user.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and cant_seleccionadas > 1:
+             consejos.append("Trabajas full-time y quieres rendir más de un final. Asegúrate de que las fechas no se superpongan y prioriza el más difícil.")
+
     if user.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and cant > 1:
         consejos.append("Trabajando 8hs, rendir más de un final por turno es titánico. Prioriza por vencimiento o correlatividad.")
     elif user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO and cant > 2:
         consejos.append("Rendir más de 2 finales trabajando medio tiempo es ambicioso. Prioriza.")
     elif cant > 3:
-         consejos.append(f"Tienes {cant} finales pendientes. No intentes rendir todos. Enfócate en 2 o 3 máximo.")
+         consejos.append(f"Tienes {cant} finales pendientes en total. No intentes rendir todos. Enfócate en 2 o 3 máximo.")
     else:
         consejos.append(f"Tienes {cant} finales en carpeta. Revisa la estrategia recomendada arriba para ver cuál atacar primero.")
         

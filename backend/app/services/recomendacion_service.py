@@ -352,8 +352,9 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     }
 
 def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
-    # Mismo código
-    materias_para_rendir = [m for m in user.materias_cursadas if m.estado == "Regular"]
+    # Incluimos también 'PreparandoFinal' (que son los seleccionados para rendir AHORA)
+    materias_para_rendir = [m for m in user.materias_cursadas if m.estado == "Regular" or m.estado == "PreparandoFinal"]
+
     if not materias_para_rendir:
         return {"plan_recomendado": [], "consejos_adicionales": ["No tienes finales pendientes."]}
     aprobadas_uris = {m.materia_uri for m in user.materias_cursadas if m.estado == "Aprobada"}
@@ -433,7 +434,22 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
         if not esta_habilitada: consejo = "⛔ Aún no puedes rendir. Primero debes aprobar las correlativas o sumar créditos."
         else: consejo = f"{prioridad_msg} \n💡 {tip_estudio}"
         plan_recomendado.append({ "uri": materia.materia_uri, "label": datos["label"], "fecha_regularidad": materia.fecha_regularidad, "dias_restantes": dias_restantes, "dificultad_examen_label": datos["max_dif_label"], "dificultad_examen_valor": datos["max_dif_valor"], "modalidades": list(datos["modalidades"]), "esta_habilitada": esta_habilitada, "motivo_bloqueo": motivo_bloqueo, "correlativas_pendientes": correlativas_pendientes, "consejo_personalizado": consejo, "_impacto": impacto_futuro })
-    plan_recomendado.sort(key=lambda m: (not m["esta_habilitada"], -m["_impacto"], m["dias_restantes"] if m["dias_restantes"] is not None else 9999))
+
+    # Ordenamos para que los 'PreparandoFinal' (que son los que el usuario quiere rendir YA) aparezcan primero
+    def get_sort_key(m):
+        # 1. ¿Está habilitada? (Falso primero para mostrar bloqueos arriba? No, queremos lo accionable)
+        #    Vamos a poner primero lo que está habilitado.
+        # 2. ¿Es 'PreparandoFinal'? (Prioridad máxima)
+        # 3. Impacto
+        es_preparando = any(um.materia_uri == m["uri"] and um.estado == "PreparandoFinal" for um in user.materias_cursadas)
+        return (
+            not es_preparando, # False < True, so Preparando goes first
+            not m["esta_habilitada"], # False < True, so enabled goes first
+            -m["_impacto"], # Higher impact first
+            m["dias_restantes"] if m["dias_restantes"] is not None else 9999
+        )
+
+    plan_recomendado.sort(key=get_sort_key)
     consejos = evaluacion_service.evaluar_plan_examen_actual(user, kg)
     return { "plan_recomendado": plan_recomendado, "consejos_adicionales": consejos }
 

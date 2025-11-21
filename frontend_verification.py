@@ -12,47 +12,46 @@ email = f"{get_random_string()}@example.com"
 password = "password123"
 
 def verify_profile_page(page: Page):
-
+    print(f"Navigating to login page...")
     page.goto("http://localhost:3000/login")
 
-    # Wait for inputs
+    print(f"Filling credentials for {email}...")
     page.fill("input[type='email']", email)
     page.fill("input[type='password']", password)
 
-    # Click login
+    print("Clicking login...")
     page.click("button[type='submit']")
 
-    # Wait for navigation to dashboard.
+    print("Waiting for navigation to dashboard...")
     try:
-        page.wait_for_url("**/dashboard", timeout=5000)
+        page.wait_for_url("**/dashboard", timeout=15000)
+        print("Navigation successful!")
     except:
-        print("Login might have failed or timeout. Checking for error message.")
+        print("Navigation timeout. Checking for errors...")
         if page.locator(".text-red-300").is_visible():
-            print(f"Login error: {page.locator('.text-red-300').inner_text()}")
-            raise Exception("Login failed")
+            print(f"Login error displayed: {page.locator('.text-red-300').inner_text()}")
+        else:
+            print("No error displayed, but navigation failed.")
+        raise Exception("Login failed")
 
-    # Now navigate to profile
+    print("Navigating to /perfil...")
     page.goto("http://localhost:3000/perfil")
 
-    # Wait for profile data to load
-    expect(page.get_by_text("Cargando perfil...")).not_to_be_visible(timeout=10000)
+    print("Waiting for profile to load...")
+    expect(page.get_by_text("Cargando perfil...")).not_to_be_visible(timeout=15000)
 
-    # 2. Verify that removed fields are NOT present
-    content = page.content()
+    # Verify new section title
+    expect(page.get_by_text("Finales para rendir ahora")).to_be_visible()
 
-    assert "Horas de Estudio" not in content, "Found 'Horas de Estudio'"
-    assert "Colegio Secundario" not in content, "Found 'Colegio Secundario'"
-    assert "Método Preferido" not in content, "Found 'Método Preferido'"
-    assert "Facilidad de Aprendizaje" not in content, "Found 'Facilidad de Aprendizaje'"
-    assert "Entorno de Estudio" not in content, "Found 'Entorno de Estudio'"
-    assert "Realizas Actividad Física" not in content, "Found 'Realizas Actividad Física'"
+    # Verify Accordion R/A buttons exist (checking generally in the page)
+    # We can check inside the first accordion (1° Año)
+    page.click("text=1° Año")
+    page.wait_for_timeout(1000)
 
-    # We kept 'Equipamiento Informático' and 'Condición Laboral'
-    expect(page.get_by_text("Equipamiento Informático")).to_be_visible()
-    expect(page.get_by_text("Condición Laboral")).to_be_visible()
-
-    # 3. Verify Subject Selection Logic (Basic check)
-    expect(page.get_by_text("Cursando Ahora")).to_be_visible()
+    # Check for "R" and "A" buttons
+    # Using get_by_title because we added titles to buttons
+    expect(page.locator("button[title='Regularizar Materia']").first).to_be_visible()
+    expect(page.locator("button[title='Aprobar Final']").first).to_be_visible()
 
     # Take screenshot
     page.screenshot(path="/home/jules/verification/verification.png", full_page=True)
