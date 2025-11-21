@@ -51,40 +51,10 @@ WHERE {
 
 # --- LÓGICA DE ARQUETIPOS ---
 
-def _obtener_info_arquetipo_de_ontologia(arquetipo_uri: str, kg: Graph) -> dict:
-    """
-    Consulta la ontología para obtener nombre, color y consejo base de un arquetipo dado su URI.
-    """
-    query = f"""
-    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-    SELECT ?nombre ?color ?consejoBase
-    WHERE {{
-        <{arquetipo_uri}> fiunju:tieneNombreArquetipo ?nombre .
-        <{arquetipo_uri}> fiunju:tieneColorIdentificativo ?color .
-        OPTIONAL {{ <{arquetipo_uri}> fiunju:tieneConsejoBase ?consejoBase . }}
-    }}
-    """
-    results = kg.query(query)
-
-    info = {
-        "nombre": "Desconocido",
-        "color": "gray",
-        "consejos": []
-    }
-
-    for row in results:
-        info["nombre"] = str(row.nombre)
-        info["color"] = str(row.color)
-        if row.consejoBase:
-            info["consejos"].append(str(row.consejoBase))
-
-    return info
-
 def determinar_arquetipo(user: User, kg: Graph) -> dict:
     """
     Determina el arquetipo del estudiante basándose en sus condiciones.
-    Devuelve un dict con nombre, color, config de cursada y consejos base,
-    enriquecido con datos de la ontología.
+    Devuelve un dict con nombre, color, config de cursada y consejos base.
     """
     # Datos User
     trabaja = user.condicion_laboral != CondicionLaboral.NO_TRABAJA
@@ -92,63 +62,92 @@ def determinar_arquetipo(user: User, kg: Graph) -> dict:
     vive_solo = user.vive_solo
     tiene_hijos = user.tiene_hijos
 
-    # 1. Identificar URI del Arquetipo (Lógica de Clasificación)
     arquetipo_uri = ""
+    nombre = ""
+    color = ""
+    consejo_base = ""
 
-    # Configuración de límites por defecto (se sobreescribe abajo)
+    # Configuración de límites por defecto
     config_limits = {"max_materias": 3, "max_dificiles": 1}
 
     # 🟥 1. El Superviviente
     if trabaja and es_interior and vive_solo and tiene_hijos:
+        nombre = "El Superviviente"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoSuperviviente"
+        color = "rojo"
+        consejo_base = "Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."
         config_limits = {"max_materias": 2, "max_dificiles": 0}
 
     # 🟧 2. El Malabarista Urbano
     elif trabaja and not es_interior and tiene_hijos:
+        nombre = "El Malabarista Urbano"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoMalabarista"
+        color = "naranja"
+        consejo_base = ""
         config_limits = {"max_materias": 2, "max_dificiles": 0}
 
     # 🟨 3. El Guerrero Solitario
     elif (not trabaja or user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO) and es_interior and vive_solo and not tiene_hijos:
+        nombre = "El Guerrero Solitario"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoGuerrero"
+        color = "amarillo"
+        consejo_base = ""
         config_limits = {"max_materias": 2, "max_dificiles": 1}
 
     # 🟩 4. El Equilibrado
     elif (not trabaja or user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO) and not es_interior and not tiene_hijos:
+        nombre = "El Equilibrado"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoEquilibrado"
+        color = "verde"
+        consejo_base = ""
         config_limits = {"max_materias": 3, "max_dificiles": 2}
 
     # 🟦 5. El Ermitaño del Interior
     elif not trabaja and es_interior and vive_solo and not tiene_hijos:
+        nombre = "El Ermitaño del Interior"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoErmitano"
+        color = "azul"
+        consejo_base = ""
         config_limits = {"max_materias": 3, "max_dificiles": 1}
 
     # 🟪 6. El Heredero del Trono
     elif not trabaja and not es_interior and not vive_solo and not tiene_hijos:
+        nombre = "El Heredero del Trono"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoHeredero"
+        color = "violeta"
+        consejo_base = ""
         config_limits = {"max_materias": 3, "max_dificiles": 3}
 
     # 🟫 7. El Padre/Madre Full-Time
     elif not trabaja and tiene_hijos and not vive_solo:
+        nombre = "El Padre/Madre Full-Time"
         arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoPadreFullTime"
+        color = "marron"
+        consejo_base = "Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."
         config_limits = {"max_materias": 3, "max_dificiles": 1}
 
     else:
         # Fallback
         if es_interior:
+             nombre = "El Guerrero Solitario"
              arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoGuerrero"
+             color = "amarillo"
+             config_limits = {"max_materias": 2, "max_dificiles": 1}
         else:
+             nombre = "El Equilibrado"
              arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoEquilibrado"
+             color = "verde"
+             config_limits = {"max_materias": 3, "max_dificiles": 2}
 
-    # 2. Consultar Ontología para enriquecer datos (Nombre, Color, Consejos Base)
-    arquetipo_data = _obtener_info_arquetipo_de_ontologia(arquetipo_uri, kg)
+    consejos = []
+    if consejo_base:
+        consejos.append(consejo_base)
 
-    # 3. Fusionar datos
     return {
         "uri": arquetipo_uri,
-        "nombre": arquetipo_data["nombre"],
-        "color": arquetipo_data["color"],
-        "consejos": arquetipo_data["consejos"],
+        "nombre": nombre,
+        "color": color,
+        "consejos": consejos,
         "max_materias": config_limits["max_materias"],
         "max_dificiles": config_limits["max_dificiles"]
     }
@@ -283,6 +282,19 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     
     # 2. Filtrado duro por arquetipo
 
+    # Calcular créditos
+    query_cred = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT (SUM(?cred) as ?t) WHERE { VALUES ?m { %s } ?m fiunju:otorgaCreditos ?cred . }""" % " ".join([f"<{u}>" for u in aprobadas_uris]) if aprobadas_uris else ""
+    creditos_acumulados = 0
+    if aprobadas_uris:
+        try:
+            for r in kg.query(query_cred): creditos_acumulados = int(r.t) if r.t else 0
+        except: pass
+
+    # Regla "Primeros Pasos": Si el alumno tiene 0 créditos aprobados (ingresante), bloquear las materias Optativas.
+    # Asumimos que las optativas son las que otorgan créditos > 0.
+    if creditos_acumulados == 0:
+         materias_habilitadas = [m for m in materias_habilitadas if m["creditos_otorgados"] == 0]
+
     # A) El Superviviente: Filtrar SIN PC y Ocultar Optativas
     if arquetipo["nombre"] == "El Superviviente":
         if user.equipamiento_informatico == EquipamientoInformatico.SIN_PC:
@@ -291,16 +303,8 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
                 if "programación" not in m["label"].lower() and "laboratorio" not in m["label"].lower() and "algoritmos" not in m["label"].lower()
             ]
 
-        # Ocultar Optativas (Identificadas por otorgar créditos > 0)
+        # Ocultar Optativas
         materias_habilitadas = [m for m in materias_habilitadas if m["creditos_otorgados"] == 0]
-
-    # Calcular créditos
-    query_cred = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT (SUM(?cred) as ?t) WHERE { VALUES ?m { %s } ?m fiunju:otorgaCreditos ?cred . }""" % " ".join([f"<{u}>" for u in aprobadas_uris]) if aprobadas_uris else ""
-    creditos_acumulados = 0
-    if aprobadas_uris:
-        try:
-            for r in kg.query(query_cred): creditos_acumulados = int(r.t) if r.t else 0
-        except: pass
 
     if not materias_habilitadas:
         return {
