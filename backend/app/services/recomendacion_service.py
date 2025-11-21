@@ -134,8 +134,7 @@ def determinar_arquetipo(user: User, kg: Graph) -> dict:
         config_limits = {"max_materias": 3, "max_dificiles": 1}
 
     else:
-        # Fallback si no encaja perfecto (ej. trabaja sin hijos, interior, con familia)
-        # Asumimos Equilibrado o Guerrero según zona por defecto
+        # Fallback
         if es_interior:
              arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoGuerrero"
         else:
@@ -156,8 +155,6 @@ def determinar_arquetipo(user: User, kg: Graph) -> dict:
 
 def _generar_consejos_condicionales(user: User, arquetipo_nombre: str) -> list[str]:
     consejos = []
-
-    # Textos exactos requeridos (Lógica compleja que se mantiene en Python)
 
     # 1. Superviviente
     if arquetipo_nombre == "El Superviviente":
@@ -277,7 +274,7 @@ def _analizar_bloqueo_pps(user: User, kg: Graph, aprobadas_uris: set, creditos_a
     return avisos
 
 def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
-    # 1. Obtener arquetipo (AHORA CONSULTA LA ONTOLOGÍA)
+    # 1. Obtener arquetipo
     arquetipo = determinar_arquetipo(user, kg)
     consejos_arquetipo = arquetipo["consejos"] + _generar_consejos_condicionales(user, arquetipo["nombre"])
 
@@ -285,11 +282,17 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     aprobadas_uris = {m.materia_uri for m in user.materias_cursadas if m.estado == "Aprobada"}
     
     # 2. Filtrado duro por arquetipo
-    if arquetipo["nombre"] == "El Superviviente" and user.equipamiento_informatico == EquipamientoInformatico.SIN_PC:
-        materias_habilitadas = [
-            m for m in materias_habilitadas
-            if "programación" not in m["label"].lower() and "laboratorio" not in m["label"].lower() and "algoritmos" not in m["label"].lower()
-        ]
+
+    # A) El Superviviente: Filtrar SIN PC y Ocultar Optativas
+    if arquetipo["nombre"] == "El Superviviente":
+        if user.equipamiento_informatico == EquipamientoInformatico.SIN_PC:
+            materias_habilitadas = [
+                m for m in materias_habilitadas
+                if "programación" not in m["label"].lower() and "laboratorio" not in m["label"].lower() and "algoritmos" not in m["label"].lower()
+            ]
+
+        # Ocultar Optativas (Identificadas por otorgar créditos > 0)
+        materias_habilitadas = [m for m in materias_habilitadas if m["creditos_otorgados"] == 0]
 
     # Calcular créditos
     query_cred = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT (SUM(?cred) as ?t) WHERE { VALUES ?m { %s } ?m fiunju:otorgaCreditos ?cred . }""" % " ".join([f"<{u}>" for u in aprobadas_uris]) if aprobadas_uris else ""
