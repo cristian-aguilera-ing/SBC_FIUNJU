@@ -1,0 +1,67 @@
+# ======== GENERAL ========
+.DS_Store
+*.log
+.env
+.env.*
+*.sqlite3
+*.pyc
+__pycache__/
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+
+# ======== PYTHON BACKEND ========
+# Virtual environments
+venv/
+.venv/
+ENV/
+env/
+
+# Python cache and build
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+build/
+dist/
+*.egg-info/
+
+# Alembic migrations cache (pero NO la carpeta migrations!)
+alembic/versions/*.pyc
+
+# RDF/OWL generated ontology files
+backend/**/*.ttl
+backend/**/*.rdf
+backend/**/*.owl
+
+# ======== NEXT.JS FRONTEND ========
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/.vercel/
+
+# Environment for frontend
+frontend/.env
+frontend/.env.*
+
+# ======== DOCKER / INFRA ========
+docker-data/
+postgres-data/
+volumes/
+*.pid
+
+# ======== OS / EDITOR ========
+*.DS_Store
+*.AppleDouble
+*.LSOverride
+
+# ======== LOGS ========
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

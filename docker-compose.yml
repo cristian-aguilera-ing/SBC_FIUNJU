@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # --- 1. Servicio de Backend (FastAPI + SBC) ---
+  backend:
+    build:
+      context: ./backend  # Busca el Dockerfile en la carpeta 'backend'
+      dockerfile: Dockerfile
+    container_name: sbc_backend
+    volumes:
+      - ./backend:/app  # Monta tu código para desarrollo en vivo
+    ports:
+      - "8000:8000"     # Expone la API de FastAPI
+    environment:
+      # Conecta con la base de datos
+      DATABASE_URL: postgresql://postgres:miPasswordSecreta@db:5432/sbc_db
+    depends_on:
+      - db              # Se asegura de que la BD inicie primero
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  # --- 2. Servicio de Frontend (Next.js) ---
+  frontend:
+    build:
+      context: ./frontend # Busca el Dockerfile en la carpeta 'frontend'
+      dockerfile: Dockerfile
+    container_name: sbc_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules   # Evita que node_modules local reemplace al del contenedor
+      - /app/.next
+    ports:
+      - "3000:3000"     # Expone el servidor de desarrollo de Next.js
+    depends_on:
+      - backend         # Inicia después del backend (opcional pero buena práctica)
+
+  # --- 3. Servicio de Base de Datos (PostgreSQL) ---
+  db:
+    image: postgres:15-alpine
+    container_name: sbc_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: miPasswordSecreta
+      POSTGRES_DB: sbc_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"     # Expone la BD a tu máquina local (para DBeaver, etc.)
+
+volumes:
+  postgres_data:  # Volumen persistente para la BD

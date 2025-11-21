@@ -1,0 +1,44 @@
+{
+	"name": "SBC FIUNJU (Full Stack)",
+
+	// Apunta a tu archivo docker-compose en la raíz
+	"dockerComposeFile": [
+		"../docker-compose.yml"
+	],
+
+	// El servicio al que VS Code se "conectará"
+	// Nos conectamos al backend para desarrollar la API y el SBC
+	"service": "backend",
+
+	// El workspace (debe coincidir con el WORKDIR de backend/Dockerfile)
+	"workspaceFolder": "/app",
+
+	// Extensiones de VS Code para instalar DENTRO del contenedor
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				// Esenciales de Python
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.debug-auto-launch",
+				// Esenciales de Docker
+				"ms-azuretools.vscode-docker",
+				// Cliente de Base de Datos
+				"cweijan.vscode-database-client",
+				// Para Frontend (útil tenerlas aunque estés en el backend)
+				"bradlc.vscode-tailwindcss",
+				"esbenp.prettier-vscode",
+				// Para tu ontología
+				"stardog-union.vscode-lang-turtle"
+			]
+		}
+	},
+
+	// Reenvía todos los puertos para que puedas acceder a ellos desde tu PC
+	"forwardPorts": [8000, 3000, 5432],
+
+	// Configura el intérprete de Python
+	"settings": { 
+		"python.defaultInterpreterPath": "/usr/local/bin/python"
+	}
+}
