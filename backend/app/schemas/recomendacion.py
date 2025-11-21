@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 from datetime import datetime
-from ..models.enums import CondicionLaboral, HorasEstudio, ColegioSecundario, MetodoEstudio
+from ..models.enums import CondicionLaboral, EquipamientoInformatico
 
 class MateriaRecomendada(BaseModel):
     uri: str
@@ -46,9 +46,8 @@ class PlanExamenRecomendado(BaseModel):
 
 class PlanCursadaSimuladoRequest(BaseModel):
     condicion_laboral: CondicionLaboral | None = None
-    horas_estudio: HorasEstudio | None = None
-    colegio_secundario: ColegioSecundario | None = None
-    metodo_estudio_preferido: MetodoEstudio | None = None
     vive_solo: bool | None = None
     tiene_hijos: bool | None = None
     es_del_interior: bool | None = None
+    equipamiento_informatico: EquipamientoInformatico | None = None
+    residencia_capital: bool | None = None

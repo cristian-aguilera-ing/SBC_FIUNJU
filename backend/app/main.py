@@ -19,6 +19,7 @@ from app.schemas import recomendacion as recomendacion_schemas
 from app.services import recomendacion_service
 from app.schemas import alertas as alertas_schemas
 from app.services import alertas_service
+from app.models.enums import CondicionLaboral
 
 
 app = FastAPI(
@@ -54,34 +55,42 @@ def read_root():
 def get_all_materias_from_ontology(current_user: User = Depends(get_current_user)):
     kg = app.state.knowledge_graph
     
-    # --- QUERY ACTUALIZADA: Ahora trae ?creditos ---
+    # --- QUERY ACTUALIZADA: Ahora trae ?creditos y ?requisito ---
     query_str = """
         PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         
-        SELECT ?materia ?label ?año ?creditos
+        SELECT ?materia ?label ?año ?creditos ?requisito
             WHERE { 
                 ?materia a fiunju:Materia ; rdfs:label ?label . 
                 OPTIONAL { ?materia fiunju:perteneceAlAño ?año . }
                 OPTIONAL { ?materia fiunju:otorgaCreditos ?creditos . }
+                OPTIONAL { ?materia fiunju:tieneRequisito ?requisito . }
             }
             ORDER BY ?año ?label"""
     
     results = kg.query(query_str)
     
-    materias = []
+    materias_dict = {}
+
     for row in results:
-        anio_val = int(row.año) if row.año else None
-        # Convertimos créditos a int, default 0
-        creditos_val = int(row.creditos) if row.creditos else 0
+        uri = str(row.materia)
+        if uri not in materias_dict:
+            anio_val = int(row.año) if row.año else None
+            creditos_val = int(row.creditos) if row.creditos else 0
+
+            materias_dict[uri] = MateriaOntology(
+                uri=uri,
+                label=str(row.label),
+                año=anio_val,
+                creditos=creditos_val,
+                requisitos=[]
+            )
         
-        materias.append(MateriaOntology(
-            uri=str(row.materia), 
-            label=str(row.label),
-            año=anio_val,
-            creditos=creditos_val # <-- Asignamos el valor
-        ))
-    return materias
+        if row.requisito:
+            materias_dict[uri].requisitos.append(str(row.requisito))
+
+    return list(materias_dict.values())
 
 class TipoConsejo(str, Enum):
     CURSADA = "cursada"
@@ -322,7 +331,7 @@ WHERE {{
     
     results = kg.query(query_str)
     
-    horas_estudio = current_user.horas_estudio
+    condicion_laboral = current_user.condicion_laboral
     
     for row in results:
         materia_label = str(row.labelMateria)
@@ -335,10 +344,10 @@ WHERE {{
             consejo = f"Consejo de 'Examen Oral' para '{materia_label}' (Dificultad: {dificultad_label}): "
             if dificultad_num == 4: # Muy Difícil
                 consejo += "Este es un final oral de dificultad MÁXIMA..."
-                if horas_estudio == "pocas":
-                    consejo += " Con pocas horas de estudio, es vital que practiques..."
+                if condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO:
+                    consejo += " Dado que trabajas a tiempo completo, es vital que practiques y organices bien tus tiempos..."
                 else:
-                    consejo += " Tienes muchas horas de estudio, ¡úsalas!"
+                    consejo += " Aunque tengas tiempo, ¡úsalas bien!"
             else:
                 consejo += "En este final oral se evalúa la claridad conceptual..."
             consejos.append(consejo)

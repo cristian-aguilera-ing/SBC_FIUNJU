@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"; 
 import { Label } from "@/components/ui/label"; 
 import { toast } from "sonner"; 
 import Link from "next/link";
@@ -24,41 +23,11 @@ enum CondicionLaboral {
   MEDIO_TIEMPO = "medio_tiempo",
   TIEMPO_COMPLETO = "tiempo_completo",
 }
-enum HorasEstudio {
-  POCAS = "pocas",
-  NORMAL = "normal",
-  MUCHAS = "muchas",
-}
-enum ColegioSecundario {
-  TECNICA_INFORMATICA = "tecnica_informatica",
-  TECNICA_OTRA = "tecnica_otra",
-  BACHILLER = "bachiller",
-}
-enum MetodoEstudio {
-  SOLO = "solo",
-  GRUPO = "grupo",
-  MIXTO = "mixto",
-}
 
-// Nuevos Enums
-enum FacilidadAprendizaje {
-  RAPIDA = "rapida",
-  NORMAL = "normal",
-  CUESTA = "cuesta",
-}
-enum ConectividadInternet {
-  ESTABLE = "estable",
-  INESTABLE = "inestable",
-  NULA = "nula",
-}
 enum EquipamientoInformatico {
   PC_PROPIA = "pc_propia",
   PC_COMPARTIDA = "pc_compartida",
   SIN_PC = "sin_pc",
-}
-enum EntornoEstudio {
-  SILENCIOSO = "silencioso",
-  RUIDOSO = "ruidoso",
 }
 
 interface MateriaOntology { 
@@ -66,6 +35,7 @@ interface MateriaOntology {
     label: string; 
     año: number | null; 
     creditos: number;
+    requisitos: string[];
 }
 interface UserMateria { 
   id: number; 
@@ -79,19 +49,12 @@ interface MateriaPerfil extends UserMateria { label: string; }
 interface UserPerfil {
   full_name: string | null;
   condicion_laboral: CondicionLaboral | null;
-  horas_estudio: HorasEstudio | null;
-  colegio_secundario: ColegioSecundario | null;
-  metodo_estudio_preferido: MetodoEstudio | null;
   vive_solo: boolean | null;
   tiene_hijos: boolean | null;
   es_del_interior: boolean | null;
 
   // Nuevos Campos
-  facilidad_aprendizaje: FacilidadAprendizaje | null;
-  conectividad_internet: ConectividadInternet | null;
   equipamiento_informatico: EquipamientoInformatico | null;
-  entorno_estudio: EntornoEstudio | null;
-  realiza_actividad_fisica: boolean | null;
   residencia_capital: boolean | null; // Usado para UI, inversamente mapeado a es_del_interior
 }
 // --- Fin Tipos ---
@@ -111,18 +74,11 @@ export default function PerfilPage() {
   const [perfilData, setPerfilData] = useState<UserPerfil>({
     full_name: "",
     condicion_laboral: CondicionLaboral.NO_TRABAJA,
-    horas_estudio: HorasEstudio.NORMAL,
-    colegio_secundario: ColegioSecundario.BACHILLER,
-    metodo_estudio_preferido: MetodoEstudio.SOLO,
     vive_solo: false,
     tiene_hijos: false,
     es_del_interior: false,
 
-    facilidad_aprendizaje: FacilidadAprendizaje.NORMAL,
-    conectividad_internet: ConectividadInternet.ESTABLE,
     equipamiento_informatico: EquipamientoInformatico.PC_PROPIA,
-    entorno_estudio: EntornoEstudio.SILENCIOSO,
-    realiza_actividad_fisica: true,
     residencia_capital: true,
   });
 
@@ -151,18 +107,11 @@ export default function PerfilPage() {
       setPerfilData({
         full_name: userResponse.data.full_name || "",
         condicion_laboral: userResponse.data.condicion_laboral || CondicionLaboral.NO_TRABAJA,
-        horas_estudio: userResponse.data.horas_estudio || HorasEstudio.NORMAL,
-        colegio_secundario: userResponse.data.colegio_secundario || ColegioSecundario.BACHILLER,
-        metodo_estudio_preferido: userResponse.data.metodo_estudio_preferido || MetodoEstudio.SOLO,
         vive_solo: userResponse.data.vive_solo || false,
         tiene_hijos: userResponse.data.tiene_hijos || false,
         es_del_interior: esInterior,
 
-        facilidad_aprendizaje: userResponse.data.facilidad_aprendizaje || FacilidadAprendizaje.NORMAL,
-        conectividad_internet: userResponse.data.conectividad_internet || ConectividadInternet.ESTABLE,
         equipamiento_informatico: userResponse.data.equipamiento_informatico || EquipamientoInformatico.PC_PROPIA,
-        entorno_estudio: userResponse.data.entorno_estudio || EntornoEstudio.SILENCIOSO,
-        realiza_actividad_fisica: userResponse.data.realiza_actividad_fisica ?? true,
         residencia_capital: !esInterior,
       });
       
@@ -324,9 +273,22 @@ export default function PerfilPage() {
   const sortedYears = Object.keys(materiasPorAnio).map(Number).sort((a, b) => a - b);
   const materiasCursando = userMaterias.filter(m => m.estado === "Cursando");
   const materiasRegulares = userMaterias.filter(m => m.estado === "Regular");
-  const materiasDisponibles = allMaterias.filter(
-    om => !userMaterias.some(um => um.materia_uri === om.uri)
-  );
+
+  // Lógica de filtrado para materias disponibles (Cursando Ahora)
+  const aprobadasURIs = userMaterias.filter(um => um.estado === "Aprobada").map(um => um.materia_uri);
+  const materiasDisponibles = allMaterias.filter(om => {
+    // 1. No cursada ni aprobada ni regular
+    const yaInscripto = userMaterias.some(um => um.materia_uri === om.uri);
+    if (yaInscripto) return false;
+
+    // 2. Verificar correlativas
+    if (om.requisitos && om.requisitos.length > 0) {
+        const tieneCorrelativas = om.requisitos.every(req => aprobadasURIs.includes(req));
+        if (!tieneCorrelativas) return false;
+    }
+
+    return true;
+  });
 
   const CREDITOS_NECESARIOS = 270;
   const creditosActuales = userMaterias
@@ -534,87 +496,7 @@ export default function PerfilPage() {
                         </SelectContent>
                     </Select>
                 </div>
-
-                <div>
-                    <Label className="text-gray-300 mb-2 block">Conectividad Internet</Label>
-                    <Select value={perfilData.conectividad_internet || undefined} onValueChange={(v) => handlePerfilChange("conectividad_internet", v)}>
-                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                            <SelectItem value={ConectividadInternet.ESTABLE}>Estable</SelectItem>
-                            <SelectItem value={ConectividadInternet.INESTABLE}>Inestable</SelectItem>
-                            <SelectItem value={ConectividadInternet.NULA}>Nula/Datos Móviles</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                 <div>
-                    <Label className="text-gray-300 mb-2 block">Facilidad de Aprendizaje</Label>
-                    <Select value={perfilData.facilidad_aprendizaje || undefined} onValueChange={(v) => handlePerfilChange("facilidad_aprendizaje", v)}>
-                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                            <SelectItem value={FacilidadAprendizaje.RAPIDA}>Rápida (Autodidacta)</SelectItem>
-                            <SelectItem value={FacilidadAprendizaje.NORMAL}>Normal</SelectItem>
-                            <SelectItem value={FacilidadAprendizaje.CUESTA}>Me cuesta un poco</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                 <div>
-                    <Label className="text-gray-300 mb-2 block">Entorno de Estudio</Label>
-                     <RadioGroup value={perfilData.entorno_estudio || undefined} onValueChange={(v) => handlePerfilChange("entorno_estudio", v)} className="flex gap-4">
-                        <div className="flex items-center space-x-2">
-                            <RadioGroupItem value={EntornoEstudio.SILENCIOSO} id="es1" />
-                            <Label htmlFor="es1">Silencioso</Label>
-                        </div>
-                         <div className="flex items-center space-x-2">
-                            <RadioGroupItem value={EntornoEstudio.RUIDOSO} id="es2" />
-                            <Label htmlFor="es2">Ruidoso</Label>
-                        </div>
-                    </RadioGroup>
-                </div>
-
-                <div className="flex items-center justify-between pt-2">
-                        <Label className="text-gray-200 font-medium">¿Realizas Actividad Física?</Label>
-                        <Switch checked={perfilData.realiza_actividad_fisica || false} onCheckedChange={(c) => handlePerfilChange("realiza_actividad_fisica", c)} />
-                </div>
-
              </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-600">
-              <div>
-                <Label className="text-gray-300 mb-2 block">Horas de Estudio</Label>
-                 <Select value={perfilData.horas_estudio || undefined} onValueChange={(v) => handlePerfilChange("horas_estudio", v)}>
-                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                            <SelectItem value={HorasEstudio.POCAS}>Pocas (-10hs)</SelectItem>
-                            <SelectItem value={HorasEstudio.NORMAL}>Normal (10-20hs)</SelectItem>
-                            <SelectItem value={HorasEstudio.MUCHAS}>Muchas (+20hs)</SelectItem>
-                        </SelectContent>
-                 </Select>
-              </div>
-              <div>
-                <Label className="text-gray-300 mb-2 block">Método Preferido</Label>
-                 <Select value={perfilData.metodo_estudio_preferido || undefined} onValueChange={(v) => handlePerfilChange("metodo_estudio_preferido", v)}>
-                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                            <SelectItem value={MetodoEstudio.SOLO}>Solo</SelectItem>
-                            <SelectItem value={MetodoEstudio.GRUPO}>Grupo</SelectItem>
-                            <SelectItem value={MetodoEstudio.MIXTO}>Mixto</SelectItem>
-                        </SelectContent>
-                 </Select>
-              </div>
-               <div>
-                <Label className="text-gray-300 mb-2 block">Colegio Secundario</Label>
-                 <Select value={perfilData.colegio_secundario || undefined} onValueChange={(v) => handlePerfilChange("colegio_secundario", v)}>
-                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-700">
-                            <SelectItem value={ColegioSecundario.BACHILLER}>Bachiller</SelectItem>
-                            <SelectItem value={ColegioSecundario.TECNICA_INFORMATICA}>Téc. Informática</SelectItem>
-                            <SelectItem value={ColegioSecundario.TECNICA_OTRA}>Téc. Otra</SelectItem>
-                        </SelectContent>
-                 </Select>
-              </div>
           </div>
 
           <Button type="submit" className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 mt-4 font-bold py-6 text-lg shadow-lg">

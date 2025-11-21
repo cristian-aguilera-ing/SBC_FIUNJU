@@ -2,7 +2,7 @@
 
 from rdflib import Graph
 from app.models.user import User
-from app.models.enums import CondicionLaboral, HorasEstudio
+from app.models.enums import CondicionLaboral
 
 def evaluar_plan_cursada_actual(user: User, kg: Graph) -> list[str]:
     consejos = []
@@ -63,10 +63,12 @@ def evaluar_plan_examen_actual(user: User, kg: Graph) -> list[str]:
     
     cant = len(materias_rendir)
     
-    if user.horas_estudio == HorasEstudio.POCAS and cant > 2:
-        consejos.append(f"Tienes {cant} finales pendientes y declaraste estudiar 'Pocas' horas. Sé realista: elige 1 (el más prioritario) y asegura ese.")
-    elif user.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and cant > 1:
+    if user.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and cant > 1:
         consejos.append("Trabajando 8hs, rendir más de un final por turno es titánico. Prioriza por vencimiento o correlatividad.")
+    elif user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO and cant > 2:
+        consejos.append("Rendir más de 2 finales trabajando medio tiempo es ambicioso. Prioriza.")
+    elif cant > 3:
+         consejos.append(f"Tienes {cant} finales pendientes. No intentes rendir todos. Enfócate en 2 o 3 máximo.")
     else:
         consejos.append(f"Tienes {cant} finales en carpeta. Revisa la estrategia recomendada arriba para ver cuál atacar primero.")
         

@@ -215,19 +215,6 @@ g.add((fiunju.FP_LugarResidencia, RDF.type, fiunju.FactorPersonal))
 g.add((fiunju.FP_LugarResidencia, RDFS.label, Literal("Lugar de Residencia (Interior vs. Capital)", lang="es")))
 g.add((fiunju.FP_LugarResidencia, fiunju.tienePrioridad, Literal(4))) # El experto mencionó el tiempo de viaje como menos importante
 
-# --- 3.x. Individuos: Factores Académicos ---
-g.add((fiunju.FA_HabitoEstudio, RDF.type, fiunju.FactorAcademico))
-g.add((fiunju.FA_HabitoEstudio, RDFS.label, Literal("Hábito de Estudio (constante vs. último momento)", lang="es")))
-g.add((fiunju.FA_HabitoEstudio, fiunju.tienePrioridad, Literal(1))) # Prioridad 1 (la más alta)
-
-g.add((fiunju.FA_MetodoEstudio, RDF.type, fiunju.FactorAcademico))
-g.add((fiunju.FA_MetodoEstudio, RDFS.label, Literal("Método de Estudio (solo vs. grupo, leer vs. escuchar)", lang="es")))
-g.add((fiunju.FA_MetodoEstudio, fiunju.tienePrioridad, Literal(2)))
-
-g.add((fiunju.FA_ColegioSecundario, RDF.type, fiunju.FactorAcademico))
-g.add((fiunju.FA_ColegioSecundario, RDFS.label, Literal("Colegio Secundario (Técnica vs. Bachiller)", lang="es")))
-g.add((fiunju.FA_ColegioSecundario, fiunju.tienePrioridad, Literal(3)))
-
 # --- Sistemas Operativos I ---
 g.add((fiunju.SistOpI, RDF.type, fiunju.Obligatoria)) 
 g.add((fiunju.SistOpI, RDF.type, fiunju.MateriaDeAltoEsfuerzo)) # Se pueden tener MÚLTIPLES tipos

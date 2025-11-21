@@ -4,8 +4,8 @@ from rdflib import Graph
 import copy 
 from app.models.user import User
 from app.models.enums import (
-    CondicionLaboral, MetodoEstudio, HorasEstudio,
-    FacilidadAprendizaje, ConectividadInternet, EquipamientoInformatico, EntornoEstudio
+    CondicionLaboral,
+    EquipamientoInformatico,
 )
 from app.services import scoring_service, evaluacion_service
 from app.core.reglas_negocio import REGLAS_CURSADA
@@ -159,54 +159,27 @@ def _generar_consejos_condicionales(user: User, arquetipo_nombre: str) -> list[s
     if arquetipo_nombre == "El Superviviente":
         if user.equipamiento_informatico == EquipamientoInformatico.SIN_PC:
             consejos.append("Tu ubicación y falta de equipo hacen imposible las materias técnicas hoy. Prioriza teóricas hasta conseguir una Netbook.")
-        if user.conectividad_internet == ConectividadInternet.INESTABLE:
-            consejos.append("Bloquear asistencia virtual.")
-
-    # 2. Malabarista Urbano
-    if arquetipo_nombre == "El Malabarista Urbano":
-        if user.entorno_estudio == EntornoEstudio.RUIDOSO:
-            consejos.append("Tienes apoyo doméstico, pero los hijos generan ruido. Si estudias en casa, usa auriculares con cancelación de ruido o negocia 'horas sagradas' con tu familia.")
-        if not user.realiza_actividad_fisica:
-            consejos.append("Tu estrés es acumulativo. No dejes el gimnasio/deporte, o rendirás mal los finales.")
 
     # 3. Guerrero Solitario
     if arquetipo_nombre == "El Guerrero Solitario":
-        if user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA and user.conectividad_internet == ConectividadInternet.ESTABLE:
+        if user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA:
             consejos.append("Vives lejos (Interior). Convierte tu viaje en tiempo de estudio. Descarga las clases (legalmente) o audiolibros para el trayecto. Tu PC es tu salvación para no depender de la sede física.")
         if user.vive_solo:
             consejos.append("Al administrar tu hogar y trabajar, cocina los domingos para toda la semana (Meal Prep). Ganarás 5 horas semanales de estudio.")
 
     # 4. Equilibrado
     if arquetipo_nombre == "El Equilibrado":
-        if user.facilidad_aprendizaje == FacilidadAprendizaje.CUESTA:
-            consejos.append("Tienes el tiempo, pero tu ritmo cognitivo es pausado. Elimina la materia 'Normal' y enfócate en asegurar las dos Difíciles con nota alta.")
-        if user.metodo_estudio_preferido == MetodoEstudio.GRUPO:
-            consejos.append("Tu disponibilidad horaria es excelente para coordinar grupos. Lidera un grupo de estudio; explicar a otros reforzará tu conocimiento.")
         if user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA:
             consejos.append("Considera usar la nube (Drive/GitHub) para todo, así puedes repasar en la facultad en huecos libres.")
 
-    # 5. Ermitaño
-    if arquetipo_nombre == "El Ermitaño del Interior":
-        if user.conectividad_internet == ConectividadInternet.INESTABLE:
-            consejos.append("Tu talón de Aquiles es el internet. Descarga todo el material apenas se publique. No dependas del streaming para estudiar.")
-        if not user.realiza_actividad_fisica:
-            consejos.append("Estás en riesgo de aislamiento (Burnout social). Obligatorio cursar presencial al menos 2 veces por semana para ver gente y mantener salud mental.")
-        if user.facilidad_aprendizaje == FacilidadAprendizaje.RAPIDA:
-            consejos.append("Puedes cursar materias libres para evitar el viaje diario desde el interior.")
-
     # 6. Heredero
     if arquetipo_nombre == "El Heredero del Trono":
-        if user.facilidad_aprendizaje == FacilidadAprendizaje.RAPIDA and user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA:
+        if user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA:
             consejos.append("Estás en condiciones de adelantar carrera. Intenta rendir materias libres o cursar de oyente materias del siguiente año.")
-        if not user.realiza_actividad_fisica and user.entorno_estudio == EntornoEstudio.RUIDOSO:
-            consejos.append("Tienes tanto tiempo que puedes procrastinar fácilmente. Tu enemigo no es la dificultad, es la disciplina. Usa una agenda estricta como si fuera un trabajo de 9 a 18hs.")
-        if user.conectividad_internet == ConectividadInternet.ESTABLE:
             consejos.append("Aprovecha para hacer cursos complementarios (Inglés, AWS, Docker) en paralelo a la facultad.")
 
     # 7. Padre/Madre Full-Time
     if arquetipo_nombre == "El Padre/Madre Full-Time":
-        if user.entorno_estudio == EntornoEstudio.RUIDOSO:
-            consejos.append("Aunque no trabajes, tu casa es tu oficina y guardería. Ve a la biblioteca de la facultad 4 horas diarias fijas. Separa el rol de 'Padre' del de 'Estudiante' físicamente.")
         if user.equipamiento_informatico == EquipamientoInformatico.PC_COMPARTIDA:
             consejos.append("Si la PC la usa la familia, necesitas tu propio usuario o partición. No arriesgues tus TPs.")
 
@@ -325,8 +298,6 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     max_materias = arquetipo["max_materias"]
     max_dificiles = arquetipo["max_dificiles"]
     
-    if arquetipo["nombre"] == "El Equilibrado" and user.facilidad_aprendizaje == FacilidadAprendizaje.CUESTA:
-        max_materias = 2
 
     if arquetipo["nombre"] == "El Superviviente":
         seleccionadas = []
@@ -456,9 +427,9 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
         else:
             if es_dificil: tip_estudio = "Tienes todo el tiempo disponible: No hay excusas. Profundiza en la bibliografía, no solo en apuntes. "
             else: tip_estudio = "Deberías poder liquidar este final en 1 o 2 semanas de estudio intensivo. "
-        if user.horas_estudio == HorasEstudio.POCAS and es_dificil and not tip_estudio: tip_estudio += "Tienes pocas horas y es difícil: Enfócate 100% en resolver exámenes de años anteriores (pareto). "
-        if user.metodo_estudio_preferido == MetodoEstudio.SOLO and es_oral: tip_estudio += "Estudias solo: Ojo con el oral. Grábate explicando los temas para detectar fallos."
-        elif user.metodo_estudio_preferido == MetodoEstudio.GRUPO and es_escrito: tip_estudio += "Te gusta el grupo: Sirve para teoría, pero para este escrito necesitas sentarte solo a resolver problemas."
+
+        if user.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and es_dificil and not tip_estudio: tip_estudio += "Tienes poco tiempo y es difícil: Enfócate 100% en resolver exámenes de años anteriores (pareto). "
+
         if not esta_habilitada: consejo = "⛔ Aún no puedes rendir. Primero debes aprobar las correlativas o sumar créditos."
         else: consejo = f"{prioridad_msg} \n💡 {tip_estudio}"
         plan_recomendado.append({ "uri": materia.materia_uri, "label": datos["label"], "fecha_regularidad": materia.fecha_regularidad, "dias_restantes": dias_restantes, "dificultad_examen_label": datos["max_dif_label"], "dificultad_examen_valor": datos["max_dif_valor"], "modalidades": list(datos["modalidades"]), "esta_habilitada": esta_habilitada, "motivo_bloqueo": motivo_bloqueo, "correlativas_pendientes": correlativas_pendientes, "consejo_personalizado": consejo, "_impacto": impacto_futuro })

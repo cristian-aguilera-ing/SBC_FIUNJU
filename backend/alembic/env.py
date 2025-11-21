@@ -6,7 +6,7 @@ from alembic import context
 from app.core.database import Base 
 from app.models.user import User 
 from app.models.perfil import UserMateria
-from app.models.enums import CondicionLaboral, HorasEstudio 
+from app.models.enums import CondicionLaboral
 
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
