@@ -1,12 +1,12 @@
 import type { Config } from "tailwindcss"
 
 const config = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
-    './src/**/*.{ts,tsx}', // Importante para que lea tus páginas
+    './src/**/*.{ts,tsx}',
   ],
   prefix: "",
   theme: {
@@ -18,7 +18,6 @@ const config = {
       },
     },
     extend: {
-      // Shadcn añade sus keyframes y colores aquí
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -35,7 +34,6 @@ const config = {
       },
     },
   },
-  // ¡Esta es la línea clave que arregla el error!
   plugins: [require("tailwindcss-animate")],
 } satisfies Config
 
