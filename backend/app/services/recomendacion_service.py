@@ -3,14 +3,16 @@
 from rdflib import Graph
 import copy 
 from app.models.user import User
-from app.models.enums import CondicionLaboral, MetodoEstudio, HorasEstudio
+from app.models.enums import (
+    CondicionLaboral, MetodoEstudio, HorasEstudio,
+    FacilidadAprendizaje, ConectividadInternet, EquipamientoInformatico, EntornoEstudio
+)
 from app.services import scoring_service, evaluacion_service
 from app.core.reglas_negocio import REGLAS_CURSADA
-from app.schemas.recomendacion import PlanCursadaSimuladoRequest
 from datetime import datetime, timedelta, timezone 
 from collections import defaultdict
 
-# --- CONSULTAS SPARQL (SIN INDENTACIÓN INICIAL PARA EVITAR ERRORES) ---
+# --- CONSULTAS SPARQL ---
 
 SPARQL_QUERY_MATERIAS_BASICO = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -41,113 +43,254 @@ WHERE {
     ?materia fiunju:tieneRequisito ?req .
 }"""
 
-# Impacto Transitivo (Desbloqueos futuros)
 SPARQL_QUERY_IMPACTO_FUTURO = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
 SELECT ?materia_actual (COUNT(DISTINCT ?materia_futura) as ?impacto)
 WHERE {
     ?materia_actual fiunju:esRequisitoPara+ ?materia_futura .
 } GROUP BY ?materia_actual"""
 
+# --- LÓGICA DE ARQUETIPOS ---
+
+def _obtener_info_arquetipo_de_ontologia(arquetipo_uri: str, kg: Graph) -> dict:
+    """
+    Consulta la ontología para obtener nombre, color y consejo base de un arquetipo dado su URI.
+    """
+    query = f"""
+    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+    SELECT ?nombre ?color ?consejoBase
+    WHERE {{
+        <{arquetipo_uri}> fiunju:tieneNombreArquetipo ?nombre .
+        <{arquetipo_uri}> fiunju:tieneColorIdentificativo ?color .
+        OPTIONAL {{ <{arquetipo_uri}> fiunju:tieneConsejoBase ?consejoBase . }}
+    }}
+    """
+    results = kg.query(query)
+
+    info = {
+        "nombre": "Desconocido",
+        "color": "gray",
+        "consejos": []
+    }
+
+    for row in results:
+        info["nombre"] = str(row.nombre)
+        info["color"] = str(row.color)
+        if row.consejoBase:
+            info["consejos"].append(str(row.consejoBase))
+
+    return info
+
+def determinar_arquetipo(user: User, kg: Graph) -> dict:
+    """
+    Determina el arquetipo del estudiante basándose en sus condiciones.
+    Devuelve un dict con nombre, color, config de cursada y consejos base,
+    enriquecido con datos de la ontología.
+    """
+    # Datos User
+    trabaja = user.condicion_laboral != CondicionLaboral.NO_TRABAJA
+    es_interior = user.es_del_interior
+    vive_solo = user.vive_solo
+    tiene_hijos = user.tiene_hijos
+
+    # 1. Identificar URI del Arquetipo (Lógica de Clasificación)
+    arquetipo_uri = ""
+
+    # Configuración de límites por defecto (se sobreescribe abajo)
+    config_limits = {"max_materias": 3, "max_dificiles": 1}
+
+    # 🟥 1. El Superviviente
+    if trabaja and es_interior and vive_solo and tiene_hijos:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoSuperviviente"
+        config_limits = {"max_materias": 2, "max_dificiles": 0}
+
+    # 🟧 2. El Malabarista Urbano
+    elif trabaja and not es_interior and tiene_hijos:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoMalabarista"
+        config_limits = {"max_materias": 2, "max_dificiles": 0}
+
+    # 🟨 3. El Guerrero Solitario
+    elif (not trabaja or user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO) and es_interior and vive_solo and not tiene_hijos:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoGuerrero"
+        config_limits = {"max_materias": 2, "max_dificiles": 1}
+
+    # 🟩 4. El Equilibrado
+    elif (not trabaja or user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO) and not es_interior and not tiene_hijos:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoEquilibrado"
+        config_limits = {"max_materias": 3, "max_dificiles": 2}
+
+    # 🟦 5. El Ermitaño del Interior
+    elif not trabaja and es_interior and vive_solo and not tiene_hijos:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoErmitano"
+        config_limits = {"max_materias": 3, "max_dificiles": 1}
+
+    # 🟪 6. El Heredero del Trono
+    elif not trabaja and not es_interior and not vive_solo and not tiene_hijos:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoHeredero"
+        config_limits = {"max_materias": 3, "max_dificiles": 3}
+
+    # 🟫 7. El Padre/Madre Full-Time
+    elif not trabaja and tiene_hijos and not vive_solo:
+        arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoPadreFullTime"
+        config_limits = {"max_materias": 3, "max_dificiles": 1}
+
+    else:
+        # Fallback si no encaja perfecto (ej. trabaja sin hijos, interior, con familia)
+        # Asumimos Equilibrado o Guerrero según zona por defecto
+        if es_interior:
+             arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoGuerrero"
+        else:
+             arquetipo_uri = "http://fi.unju.edu.ar/ontologia/informatica#ArquetipoEquilibrado"
+
+    # 2. Consultar Ontología para enriquecer datos (Nombre, Color, Consejos Base)
+    arquetipo_data = _obtener_info_arquetipo_de_ontologia(arquetipo_uri, kg)
+
+    # 3. Fusionar datos
+    return {
+        "uri": arquetipo_uri,
+        "nombre": arquetipo_data["nombre"],
+        "color": arquetipo_data["color"],
+        "consejos": arquetipo_data["consejos"],
+        "max_materias": config_limits["max_materias"],
+        "max_dificiles": config_limits["max_dificiles"]
+    }
+
+def _generar_consejos_condicionales(user: User, arquetipo_nombre: str) -> list[str]:
+    consejos = []
+
+    # Textos exactos requeridos (Lógica compleja que se mantiene en Python)
+
+    # 1. Superviviente
+    if arquetipo_nombre == "El Superviviente":
+        if user.equipamiento_informatico == EquipamientoInformatico.SIN_PC:
+            consejos.append("Tu ubicación y falta de equipo hacen imposible las materias técnicas hoy. Prioriza teóricas hasta conseguir una Netbook.")
+        if user.conectividad_internet == ConectividadInternet.INESTABLE:
+            consejos.append("Bloquear asistencia virtual.")
+
+    # 2. Malabarista Urbano
+    if arquetipo_nombre == "El Malabarista Urbano":
+        if user.entorno_estudio == EntornoEstudio.RUIDOSO:
+            consejos.append("Tienes apoyo doméstico, pero los hijos generan ruido. Si estudias en casa, usa auriculares con cancelación de ruido o negocia 'horas sagradas' con tu familia.")
+        if not user.realiza_actividad_fisica:
+            consejos.append("Tu estrés es acumulativo. No dejes el gimnasio/deporte, o rendirás mal los finales.")
+
+    # 3. Guerrero Solitario
+    if arquetipo_nombre == "El Guerrero Solitario":
+        if user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA and user.conectividad_internet == ConectividadInternet.ESTABLE:
+            consejos.append("Vives lejos (Interior). Convierte tu viaje en tiempo de estudio. Descarga las clases (legalmente) o audiolibros para el trayecto. Tu PC es tu salvación para no depender de la sede física.")
+        if user.vive_solo:
+            consejos.append("Al administrar tu hogar y trabajar, cocina los domingos para toda la semana (Meal Prep). Ganarás 5 horas semanales de estudio.")
+
+    # 4. Equilibrado
+    if arquetipo_nombre == "El Equilibrado":
+        if user.facilidad_aprendizaje == FacilidadAprendizaje.CUESTA:
+            consejos.append("Tienes el tiempo, pero tu ritmo cognitivo es pausado. Elimina la materia 'Normal' y enfócate en asegurar las dos Difíciles con nota alta.")
+        if user.metodo_estudio_preferido == MetodoEstudio.GRUPO:
+            consejos.append("Tu disponibilidad horaria es excelente para coordinar grupos. Lidera un grupo de estudio; explicar a otros reforzará tu conocimiento.")
+        if user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA:
+            consejos.append("Considera usar la nube (Drive/GitHub) para todo, así puedes repasar en la facultad en huecos libres.")
+
+    # 5. Ermitaño
+    if arquetipo_nombre == "El Ermitaño del Interior":
+        if user.conectividad_internet == ConectividadInternet.INESTABLE:
+            consejos.append("Tu talón de Aquiles es el internet. Descarga todo el material apenas se publique. No dependas del streaming para estudiar.")
+        if not user.realiza_actividad_fisica:
+            consejos.append("Estás en riesgo de aislamiento (Burnout social). Obligatorio cursar presencial al menos 2 veces por semana para ver gente y mantener salud mental.")
+        if user.facilidad_aprendizaje == FacilidadAprendizaje.RAPIDA:
+            consejos.append("Puedes cursar materias libres para evitar el viaje diario desde el interior.")
+
+    # 6. Heredero
+    if arquetipo_nombre == "El Heredero del Trono":
+        if user.facilidad_aprendizaje == FacilidadAprendizaje.RAPIDA and user.equipamiento_informatico == EquipamientoInformatico.PC_PROPIA:
+            consejos.append("Estás en condiciones de adelantar carrera. Intenta rendir materias libres o cursar de oyente materias del siguiente año.")
+        if not user.realiza_actividad_fisica and user.entorno_estudio == EntornoEstudio.RUIDOSO:
+            consejos.append("Tienes tanto tiempo que puedes procrastinar fácilmente. Tu enemigo no es la dificultad, es la disciplina. Usa una agenda estricta como si fuera un trabajo de 9 a 18hs.")
+        if user.conectividad_internet == ConectividadInternet.ESTABLE:
+            consejos.append("Aprovecha para hacer cursos complementarios (Inglés, AWS, Docker) en paralelo a la facultad.")
+
+    # 7. Padre/Madre Full-Time
+    if arquetipo_nombre == "El Padre/Madre Full-Time":
+        if user.entorno_estudio == EntornoEstudio.RUIDOSO:
+            consejos.append("Aunque no trabajes, tu casa es tu oficina y guardería. Ve a la biblioteca de la facultad 4 horas diarias fijas. Separa el rol de 'Padre' del de 'Estudiante' físicamente.")
+        if user.equipamiento_informatico == EquipamientoInformatico.PC_COMPARTIDA:
+            consejos.append("Si la PC la usa la familia, necesitas tu propio usuario o partición. No arriesgues tus TPs.")
+
+    return consejos
+
+# --- FUNCIONES PRINCIPALES ---
 
 def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
-    """
-    Busca materias habilitadas validando estado, correlativas, créditos y 4to año.
-    """
+    # Mismo código
     materias_actuales_uris = {m.materia_uri for m in user.materias_cursadas}
     aprobadas_uris = {m.materia_uri for m in user.materias_cursadas if m.estado == "Aprobada"}
-
-    # Ejecutar consultas
     results_basico = kg.query(SPARQL_QUERY_MATERIAS_BASICO)
     results_requisitos = kg.query(SPARQL_QUERY_REQUISITOS)
     results_impacto = kg.query(SPARQL_QUERY_IMPACTO_FUTURO)
-
-    # Procesar mapas
     requisitos_map = defaultdict(set)
-    for row in results_requisitos:
-        requisitos_map[str(row.materia)].add(str(row.req))
-
+    for row in results_requisitos: requisitos_map[str(row.materia)].add(str(row.req))
     impacto_map = defaultdict(int)
-    for row in results_impacto:
-        impacto_map[str(row.materia_actual)] = int(row.impacto)
-
-    # Calcular créditos y estado de 4to año
+    for row in results_impacto: impacto_map[str(row.materia_actual)] = int(row.impacto)
     creditos_acumulados = 0
     materias_obligatorias_1_a_4 = set()
     datos_materias = {} 
-
     for row in results_basico:
         uri = str(row.materia)
         anio = int(row.año)
         creditos = int(row.creditos_otorgados)
-        
         datos_materias[uri] = {
-            "label": str(row.label),
-            "año": anio,
-            "dificultad": int(row.dificultad),
-            "cred_otorgados": creditos,
-            "cred_req": int(row.creditos_requeridos),
+            "label": str(row.label), "año": anio, "dificultad": int(row.dificultad),
+            "cred_otorgados": creditos, "cred_req": int(row.creditos_requeridos),
             "req_4to": bool(row.requiere_4to)
         }
-        
-        if uri in aprobadas_uris:
-            creditos_acumulados += creditos
-        if 0 < anio <= 4:
-            materias_obligatorias_1_a_4.add(uri)
-
+        if uri in aprobadas_uris: creditos_acumulados += creditos
+        if 0 < anio <= 4: materias_obligatorias_1_a_4.add(uri)
     tiene_4to_completo = materias_obligatorias_1_a_4.issubset(aprobadas_uris)
-
-    # Filtrar
     materias_habilitadas = []
     for uri, datos in datos_materias.items():
         if uri in materias_actuales_uris: continue
-        
         reqs = requisitos_map.get(uri, set())
         if reqs and not reqs.issubset(aprobadas_uris): continue 
-        
         if datos["cred_req"] > 0 and creditos_acumulados < datos["cred_req"]: continue
         if datos["req_4to"] and not tiene_4to_completo: continue
-
         materias_habilitadas.append({
-            "uri": uri,
-            "label": datos["label"],
-            "año": datos["año"],
-            "dificultad": datos["dificultad"],
-            "creditos_otorgados": datos["cred_otorgados"],
-            "desbloquea_count": impacto_map.get(uri, 0)
+            "uri": uri, "label": datos["label"], "año": datos["año"], "dificultad": datos["dificultad"],
+            "creditos_otorgados": datos["cred_otorgados"], "desbloquea_count": impacto_map.get(uri, 0)
         })
-        
     return materias_habilitadas
 
-
 def _analizar_bloqueo_pps(user: User, kg: Graph, aprobadas_uris: set, creditos_acumulados: int) -> list[str]:
+    # Mismo código
     avisos = []
     pps_uri = "http://fi.unju.edu.ar/ontologia/informatica#PPS"
     if any(m.materia_uri == pps_uri for m in user.materias_cursadas): return []
-
-    query_avance = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-    SELECT ?materia WHERE { ?materia fiunju:perteneceAlAño ?anio . FILTER(?anio >= 4) }"""
+    query_avance = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT ?materia WHERE { ?materia fiunju:perteneceAlAño ?anio . FILTER(?anio >= 4) }"""
     results = kg.query(query_avance)
     materias_avanzadas = {str(r.materia) for r in results}
-    
     if not aprobadas_uris.isdisjoint(materias_avanzadas):
         if creditos_acumulados < 270:
             faltan = 270 - creditos_acumulados
             avisos.append(f"⚠️ PARA LA PPS: Te faltan {faltan} créditos en optativas (Tienes {creditos_acumulados}/270).")
-        
-        query_1_a_4 = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-        SELECT ?materia WHERE { ?materia a fiunju:Materia ; a fiunju:Obligatoria ; fiunju:perteneceAlAño ?anio . FILTER(?anio <= 4) }"""
+        query_1_a_4 = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT ?materia WHERE { ?materia a fiunju:Materia ; a fiunju:Obligatoria ; fiunju:perteneceAlAño ?anio . FILTER(?anio <= 4) }"""
         res_4to = kg.query(query_1_a_4)
         obligatorias_req = {str(r.materia) for r in res_4to}
-        
         if not obligatorias_req.issubset(aprobadas_uris):
             avisos.append("⚠️ PARA LA PPS: Necesitas tener aprobado TODO hasta 4to año inclusive.")
     return avisos
 
-
 def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
+    # 1. Obtener arquetipo (AHORA CONSULTA LA ONTOLOGÍA)
+    arquetipo = determinar_arquetipo(user, kg)
+    consejos_arquetipo = arquetipo["consejos"] + _generar_consejos_condicionales(user, arquetipo["nombre"])
+
     materias_habilitadas = _get_materias_habilitadas(user, kg)
     aprobadas_uris = {m.materia_uri for m in user.materias_cursadas if m.estado == "Aprobada"}
     
+    # 2. Filtrado duro por arquetipo
+    if arquetipo["nombre"] == "El Superviviente" and user.equipamiento_informatico == EquipamientoInformatico.SIN_PC:
+        materias_habilitadas = [
+            m for m in materias_habilitadas
+            if "programación" not in m["label"].lower() and "laboratorio" not in m["label"].lower() and "algoritmos" not in m["label"].lower()
+        ]
+
     # Calcular créditos
     query_cred = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT (SUM(?cred) as ?t) WHERE { VALUES ?m { %s } ?m fiunju:otorgaCreditos ?cred . }""" % " ".join([f"<{u}>" for u in aprobadas_uris]) if aprobadas_uris else ""
     creditos_acumulados = 0
@@ -159,7 +302,8 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     if not materias_habilitadas:
         return {
             "plan_recomendado": [], "materias_omitidas": [],
-            "consejos_adicionales": ["¡No tienes materias pendientes habilitadas!"]
+            "arquetipo": arquetipo,
+            "consejos_adicionales": consejos_arquetipo + ["¡No tienes materias pendientes habilitadas!"]
         }
 
     materias_con_score = []
@@ -170,233 +314,151 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     
     materias_con_score.sort(key=lambda m: m["score"], reverse=True)
     
-    condicion_val = user.condicion_laboral.value if user.condicion_laboral else CondicionLaboral.NO_TRABAJA.value
-    regla = REGLAS_CURSADA.get(condicion_val, REGLAS_CURSADA[CondicionLaboral.NO_TRABAJA.value])
+    # 3. Selección según Arquetipo
+    max_materias = arquetipo["max_materias"]
+    max_dificiles = arquetipo["max_dificiles"]
     
-    max_materias = regla["max_materias_totales"]
-    max_dificiles = regla["max_materias_dificiles"]
-    
-    plan_recomendado = []
-    materias_omitidas = []
-    dificiles_count = 0
-    
-    for materia in materias_con_score:
-        if len(plan_recomendado) >= max_materias:
-            materias_omitidas.append(materia)
-            continue
-        es_dificil = materia["dificultad"] >= 3
-        if es_dificil:
-            if dificiles_count < max_dificiles:
-                plan_recomendado.append(materia)
-                dificiles_count += 1
-            else:
+    if arquetipo["nombre"] == "El Equilibrado" and user.facilidad_aprendizaje == FacilidadAprendizaje.CUESTA:
+        max_materias = 2
+
+    if arquetipo["nombre"] == "El Superviviente":
+        seleccionadas = []
+        faciles = [m for m in materias_con_score if m["dificultad"] < 3]
+        normales = [m for m in materias_con_score if m["dificultad"] == 3]
+        if faciles: seleccionadas = faciles[:2]
+        elif normales: seleccionadas = normales[:1]
+        plan_recomendado = seleccionadas
+        materias_omitidas = [m for m in materias_con_score if m not in seleccionadas]
+
+    elif arquetipo["nombre"] == "El Malabarista Urbano":
+         seleccionadas = []
+         normales = [m for m in materias_con_score if m["dificultad"] == 3]
+         faciles = [m for m in materias_con_score if m["dificultad"] < 3]
+         if normales: seleccionadas.append(normales[0])
+         if faciles: seleccionadas.append(faciles[0])
+         if len(seleccionadas) < 2:
+             restantes = [m for m in materias_con_score if m not in seleccionadas and m["dificultad"] <= 3]
+             seleccionadas.extend(restantes[:2-len(seleccionadas)])
+         plan_recomendado = seleccionadas
+         materias_omitidas = [m for m in materias_con_score if m not in seleccionadas]
+
+    else:
+        plan_recomendado = []
+        materias_omitidas = []
+        dificiles_count = 0
+        for materia in materias_con_score:
+            if len(plan_recomendado) >= max_materias:
                 materias_omitidas.append(materia)
-        else:
-            plan_recomendado.append(materia)
+                continue
+            es_dificil = materia["dificultad"] >= 3
+            if es_dificil:
+                if dificiles_count < max_dificiles:
+                    plan_recomendado.append(materia)
+                    dificiles_count += 1
+                else:
+                    materias_omitidas.append(materia)
+            else:
+                plan_recomendado.append(materia)
             
     consejos = evaluacion_service.evaluar_plan_hipotetico(user, plan_recomendado, kg)
     avisos_pps = _analizar_bloqueo_pps(user, kg, aprobadas_uris, creditos_acumulados)
     consejos.extend(avisos_pps)
     
+    consejos_finales = consejos_arquetipo + consejos
+
     return {
         "plan_recomendado": plan_recomendado,
         "materias_omitidas": materias_omitidas,
-        "consejos_adicionales": consejos
+        "arquetipo": arquetipo,
+        "consejos_adicionales": consejos_finales
     }
 
-
 def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
+    # Mismo código
     materias_para_rendir = [m for m in user.materias_cursadas if m.estado == "Regular"]
     if not materias_para_rendir:
         return {"plan_recomendado": [], "consejos_adicionales": ["No tienes finales pendientes."]}
-
     aprobadas_uris = {m.materia_uri for m in user.materias_cursadas if m.estado == "Aprobada"}
-    
-    # 1. Labels Map
-    query_labels = """PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?materia ?label WHERE { ?materia a <http://fi.unju.edu.ar/ontologia/informatica#Materia> ; rdfs:label ?label . }"""
+    query_labels = """PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?materia ?label WHERE { ?materia a <http://fi.unju.edu.ar/ontologia/informatica#Materia> ; rdfs:label ?label . }"""
     results_labels = kg.query(query_labels)
     labels_map = {str(r.materia): str(r.label) for r in results_labels}
-
-    # 2. Créditos
     query_cred = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT (SUM(?cred) as ?t) WHERE { VALUES ?m { %s } ?m fiunju:otorgaCreditos ?cred . }""" % " ".join([f"<{u}>" for u in aprobadas_uris]) if aprobadas_uris else ""
     creditos_acumulados = 0
     if aprobadas_uris:
         try:
             for r in kg.query(query_cred): creditos_acumulados = int(r.t) if r.t else 0
         except: pass
-        
-    # 3. Impacto Futuro (Para desempatar prioridades)
-    query_impacto = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-    SELECT ?materia_actual (COUNT(DISTINCT ?materia_futura) as ?impacto)
-    WHERE { ?materia_actual fiunju:esRequisitoPara+ ?materia_futura . } GROUP BY ?materia_actual"""
+    query_impacto = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT ?materia_actual (COUNT(DISTINCT ?materia_futura) as ?impacto) WHERE { ?materia_actual fiunju:esRequisitoPara+ ?materia_futura . } GROUP BY ?materia_actual"""
     impacto_map = {}
-    for row in kg.query(query_impacto):
-        impacto_map[str(row.materia_actual)] = int(row.impacto)
-
+    for row in kg.query(query_impacto): impacto_map[str(row.materia_actual)] = int(row.impacto)
     materias_values = " ".join([f"<{m.materia_uri}>" for m in materias_para_rendir])
-    query_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?materia ?labelMateria ?labelModalidad ?labelDificultad (MAX(?valorNumerico) as ?maxValor) 
-       (GROUP_CONCAT(DISTINCT ?req; separator=";") AS ?requisitos)
-       (MAX(?cred_req) as ?creditos_requeridos)
-WHERE {{
-    VALUES ?materia {{ {materias_values} }}
-    ?materia rdfs:label ?labelMateria .
-    ?materia fiunju:tieneModalidadExamen ?modalidad .
-    ?modalidad rdfs:label ?labelModalidad .
-    ?modalidad fiunju:tieneDificultadExamen ?dificultadObj . 
-    ?dificultadObj fiunju:tieneValor ?valorNumerico .
-    ?dificultadObj rdfs:label ?labelDificultad . 
-    OPTIONAL {{ ?materia fiunju:tieneRequisito ?req . }}
-    OPTIONAL {{ ?materia fiunju:requiereCreditos ?cred_req . }}
-}} GROUP BY ?materia ?labelMateria ?labelModalidad ?labelDificultad ?valorNumerico"""
-    
+    query_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?materia ?labelMateria ?labelModalidad ?labelDificultad (MAX(?valorNumerico) as ?maxValor) (GROUP_CONCAT(DISTINCT ?req; separator=";") AS ?requisitos) (MAX(?cred_req) as ?creditos_requeridos) WHERE {{ VALUES ?materia {{ {materias_values} }} ?materia rdfs:label ?labelMateria . ?materia fiunju:tieneModalidadExamen ?modalidad . ?modalidad rdfs:label ?labelModalidad . ?modalidad fiunju:tieneDificultadExamen ?dificultadObj . ?dificultadObj fiunju:tieneValor ?valorNumerico . ?dificultadObj rdfs:label ?labelDificultad . OPTIONAL {{ ?materia fiunju:tieneRequisito ?req . }} OPTIONAL {{ ?materia fiunju:requiereCreditos ?cred_req . }} }} GROUP BY ?materia ?labelMateria ?labelModalidad ?labelDificultad ?valorNumerico"""
     results = kg.query(query_str)
     datos_ontologia = {}
     for row in results:
         uri = str(row.materia)
-        if uri not in datos_ontologia:
-            datos_ontologia[uri] = {
-                "label": str(row.labelMateria), "max_dif_valor": 0, "max_dif_label": "N/A", 
-                "modalidades": set(), "requisitos": set(), "cred_req": 0
-            }
+        if uri not in datos_ontologia: datos_ontologia[uri] = { "label": str(row.labelMateria), "max_dif_valor": 0, "max_dif_label": "N/A", "modalidades": set(), "requisitos": set(), "cred_req": 0 }
         datos_ontologia[uri]["modalidades"].add(str(row.labelModalidad))
         if row.requisitos:
             for r in str(row.requisitos).split(';'): datos_ontologia[uri]["requisitos"].add(r)
-        if row.creditos_requeridos:
-            datos_ontologia[uri]["cred_req"] = int(row.creditos_requeridos)
-
+        if row.creditos_requeridos: datos_ontologia[uri]["cred_req"] = int(row.creditos_requeridos)
         if int(row.maxValor) > datos_ontologia[uri]["max_dif_valor"]:
             datos_ontologia[uri]["max_dif_valor"] = int(row.maxValor)
             datos_ontologia[uri]["max_dif_label"] = str(row.labelDificultad)
-
     plan_recomendado = []
     ahora = datetime.now(timezone.utc)
     DIAS_VENCIMIENTO_REGULARIDAD = 365 * 2
-    
-    # Contadores para sugerencias globales
     count_habilitadas = 0
     count_dificiles = 0
-
     for materia in materias_para_rendir:
         datos = datos_ontologia.get(materia.materia_uri)
         if not datos: continue
-        
         esta_habilitada = True
         motivo_bloqueo = None
         correlativas_pendientes = []
-        
         faltantes = [r for r in datos["requisitos"] if r not in aprobadas_uris]
         for f in faltantes: correlativas_pendientes.append(labels_map.get(f, "Correlativa"))
-            
-        if faltantes:
-            esta_habilitada = False
-            motivo_bloqueo = "Falta aprobar correlativas"
-        
-        if esta_habilitada and datos["cred_req"] > 0 and creditos_acumulados < datos["cred_req"]:
-            esta_habilitada = False
-            motivo_bloqueo = f"Faltan créditos ({creditos_acumulados}/{datos['cred_req']})"
-            
-        if esta_habilitada:
-            count_habilitadas += 1
-            if datos["max_dif_valor"] >= 3:
-                count_dificiles += 1
-
+        if faltantes: esta_habilitada = False; motivo_bloqueo = "Falta aprobar correlativas"
+        if esta_habilitada and datos["cred_req"] > 0 and creditos_acumulados < datos["cred_req"]: esta_habilitada = False; motivo_bloqueo = f"Faltan créditos ({creditos_acumulados}/{datos['cred_req']})"
+        if esta_habilitada: count_habilitadas += 1;
+        if datos["max_dif_valor"] >= 3: count_dificiles += 1
         dias_restantes = None
         if materia.fecha_regularidad:
             fecha_reg = materia.fecha_regularidad
             if fecha_reg.tzinfo is None: fecha_reg = fecha_reg.replace(tzinfo=timezone.utc)
             fecha_vencimiento = fecha_reg.astimezone(timezone.utc) + timedelta(days=DIAS_VENCIMIENTO_REGULARIDAD)
             dias_restantes = (fecha_vencimiento - ahora).days
-            
-        # --- GENERACIÓN DE CONSEJO PROFUNDO Y PERSONALIZADO ---
         consejo = ""
         modalidades_str = ", ".join(datos["modalidades"]).lower()
         es_dificil = datos["max_dif_valor"] >= 3
         es_oral = "oral" in modalidades_str
         es_escrito = "escrito" in modalidades_str
         impacto_futuro = impacto_map.get(materia.materia_uri, 0)
-        
-        # A. Prioridad Estratégica (¿Por qué rendir ESTA y no otra?)
         prioridad_msg = ""
-        if impacto_futuro > 5:
-            prioridad_msg = f"🔥 PRIORIDAD ALTA: Esta materia traba {impacto_futuro} materias futuras. ¡Ríndela YA!"
-        elif impacto_futuro > 0:
-            prioridad_msg = "Rindirla te habilitará nuevas materias para cursar."
-        else:
-            prioridad_msg = "No traba correlativas directas, puedes dejarla para el final del turno."
-        
-        # B. Consejo según Perfil (¿CÓMO rendirla?)
+        if impacto_futuro > 5: prioridad_msg = f"🔥 PRIORIDAD ALTA: Esta materia traba {impacto_futuro} materias futuras. ¡Ríndela YA!"
+        elif impacto_futuro > 0: prioridad_msg = "Rindirla te habilitará nuevas materias para cursar."
+        else: prioridad_msg = "No traba correlativas directas, puedes dejarla para el final del turno."
         tip_estudio = ""
-        
-        # 1. Situación Laboral
         if user.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO:
-            if count_habilitadas > 1 and es_dificil:
-                tip_estudio = "Trabajas 8hs: Si tienes otro final más fácil, quizás convenga priorizar ese y dejar este 'tanque' para una fecha donde tengas vacaciones. "
-            elif es_oral:
-                tip_estudio = "Con poco tiempo por el trabajo, el oral es peligroso. Practica 'speechs' cortos en el almuerzo o viaje. "
-            else:
-                tip_estudio = "Organiza bloques de estudio de 1h al día después del trabajo. La constancia le gana a la intensidad aquí. "
-        
+            if count_habilitadas > 1 and es_dificil: tip_estudio = "Trabajas 8hs: Si tienes otro final más fácil, quizás convenga priorizar ese y dejar este 'tanque' para una fecha donde tengas vacaciones. "
+            elif es_oral: tip_estudio = "Con poco tiempo por el trabajo, el oral es peligroso. Practica 'speechs' cortos en el almuerzo o viaje. "
+            else: tip_estudio = "Organiza bloques de estudio de 1h al día después del trabajo. La constancia le gana a la intensidad aquí. "
         elif user.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO:
-            if es_dificil:
-                tip_estudio = "Aprovecha tu media jornada libre para los temas prácticos de esta materia, que suelen llevar más tiempo. "
-            else:
-                tip_estudio = "Tienes buen balance tiempo/estudio. Es una oportunidad ideal para preparar este final con profundidad. "
-        
-        else: # No trabaja
-            if es_dificil:
-                tip_estudio = "Tienes todo el tiempo disponible: No hay excusas. Profundiza en la bibliografía, no solo en apuntes. "
-            else:
-                tip_estudio = "Deberías poder liquidar este final en 1 o 2 semanas de estudio intensivo. "
-
-        # 2. Horas de Estudio (Refinamiento)
-        if user.horas_estudio == HorasEstudio.POCAS and es_dificil and not tip_estudio:
-            tip_estudio += "Tienes pocas horas y es difícil: Enfócate 100% en resolver exámenes de años anteriores (pareto). "
-
-        # 3. Método (Refinamiento)
-        if user.metodo_estudio_preferido == MetodoEstudio.SOLO and es_oral:
-            tip_estudio += "Estudias solo: Ojo con el oral. Grábate explicando los temas para detectar fallos."
-        elif user.metodo_estudio_preferido == MetodoEstudio.GRUPO and es_escrito:
-            tip_estudio += "Te gusta el grupo: Sirve para teoría, pero para este escrito necesitas sentarte solo a resolver problemas."
-
-        # Armado final del consejo
-        if not esta_habilitada:
-             consejo = "⛔ Aún no puedes rendir. Primero debes aprobar las correlativas o sumar créditos."
+            if es_dificil: tip_estudio = "Aprovecha tu media jornada libre para los temas prácticos de esta materia, que suelen llevar más tiempo. "
+            else: tip_estudio = "Tienes buen balance tiempo/estudio. Es una oportunidad ideal para preparar este final con profundidad. "
         else:
-            consejo = f"{prioridad_msg} \n💡 {tip_estudio}"
-
-        plan_recomendado.append({
-            "uri": materia.materia_uri,
-            "label": datos["label"],
-            "fecha_regularidad": materia.fecha_regularidad,
-            "dias_restantes": dias_restantes, 
-            "dificultad_examen_label": datos["max_dif_label"],
-            "dificultad_examen_valor": datos["max_dif_valor"],
-            "modalidades": list(datos["modalidades"]),
-            "esta_habilitada": esta_habilitada,
-            "motivo_bloqueo": motivo_bloqueo,
-            "correlativas_pendientes": correlativas_pendientes,
-            "consejo_personalizado": consejo,
-            
-            # Datos internos para el sort
-            "_impacto": impacto_futuro
-        })
-
-    # ORDENAMIENTO INTELIGENTE FINAL
-    plan_recomendado.sort(key=lambda m: (
-        not m["esta_habilitada"], # 1. Habilitadas primero
-        -m["_impacto"],           # 2. Las que más traban primero (Estrategia pura)
-        m["dias_restantes"] if m["dias_restantes"] is not None else 9999 # 3. Las que se vencen
-    ))
-
+            if es_dificil: tip_estudio = "Tienes todo el tiempo disponible: No hay excusas. Profundiza en la bibliografía, no solo en apuntes. "
+            else: tip_estudio = "Deberías poder liquidar este final en 1 o 2 semanas de estudio intensivo. "
+        if user.horas_estudio == HorasEstudio.POCAS and es_dificil and not tip_estudio: tip_estudio += "Tienes pocas horas y es difícil: Enfócate 100% en resolver exámenes de años anteriores (pareto). "
+        if user.metodo_estudio_preferido == MetodoEstudio.SOLO and es_oral: tip_estudio += "Estudias solo: Ojo con el oral. Grábate explicando los temas para detectar fallos."
+        elif user.metodo_estudio_preferido == MetodoEstudio.GRUPO and es_escrito: tip_estudio += "Te gusta el grupo: Sirve para teoría, pero para este escrito necesitas sentarte solo a resolver problemas."
+        if not esta_habilitada: consejo = "⛔ Aún no puedes rendir. Primero debes aprobar las correlativas o sumar créditos."
+        else: consejo = f"{prioridad_msg} \n💡 {tip_estudio}"
+        plan_recomendado.append({ "uri": materia.materia_uri, "label": datos["label"], "fecha_regularidad": materia.fecha_regularidad, "dias_restantes": dias_restantes, "dificultad_examen_label": datos["max_dif_label"], "dificultad_examen_valor": datos["max_dif_valor"], "modalidades": list(datos["modalidades"]), "esta_habilitada": esta_habilitada, "motivo_bloqueo": motivo_bloqueo, "correlativas_pendientes": correlativas_pendientes, "consejo_personalizado": consejo, "_impacto": impacto_futuro })
+    plan_recomendado.sort(key=lambda m: (not m["esta_habilitada"], -m["_impacto"], m["dias_restantes"] if m["dias_restantes"] is not None else 9999))
     consejos = evaluacion_service.evaluar_plan_examen_actual(user, kg)
-    return {
-        "plan_recomendado": plan_recomendado,
-        "consejos_adicionales": consejos
-    }
-    
+    return { "plan_recomendado": plan_recomendado, "consejos_adicionales": consejos }
+
 def generar_plan_cursada_simulado(user, data, kg):
     user_temp = copy.deepcopy(user)
     update = data.model_dump(exclude_unset=True)

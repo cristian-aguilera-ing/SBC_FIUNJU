@@ -21,11 +21,10 @@ print("PASO 1: Grafo y namespaces inicializados.")
 print("PASO 2: Definiendo el Esquema (TBox)...")
 
 # --- 2.1. Clases Base ---
-# Son los conceptos principales de nuestro dominio.
 g.add((fiunju.Materia, RDF.type, RDFS.Class))
 g.add((fiunju.ModalidadExamenFinal, RDF.type, RDFS.Class))
-g.add((fiunju.NivelDificultadCursada, RDF.type, RDFS.Class)) # Para Cursada
-g.add((fiunju.NivelDificultadExamen, RDF.type, RDFS.Class)) # Para Examen
+g.add((fiunju.NivelDificultadCursada, RDF.type, RDFS.Class))
+g.add((fiunju.NivelDificultadExamen, RDF.type, RDFS.Class))
 g.add((fiunju.TopicoDeConsejo, RDF.type, RDFS.Class))
 
 g.add((fiunju.FactorPersonal, RDF.type, RDFS.Class))
@@ -33,14 +32,15 @@ g.add((fiunju.FactorAcademico, RDF.type, RDFS.Class))
 g.add((fiunju.FactorPlanificacion, RDF.type, RDFS.Class))
 g.add((fiunju.FactorMentalidad, RDF.type, RDFS.Class))
 
+# --- NUEVA CLASE: Arquetipo de Estudiante ---
+g.add((fiunju.ArquetipoEstudiante, RDF.type, RDFS.Class))
+
 # --- 2.2. Jerarquías de Clases (Subclases) ---
-# Aquí organizamos las clases y especificamos tipos.
 g.add((fiunju.Optativa, RDFS.subClassOf, fiunju.Materia))
 g.add((fiunju.Obligatoria, RDFS.subClassOf, fiunju.Materia))
 g.add((fiunju.MateriaDeAltoEsfuerzo, RDFS.subClassOf, fiunju.Materia))
 
 # --- 2.3. Propiedades de Objeto (ObjectProperty) ---
-# Reglas que conectan URI -> URI
 g.add((fiunju.esRequisitoPara, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneRequisito, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneModalidadExamen, RDF.type, OWL.ObjectProperty))
@@ -50,43 +50,50 @@ g.add((fiunju.esMasDificilQue, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneTopicoRelevante, RDF.type, OWL.ObjectProperty))
 
 # --- 2.4. Propiedades de Dato (DatatypeProperty) ---
-# Reglas que conectan URI -> Literal (texto, número, etc.)
 g.add((fiunju.perteneceAlAño, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.comentarioExperto, RDF.type, OWL.DatatypeProperty))
-g.add((fiunju.tieneValor, RDF.type, OWL.DatatypeProperty)) # Usada por los niveles
+g.add((fiunju.tieneValor, RDF.type, OWL.DatatypeProperty))
+
+# --- NUEVAS PROPIEDADES DE ARQUETIPO ---
+g.add((fiunju.tieneNombreArquetipo, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.tieneNombreArquetipo, RDFS.domain, fiunju.ArquetipoEstudiante))
+g.add((fiunju.tieneNombreArquetipo, RDFS.range, XSD.string))
+
+g.add((fiunju.tieneColorIdentificativo, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.tieneColorIdentificativo, RDFS.domain, fiunju.ArquetipoEstudiante))
+g.add((fiunju.tieneColorIdentificativo, RDFS.range, XSD.string))
+
+g.add((fiunju.tieneConsejoBase, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.tieneConsejoBase, RDFS.domain, fiunju.ArquetipoEstudiante))
+g.add((fiunju.tieneConsejoBase, RDFS.range, XSD.string))
+# ---------------------------------------
 
 # --- 2.5. Axiomas y Reglas Avanzadas ---
-# Aquí le damos "inteligencia" a nuestras propiedades y clases.
-g.add((fiunju.Obligatoria, OWL.disjointWith, fiunju.Optativa)) # No se puede ser ambas
-g.add((fiunju.esRequisitoPara, RDF.type, OWL.TransitiveProperty)) # A->B, B->C => A->C
-g.add((fiunju.esMasDificilQue, RDF.type, OWL.TransitiveProperty)) # NO ESTA AGREGADA A LAS MATERIAS
-g.add((fiunju.tieneRequisito, OWL.inverseOf, fiunju.esRequisitoPara)) # A esRequisitoPara B <=> B tieneRequisito A
-g.add((fiunju.perteneceAlAño, RDF.type, OWL.FunctionalProperty)) # Solo un año por materia
-g.add((fiunju.tieneDificultadCursada, RDF.type, OWL.FunctionalProperty)) # Solo una dificultad por materia
+g.add((fiunju.Obligatoria, OWL.disjointWith, fiunju.Optativa))
+g.add((fiunju.esRequisitoPara, RDF.type, OWL.TransitiveProperty))
+g.add((fiunju.esMasDificilQue, RDF.type, OWL.TransitiveProperty))
+g.add((fiunju.tieneRequisito, OWL.inverseOf, fiunju.esRequisitoPara))
+g.add((fiunju.perteneceAlAño, RDF.type, OWL.FunctionalProperty))
+g.add((fiunju.tieneDificultadCursada, RDF.type, OWL.FunctionalProperty))
 
-# Restricciones de Dominio/Rango (Buena práctica)
 g.add((fiunju.perteneceAlAño, RDFS.domain, fiunju.Obligatoria))
 g.add((fiunju.tieneTopicoRelevante, RDFS.domain, fiunju.Materia))
 g.add((fiunju.tieneTopicoRelevante, RDFS.range, fiunju.TopicoDeConsejo))
 
-# --- ¡PROPIEDADES PARA CRÉDITOS! ---
-# Define cuántos créditos da una materia al aprobarla (ej: 90)
+# --- PROPIEDADES PARA CRÉDITOS ---
 g.add((fiunju.otorgaCreditos, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.otorgaCreditos, RDFS.domain, fiunju.Materia))
 g.add((fiunju.otorgaCreditos, RDFS.range, XSD.integer))
 
-# Define cuántos créditos NECESITA el alumno para cursarla (ej: 270 para PPS)
 g.add((fiunju.requiereCreditos, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.requiereCreditos, RDFS.domain, fiunju.Materia))
 g.add((fiunju.requiereCreditos, RDFS.range, XSD.integer))
 
-# Define si requiere tener TODO aprobado hasta 4to año (True/False)
 g.add((fiunju.requiereCuartoAnoAprobado, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.requiereCuartoAnoAprobado, RDFS.domain, fiunju.Materia))
 g.add((fiunju.requiereCuartoAnoAprobado, RDFS.range, XSD.boolean))
 
-# --- 2.6. Definición de Subclases de Modalidad (Aún TBox) ---
-# Estas son CLASES (conceptos), no individuos.
+# --- 2.6. Definición de Subclases de Modalidad ---
 modalidades_data = {
     "ExamenMultipleChoice": {"label": "Examen Multiple Choice", "dificultad": fiunju.ExamenNormal},
     "ExamenTeoricoEscrito": {"label": "Examen Teórico Escrito", "dificultad": fiunju.ExamenDificil},
@@ -100,7 +107,6 @@ for uri_key, data in modalidades_data.items():
     if data["dificultad"] is not None:
         g.add((mod_uri, fiunju.tieneDificultadExamen, data["dificultad"]))
 
-# Axiomas de disyunción para las modalidades (Aún TBox)
 all_modalities_uris = [fiunju[m] for m in modalidades_data.keys()]
 for i in range(len(all_modalities_uris)):
     for j in range(i + 1, len(all_modalities_uris)):
@@ -109,8 +115,47 @@ for i in range(len(all_modalities_uris)):
 print("TBox (Esquema) definido.")
 
 # --- 3. Población del Grafo (ABox) - Los "Hechos" ---
-# Aquí creamos los INDIVIDUOS (instancias) y los conectamos.
 print("PASO 3: Poblando el grafo (ABox)...")
+
+# --- 3.0. NUEVO: Definición de Arquetipos (Individuos) ---
+# 1. El Superviviente
+g.add((fiunju.ArquetipoSuperviviente, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoSuperviviente, fiunju.tieneNombreArquetipo, Literal("El Superviviente", lang="es")))
+g.add((fiunju.ArquetipoSuperviviente, fiunju.tieneColorIdentificativo, Literal("red", datatype=XSD.string)))
+g.add((fiunju.ArquetipoSuperviviente, fiunju.tieneConsejoBase, Literal("Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres.", lang="es")))
+
+# 2. El Malabarista Urbano
+g.add((fiunju.ArquetipoMalabarista, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoMalabarista, fiunju.tieneNombreArquetipo, Literal("El Malabarista Urbano", lang="es")))
+g.add((fiunju.ArquetipoMalabarista, fiunju.tieneColorIdentificativo, Literal("orange", datatype=XSD.string)))
+
+# 3. El Guerrero Solitario
+g.add((fiunju.ArquetipoGuerrero, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoGuerrero, fiunju.tieneNombreArquetipo, Literal("El Guerrero Solitario", lang="es")))
+g.add((fiunju.ArquetipoGuerrero, fiunju.tieneColorIdentificativo, Literal("yellow", datatype=XSD.string)))
+
+# 4. El Equilibrado
+g.add((fiunju.ArquetipoEquilibrado, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneNombreArquetipo, Literal("El Equilibrado", lang="es")))
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneColorIdentificativo, Literal("green", datatype=XSD.string)))
+
+# 5. El Ermitaño del Interior
+g.add((fiunju.ArquetipoErmitano, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoErmitano, fiunju.tieneNombreArquetipo, Literal("El Ermitaño del Interior", lang="es")))
+g.add((fiunju.ArquetipoErmitano, fiunju.tieneColorIdentificativo, Literal("blue", datatype=XSD.string)))
+
+# 6. El Heredero del Trono
+g.add((fiunju.ArquetipoHeredero, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoHeredero, fiunju.tieneNombreArquetipo, Literal("El Heredero del Trono", lang="es")))
+g.add((fiunju.ArquetipoHeredero, fiunju.tieneColorIdentificativo, Literal("violet", datatype=XSD.string)))
+
+# 7. El Padre/Madre Full-Time
+g.add((fiunju.ArquetipoPadreFullTime, RDF.type, fiunju.ArquetipoEstudiante))
+g.add((fiunju.ArquetipoPadreFullTime, fiunju.tieneNombreArquetipo, Literal("El Padre/Madre Full-Time", lang="es")))
+g.add((fiunju.ArquetipoPadreFullTime, fiunju.tieneColorIdentificativo, Literal("brown", datatype=XSD.string)))
+g.add((fiunju.ArquetipoPadreFullTime, fiunju.tieneConsejoBase, Literal("Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad.", lang="es")))
+
+# ---------------------------------------------------------
 
 # --- 3.1. Individuos: Niveles de Dificultad (Examen) ---
 niveles_examen_data = {

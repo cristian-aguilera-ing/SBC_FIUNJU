@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner"; 
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
-// --- CORRECCIÓN AQUÍ: Se añadió 'Award' a los imports ---
+import { Switch } from "@/components/ui/switch";
 import { Trash2, ChevronDown, ChevronUp, CheckSquare, Square, BookOpenCheck, Award } from "lucide-react";
 
 // --- Tipos de Datos ---
@@ -40,11 +40,32 @@ enum MetodoEstudio {
   MIXTO = "mixto",
 }
 
+// Nuevos Enums
+enum FacilidadAprendizaje {
+  RAPIDA = "rapida",
+  NORMAL = "normal",
+  CUESTA = "cuesta",
+}
+enum ConectividadInternet {
+  ESTABLE = "estable",
+  INESTABLE = "inestable",
+  NULA = "nula",
+}
+enum EquipamientoInformatico {
+  PC_PROPIA = "pc_propia",
+  PC_COMPARTIDA = "pc_compartida",
+  SIN_PC = "sin_pc",
+}
+enum EntornoEstudio {
+  SILENCIOSO = "silencioso",
+  RUIDOSO = "ruidoso",
+}
+
 interface MateriaOntology { 
     uri: string; 
     label: string; 
     año: number | null; 
-    creditos: number; // Nuevo campo para créditos
+    creditos: number;
 }
 interface UserMateria { 
   id: number; 
@@ -64,6 +85,14 @@ interface UserPerfil {
   vive_solo: boolean | null;
   tiene_hijos: boolean | null;
   es_del_interior: boolean | null;
+
+  // Nuevos Campos
+  facilidad_aprendizaje: FacilidadAprendizaje | null;
+  conectividad_internet: ConectividadInternet | null;
+  equipamiento_informatico: EquipamientoInformatico | null;
+  entorno_estudio: EntornoEstudio | null;
+  realiza_actividad_fisica: boolean | null;
+  residencia_capital: boolean | null; // Usado para UI, inversamente mapeado a es_del_interior
 }
 // --- Fin Tipos ---
 
@@ -74,7 +103,6 @@ export default function PerfilPage() {
   const [allMaterias, setAllMaterias] = useState<MateriaOntology[]>([]);
   const [userMaterias, setUserMaterias] = useState<MateriaPerfil[]>([]); 
   
-  // Estado para el acordeón
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const [selectedCursarURI, setSelectedCursarURI] = useState("");
@@ -89,9 +117,15 @@ export default function PerfilPage() {
     vive_solo: false,
     tiene_hijos: false,
     es_del_interior: false,
+
+    facilidad_aprendizaje: FacilidadAprendizaje.NORMAL,
+    conectividad_internet: ConectividadInternet.ESTABLE,
+    equipamiento_informatico: EquipamientoInformatico.PC_PROPIA,
+    entorno_estudio: EntornoEstudio.SILENCIOSO,
+    realiza_actividad_fisica: true,
+    residencia_capital: true,
   });
 
-  // Carga inicial de datos
   useEffect(() => {
     const storedToken = localStorage.getItem("sbc_access_token");
     if (!storedToken) {
@@ -111,6 +145,9 @@ export default function PerfilPage() {
         axios.get<UserPerfil>("/api/sbc/users/me", { headers: { Authorization: `Bearer ${token}` }}) 
       ]);
       
+      // Ajuste para residencia_capital vs es_del_interior
+      const esInterior = userResponse.data.es_del_interior || false;
+
       setPerfilData({
         full_name: userResponse.data.full_name || "",
         condicion_laboral: userResponse.data.condicion_laboral || CondicionLaboral.NO_TRABAJA,
@@ -119,7 +156,14 @@ export default function PerfilPage() {
         metodo_estudio_preferido: userResponse.data.metodo_estudio_preferido || MetodoEstudio.SOLO,
         vive_solo: userResponse.data.vive_solo || false,
         tiene_hijos: userResponse.data.tiene_hijos || false,
-        es_del_interior: userResponse.data.es_del_interior || false,
+        es_del_interior: esInterior,
+
+        facilidad_aprendizaje: userResponse.data.facilidad_aprendizaje || FacilidadAprendizaje.NORMAL,
+        conectividad_internet: userResponse.data.conectividad_internet || ConectividadInternet.ESTABLE,
+        equipamiento_informatico: userResponse.data.equipamiento_informatico || EquipamientoInformatico.PC_PROPIA,
+        entorno_estudio: userResponse.data.entorno_estudio || EntornoEstudio.SILENCIOSO,
+        realiza_actividad_fisica: userResponse.data.realiza_actividad_fisica ?? true,
+        residencia_capital: !esInterior,
       });
       
       setAllMaterias(ontologyResponse.data);
@@ -137,8 +181,20 @@ export default function PerfilPage() {
     }
   };
   
-  const handlePerfilChange = (field: keyof UserPerfil, value: string | boolean) => {
-    setPerfilData(prev => ({ ...prev, [field]: value }));
+  const handlePerfilChange = (field: keyof UserPerfil, value: any) => {
+    setPerfilData(prev => {
+        const updated = { ...prev, [field]: value };
+
+        // Sincronización bidireccional entre residencia_capital y es_del_interior
+        if (field === "residencia_capital") {
+            updated.es_del_interior = !value;
+        }
+        if (field === "es_del_interior") {
+            updated.residencia_capital = !value;
+        }
+
+        return updated;
+    });
   };
 
   const handleSavePerfil = async (e: FormEvent) => {
@@ -178,7 +234,6 @@ export default function PerfilPage() {
       const newMateria = response.data;
       const ontologyData = allMaterias.find(om => om.uri === newMateria.materia_uri);
       
-      // Actualización optimista
       setUserMaterias(prev => {
         const existingIndex = prev.findIndex(m => m.materia_uri === materiaURI);
         const enrichedNewMateria = { ...newMateria, label: ontologyData?.label || "Materia Desconocida" };
@@ -218,7 +273,6 @@ export default function PerfilPage() {
     }
   };
   
-  // --- Lógica del Acordeón ---
   const toggleSection = (key: string) => {
     setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
   };
@@ -231,7 +285,6 @@ export default function PerfilPage() {
       }
       return Promise.resolve(true);
     });
-    
     await Promise.all(promises);
     toast.success("Se actualizaron las materias del grupo.");
   };
@@ -244,12 +297,10 @@ export default function PerfilPage() {
       }
       return Promise.resolve(true);
     });
-    
     await Promise.all(promises);
     toast.success("Se quitaron las materias del grupo.");
   };
   
-  // --- AGRUPACIÓN DE MATERIAS ---
   const englishURIs = [
     "http://fi.unju.edu.ar/ontologia/informatica#NivSufIng",
     "http://fi.unju.edu.ar/ontologia/informatica#NivAptIng"
@@ -271,15 +322,12 @@ export default function PerfilPage() {
   });
 
   const sortedYears = Object.keys(materiasPorAnio).map(Number).sort((a, b) => a - b);
-
   const materiasCursando = userMaterias.filter(m => m.estado === "Cursando");
   const materiasRegulares = userMaterias.filter(m => m.estado === "Regular");
-  
   const materiasDisponibles = allMaterias.filter(
     om => !userMaterias.some(um => um.materia_uri === om.uri)
   );
 
-  // --- CÁLCULO DE CRÉDITOS ---
   const CREDITOS_NECESARIOS = 270;
   const creditosActuales = userMaterias
     .filter(um => um.estado === "Aprobada")
@@ -292,10 +340,8 @@ export default function PerfilPage() {
   const colorCreditos = creditosActuales >= CREDITOS_NECESARIOS ? "text-green-400" : "text-yellow-400";
   const barraColor = creditosActuales >= CREDITOS_NECESARIOS ? "bg-green-500" : "bg-yellow-500";
 
-  // --- Componente Auxiliar de Renderizado de Grupo ---
   const renderSubjectGroup = (title: string, subjects: MateriaOntology[], sectionKey: string, headerColorClass: string, showCreditsHeader = false) => {
     if (subjects.length === 0) return null;
-
     const isOpen = openSections[sectionKey];
     const passedCount = subjects.filter(s => 
         userMaterias.some(um => um.materia_uri === s.uri && um.estado === "Aprobada")
@@ -305,7 +351,6 @@ export default function PerfilPage() {
 
     return (
         <div key={sectionKey} className="border border-gray-700 rounded-lg overflow-hidden mb-3">
-            {/* Header */}
             <div 
                 className={`
                     flex items-center justify-between p-4 cursor-pointer transition-colors select-none
@@ -316,7 +361,6 @@ export default function PerfilPage() {
                 <div className="flex items-center gap-4 w-full">
                     <div className={`font-bold text-lg ${headerColorClass} flex-shrink-0`}>{title}</div>
                     
-                    {/* Visualizador de Créditos en Header (Solo para Optativas) */}
                     {showCreditsHeader && (
                          <div className="flex-grow mx-4 flex flex-col gap-1">
                             <div className="flex justify-between text-xs uppercase font-bold tracking-widest">
@@ -343,17 +387,10 @@ export default function PerfilPage() {
                         </div>
                     )}
                     
-                    {showCreditsHeader && (
-                        <div>{isOpen ? <ChevronUp className="h-5 w-5 text-gray-500"/> : <ChevronDown className="h-5 w-5 text-gray-500"/>}</div>
-                    )}
-                    {!showCreditsHeader && (
-                        isOpen ? <ChevronUp className="h-5 w-5 text-gray-500"/> : <ChevronDown className="h-5 w-5 text-gray-500"/>
-                    )}
-
+                    <div>{isOpen ? <ChevronUp className="h-5 w-5 text-gray-500"/> : <ChevronDown className="h-5 w-5 text-gray-500"/>}</div>
                 </div>
             </div>
 
-            {/* Body */}
             {isOpen && (
                 <div className="p-4 bg-gray-800/30 border-t border-gray-700 animate-in fade-in zoom-in-95 duration-200">
                     <div className="flex gap-3 mb-4 pb-3 border-b border-gray-700/50">
@@ -413,7 +450,6 @@ export default function PerfilPage() {
                                             </span>
                                         )}
                                     </div>
-                                    
                                     {isOtherState && (
                                         <span className="ml-auto text-[10px] font-bold text-yellow-500 bg-yellow-900/20 px-1.5 py-0.5 rounded uppercase border border-yellow-900/50">
                                             {userMateria.estado}
@@ -429,7 +465,6 @@ export default function PerfilPage() {
     );
   };
 
-
   if (isLoading) {
     return <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">Cargando perfil...</main>
   }
@@ -438,7 +473,6 @@ export default function PerfilPage() {
     <main className="flex min-h-screen flex-col items-center p-8 md:p-24 bg-gray-900 text-white">
       <div className="w-full max-w-4xl p-8 bg-gray-800 rounded-lg shadow-lg">
         <h1 className="text-3xl font-bold mb-6">Mi Perfil Académico</h1>
-        
         <div className="mb-8">
           <Link href="/dashboard">
             <Button variant="outline" className="bg-gray-700 text-white hover:bg-gray-600">
@@ -447,209 +481,213 @@ export default function PerfilPage() {
           </Link>
         </div>
 
-        {/* --- 1. Formulario de Perfil Personal --- */}
-        <form onSubmit={handleSavePerfil} className="mb-8 p-6 bg-gray-700 rounded-lg space-y-6 border border-gray-600">
-          <h2 className="text-2xl font-semibold text-blue-300 border-b border-gray-600 pb-2">1. Datos Personales</h2>
+        <form onSubmit={handleSavePerfil} className="mb-8 p-6 bg-gray-700 rounded-lg space-y-8 border border-gray-600">
+          <h2 className="text-2xl font-semibold text-blue-300 border-b border-gray-600 pb-2">1. Datos Personales & Entorno</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+             {/* COL 1 */}
+             <div className="space-y-6">
                 <div>
                     <Label htmlFor="fullName" className="text-gray-300 mb-2 block">Nombre Completo</Label>
-                    <Input
-                    id="fullName"
-                    type="text"
-                    value={perfilData.full_name || ""}
-                    onChange={(e) => handlePerfilChange("full_name", e.target.value)}
-                    className="bg-gray-900 border-gray-600 text-white"
-                    />
+                    <Input id="fullName" type="text" value={perfilData.full_name || ""} onChange={(e) => handlePerfilChange("full_name", e.target.value)} className="bg-gray-900 border-gray-600 text-white" />
                 </div>
-                <div>
-                    <Label className="text-gray-300 mb-2 block">¿De qué colegio vienes?</Label>
-                    <RadioGroup
-                    value={perfilData.colegio_secundario || undefined}
-                    onValueChange={(value) => handlePerfilChange("colegio_secundario", value)}
-                    className="space-y-2"
-                    >
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={ColegioSecundario.BACHILLER} id="c1" />
-                        <Label htmlFor="c1">Bachiller</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={ColegioSecundario.TECNICA_INFORMATICA} id="c2" />
-                        <Label htmlFor="c2">Técnica (Informática)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={ColegioSecundario.TECNICA_OTRA} id="c3" />
-                        <Label htmlFor="c3">Técnica (Otra)</Label>
-                    </div>
-                    </RadioGroup>
-                </div>
-                <div>
-                    <Label className="text-gray-300 mb-2 block">Situación Laboral</Label>
-                    <RadioGroup
-                    value={perfilData.condicion_laboral || undefined}
-                    onValueChange={(value) => handlePerfilChange("condicion_laboral", value)}
-                    className="space-y-2"
-                    >
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={CondicionLaboral.NO_TRABAJA} id="r1" />
-                        <Label htmlFor="r1">No trabajo</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={CondicionLaboral.MEDIO_TIEMPO} id="r2" />
-                        <Label htmlFor="r2">Medio tiempo (~4hs)</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={CondicionLaboral.TIEMPO_COMPLETO} id="r3" />
-                        <Label htmlFor="r3">Tiempo completo (~8hs)</Label>
-                    </div>
-                    </RadioGroup>
-                </div>
-            </div>
 
-            <div className="space-y-6">
                 <div>
-                    <Label className="text-gray-300 mb-2 block">Horas de estudio semanal</Label>
-                    <RadioGroup
-                    value={perfilData.horas_estudio || undefined}
-                    onValueChange={(value) => handlePerfilChange("horas_estudio", value)}
-                    className="space-y-2"
-                    >
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={HorasEstudio.POCAS} id="h1" />
-                        <Label htmlFor="h1">Pocas (-10 hs)</Label>
+                    <Label className="text-gray-300 mb-2 block">Condición Laboral</Label>
+                    <Select value={perfilData.condicion_laboral || undefined} onValueChange={(v) => handlePerfilChange("condicion_laboral", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={CondicionLaboral.NO_TRABAJA}>No trabajo</SelectItem>
+                            <SelectItem value={CondicionLaboral.MEDIO_TIEMPO}>Medio Tiempo</SelectItem>
+                            <SelectItem value={CondicionLaboral.TIEMPO_COMPLETO}>Tiempo Completo</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="p-4 bg-gray-800/50 rounded border border-gray-600 space-y-4">
+                    <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wide">Hogar y Familia</h3>
+                    <div className="flex items-center justify-between">
+                        <Label className="text-gray-200">¿Vives solo?</Label>
+                        <Switch checked={perfilData.vive_solo || false} onCheckedChange={(c) => handlePerfilChange("vive_solo", c)} />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={HorasEstudio.NORMAL} id="h2" />
-                        <Label htmlFor="h2">Normal (10-20 hs)</Label>
+                    <div className="flex items-center justify-between">
+                        <Label className="text-gray-200">¿Tienes hijos?</Label>
+                        <Switch checked={perfilData.tiene_hijos || false} onCheckedChange={(c) => handlePerfilChange("tiene_hijos", c)} />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={HorasEstudio.MUCHAS} id="h3" />
-                        <Label htmlFor="h3">Muchas (+20 hs)</Label>
+                    <div className="flex items-center justify-between">
+                        <Label className="text-gray-200">¿Vives en Capital?</Label>
+                        <Switch checked={perfilData.residencia_capital || false} onCheckedChange={(c) => handlePerfilChange("residencia_capital", c)} />
                     </div>
+                </div>
+             </div>
+
+             {/* COL 2 */}
+             <div className="space-y-6">
+                <div>
+                    <Label className="text-gray-300 mb-2 block">Equipamiento Informático</Label>
+                    <Select value={perfilData.equipamiento_informatico || undefined} onValueChange={(v) => handlePerfilChange("equipamiento_informatico", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={EquipamientoInformatico.PC_PROPIA}>PC Propia</SelectItem>
+                            <SelectItem value={EquipamientoInformatico.PC_COMPARTIDA}>PC Compartida</SelectItem>
+                            <SelectItem value={EquipamientoInformatico.SIN_PC}>Sin PC</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div>
+                    <Label className="text-gray-300 mb-2 block">Conectividad Internet</Label>
+                    <Select value={perfilData.conectividad_internet || undefined} onValueChange={(v) => handlePerfilChange("conectividad_internet", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={ConectividadInternet.ESTABLE}>Estable</SelectItem>
+                            <SelectItem value={ConectividadInternet.INESTABLE}>Inestable</SelectItem>
+                            <SelectItem value={ConectividadInternet.NULA}>Nula/Datos Móviles</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                 <div>
+                    <Label className="text-gray-300 mb-2 block">Facilidad de Aprendizaje</Label>
+                    <Select value={perfilData.facilidad_aprendizaje || undefined} onValueChange={(v) => handlePerfilChange("facilidad_aprendizaje", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={FacilidadAprendizaje.RAPIDA}>Rápida (Autodidacta)</SelectItem>
+                            <SelectItem value={FacilidadAprendizaje.NORMAL}>Normal</SelectItem>
+                            <SelectItem value={FacilidadAprendizaje.CUESTA}>Me cuesta un poco</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                 <div>
+                    <Label className="text-gray-300 mb-2 block">Entorno de Estudio</Label>
+                     <RadioGroup value={perfilData.entorno_estudio || undefined} onValueChange={(v) => handlePerfilChange("entorno_estudio", v)} className="flex gap-4">
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value={EntornoEstudio.SILENCIOSO} id="es1" />
+                            <Label htmlFor="es1">Silencioso</Label>
+                        </div>
+                         <div className="flex items-center space-x-2">
+                            <RadioGroupItem value={EntornoEstudio.RUIDOSO} id="es2" />
+                            <Label htmlFor="es2">Ruidoso</Label>
+                        </div>
                     </RadioGroup>
                 </div>
-                <div>
-                    <Label className="text-gray-300 mb-2 block">Método de estudio preferido</Label>
-                    <RadioGroup
-                    value={perfilData.metodo_estudio_preferido || undefined}
-                    onValueChange={(value) => handlePerfilChange("metodo_estudio_preferido", value)}
-                    className="space-y-2"
-                    >
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={MetodoEstudio.SOLO} id="m1" />
-                        <Label htmlFor="m1">Solo</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={MetodoEstudio.GRUPO} id="m2" />
-                        <Label htmlFor="m2">En Grupo</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <RadioGroupItem value={MetodoEstudio.MIXTO} id="m3" />
-                        <Label htmlFor="m3">Mixto</Label>
-                    </div>
-                    </RadioGroup>
+
+                <div className="flex items-center justify-between pt-2">
+                        <Label className="text-gray-200 font-medium">¿Realizas Actividad Física?</Label>
+                        <Switch checked={perfilData.realiza_actividad_fisica || false} onCheckedChange={(c) => handlePerfilChange("realiza_actividad_fisica", c)} />
                 </div>
-            </div>
+
+             </div>
           </div>
-          <Button type="submit" className="w-full bg-green-600 hover:bg-green-700 mt-4 font-semibold py-6 text-lg">
-            Guardar Datos Personales
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-gray-600">
+              <div>
+                <Label className="text-gray-300 mb-2 block">Horas de Estudio</Label>
+                 <Select value={perfilData.horas_estudio || undefined} onValueChange={(v) => handlePerfilChange("horas_estudio", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={HorasEstudio.POCAS}>Pocas (-10hs)</SelectItem>
+                            <SelectItem value={HorasEstudio.NORMAL}>Normal (10-20hs)</SelectItem>
+                            <SelectItem value={HorasEstudio.MUCHAS}>Muchas (+20hs)</SelectItem>
+                        </SelectContent>
+                 </Select>
+              </div>
+              <div>
+                <Label className="text-gray-300 mb-2 block">Método Preferido</Label>
+                 <Select value={perfilData.metodo_estudio_preferido || undefined} onValueChange={(v) => handlePerfilChange("metodo_estudio_preferido", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={MetodoEstudio.SOLO}>Solo</SelectItem>
+                            <SelectItem value={MetodoEstudio.GRUPO}>Grupo</SelectItem>
+                            <SelectItem value={MetodoEstudio.MIXTO}>Mixto</SelectItem>
+                        </SelectContent>
+                 </Select>
+              </div>
+               <div>
+                <Label className="text-gray-300 mb-2 block">Colegio Secundario</Label>
+                 <Select value={perfilData.colegio_secundario || undefined} onValueChange={(v) => handlePerfilChange("colegio_secundario", v)}>
+                        <SelectTrigger className="bg-gray-900 border-gray-600"><SelectValue placeholder="Selecciona" /></SelectTrigger>
+                        <SelectContent className="bg-gray-800 border-gray-700">
+                            <SelectItem value={ColegioSecundario.BACHILLER}>Bachiller</SelectItem>
+                            <SelectItem value={ColegioSecundario.TECNICA_INFORMATICA}>Téc. Informática</SelectItem>
+                            <SelectItem value={ColegioSecundario.TECNICA_OTRA}>Téc. Otra</SelectItem>
+                        </SelectContent>
+                 </Select>
+              </div>
+          </div>
+
+          <Button type="submit" className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 mt-4 font-bold py-6 text-lg shadow-lg">
+            Guardar Mi Perfil
           </Button>
         </form>
 
-        {/* --- 2. Historial Académico (Materias Aprobadas) --- */}
+        {/* --- 2. Historial Académico --- */}
         <div className="mb-8 p-6 bg-gray-900/80 rounded-lg border border-gray-700 shadow-md">
-            <h2 className="text-2xl font-semibold mb-2 text-blue-300 border-b border-gray-700 pb-2">2. Historial Académico (Materias Aprobadas)</h2>
+            <h2 className="text-2xl font-semibold mb-2 text-blue-300 border-b border-gray-700 pb-2">2. Historial Académico</h2>
             <p className="text-sm text-gray-400 mb-6 mt-2">
-                Marca las materias que ya aprobaste. Esto habilita las correlativas para cursar.
+                Marca las materias que ya aprobaste.
             </p>
-
             <div className="space-y-4">
-                {/* 2.1 - Años Regulares */}
                 {sortedYears.map(year => (
                     renderSubjectGroup(`${year}° Año`, materiasPorAnio[year], year.toString(), "text-gray-200", false)
                 ))}
-                
-                {/* 2.2 - Requisitos de Idioma */}
                 {renderSubjectGroup("Requisitos de Idioma (Inglés)", materiasIngles, "ingles", "text-cyan-400", false)}
-                
-                {/* 2.3 - Materias Optativas (CON CRÉDITOS) */}
                 {renderSubjectGroup("Materias Optativas (Créditos)", materiasOptativas, "optativas", "text-yellow-400", true)}
             </div>
         </div>
 
-        {/* --- 3. Materias para Cursar --- */}
-        <div className="mb-8 p-6 bg-gray-700 rounded-lg border border-gray-600">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
-             <span className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-blue-400">3</span>
-             ¿Qué estás cursando ahora?
-          </h2>
-          <div className="flex gap-4 mb-4 pl-0 md:pl-10">
-            <Select value={selectedCursarURI} onValueChange={setSelectedCursarURI}>
-              <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white">
-                <SelectValue placeholder="Selecciona materia..." />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 text-white border-gray-600">
-                {materiasDisponibles.map(materia => (
-                  <SelectItem key={materia.uri} value={materia.uri} className="focus:bg-gray-700">
-                    {materia.label}
-                  </SelectItem>
+        {/* --- 3 y 4 (Cursando y Finales) --- */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             {/* 3. Materias para Cursar */}
+            <div className="p-6 bg-gray-700 rounded-lg border border-gray-600">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
+                <span className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-blue-400">3</span>
+                Cursando Ahora
+            </h2>
+            <div className="flex gap-2 mb-4">
+                <Select value={selectedCursarURI} onValueChange={setSelectedCursarURI}>
+                <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white"><SelectValue placeholder="Elegir materia" /></SelectTrigger>
+                <SelectContent className="bg-gray-800 text-white border-gray-600">
+                    {materiasDisponibles.map(materia => (<SelectItem key={materia.uri} value={materia.uri}>{materia.label}</SelectItem>))}
+                </SelectContent>
+                </Select>
+                <Button onClick={() => handleAddMateria(selectedCursarURI, "Cursando")} className="bg-blue-600">Añadir</Button>
+            </div>
+            <div className="space-y-2">
+                {materiasCursando.map(m => (
+                    <div key={m.id} className="flex justify-between items-center p-2 bg-gray-900/50 rounded border border-gray-600 text-sm">
+                    <span>{m.label}</span>
+                    <Trash2 className="h-4 w-4 text-red-400 cursor-pointer" onClick={() => handleDeleteMateria(m.id)} />
+                    </div>
                 ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={() => handleAddMateria(selectedCursarURI, "Cursando")} className="bg-blue-600 hover:bg-blue-700">
-              Añadir
-            </Button>
-          </div>
-          <div className="space-y-2 pl-0 md:pl-10">
-            {materiasCursando.length > 0 ? (
-              materiasCursando.map(materia => (
-                <div key={materia.id} className="flex justify-between items-center p-3 bg-gray-900/50 rounded border border-gray-600">
-                  <span className="font-medium">{materia.label}</span>
-                  <Button variant="ghost" size="icon" className="text-red-400 hover:bg-red-900/30 hover:text-red-300" onClick={() => handleDeleteMateria(materia.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))
-            ) : ( <p className="text-gray-400 text-sm italic">No has añadido materias para cursar.</p> )}
-          </div>
-        </div>
+            </div>
+            </div>
 
-        {/* --- 4. Materias para Rendir --- */}
-        <div className="p-6 bg-gray-700 rounded-lg border border-gray-600">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
-             <span className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-indigo-400">4</span>
-             ¿Qué finales debes? (Regulares)
-          </h2>
-          <div className="flex gap-4 mb-4 pl-0 md:pl-10">
-            <Select value={selectedRendirURI} onValueChange={setSelectedRendirURI}>
-              <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white">
-                <SelectValue placeholder="Selecciona materia..." />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-800 text-white border-gray-600">
-                {materiasDisponibles.map(materia => (
-                  <SelectItem key={materia.uri} value={materia.uri} className="focus:bg-gray-700">
-                    {materia.label}
-                  </SelectItem>
+            {/* 4. Materias para Rendir */}
+            <div className="p-6 bg-gray-700 rounded-lg border border-gray-600">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
+                <span className="bg-indigo-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm border border-indigo-400">4</span>
+                Finales Pendientes
+            </h2>
+            <div className="flex gap-2 mb-4">
+                <Select value={selectedRendirURI} onValueChange={setSelectedRendirURI}>
+                <SelectTrigger className="w-full bg-gray-900 border-gray-600 text-white"><SelectValue placeholder="Elegir materia" /></SelectTrigger>
+                <SelectContent className="bg-gray-800 text-white border-gray-600">
+                    {materiasDisponibles.map(materia => (<SelectItem key={materia.uri} value={materia.uri}>{materia.label}</SelectItem>))}
+                </SelectContent>
+                </Select>
+                <Button onClick={() => handleAddMateria(selectedRendirURI, "Regular")} className="bg-indigo-600">Añadir</Button>
+            </div>
+            <div className="space-y-2">
+                {materiasRegulares.map(m => (
+                    <div key={m.id} className="flex justify-between items-center p-2 bg-gray-900/50 rounded border border-gray-600 text-sm">
+                    <span>{m.label}</span>
+                    <Trash2 className="h-4 w-4 text-red-400 cursor-pointer" onClick={() => handleDeleteMateria(m.id)} />
+                    </div>
                 ))}
-              </SelectContent>
-            </Select>
-            <Button onClick={() => handleAddMateria(selectedRendirURI, "Regular")} className="bg-indigo-600 hover:bg-indigo-700">
-              Añadir
-            </Button>
-          </div>
-          <div className="space-y-2 pl-0 md:pl-10">
-            {materiasRegulares.length > 0 ? (
-              materiasRegulares.map(materia => (
-                <div key={materia.id} className="flex justify-between items-center p-3 bg-gray-900/50 rounded border border-gray-600">
-                  <span className="font-medium">{materia.label}</span>
-                  <Button variant="ghost" size="icon" className="text-red-400 hover:bg-red-900/30 hover:text-red-300" onClick={() => handleDeleteMateria(materia.id)}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))
-            ) : ( <p className="text-gray-400 text-sm italic">No has añadido materias para rendir.</p> )}
-          </div>
+            </div>
+            </div>
         </div>
         
       </div>
