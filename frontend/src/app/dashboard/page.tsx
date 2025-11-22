@@ -9,14 +9,14 @@ import { toast } from "sonner";
 import { Loader2Icon, Lightbulb, User as UserIcon } from "lucide-react";
 
 import {
-  User, MateriaOntology, MateriaPerfil, TopicoOntology,
-  Alerta, ConsejoResponse, PlanCursadaRecomendado, PlanExamenRecomendado
+  User, MateriaOntology, MateriaPerfil, Alerta, PlanCursadaRecomendado, PlanExamenRecomendado
 } from "@/types";
 
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import PlanResults from "@/components/dashboard/PlanResults";
 import ExamenStrategy from "@/components/dashboard/ExamenStrategy";
 import QuickActions from "@/components/dashboard/QuickActions";
+import TopicConsultation from "@/components/dashboard/TopicConsultation";
 
 export default function Home() {
   const router = useRouter();
@@ -27,13 +27,6 @@ export default function Home() {
   
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
-
-  const [isLoadingAdvice, setIsLoadingAdvice] = useState(false); 
-  const [materiaActiva, setMateriaActiva] = useState<MateriaPerfil | null>(null);
-  const [tipoDeConsejo, setTipoDeConsejo] = useState<'cursada' | 'examen' | null>(null);
-  const [topicos, setTopicos] = useState<TopicoOntology[]>([]);
-  const [consejoGeneral, setConsejoGeneral] = useState<string[] | null>(null);
-  const [consejoEspecifico, setConsejoEspecifico] = useState<string[] | null>(null);
 
   const [planRecomendado, setPlanRecomendado] = useState<PlanCursadaRecomendado | null>(null);
   const [isLoadingPlan, setIsLoadingPlan] = useState(false);
@@ -95,19 +88,11 @@ export default function Home() {
   const handleLogout = () => {
     localStorage.removeItem("sbc_access_token");
     setUser(null); setToken(null); setMateriasPerfil([]);
-    setConsejoGeneral(null); setConsejoEspecifico(null);
     setAlertas([]); 
     setPlanRecomendado(null);
     setPlanExamenes(null);
     setIsLoading(true);
     router.push("/login");
-  }
-
-  const clearAllResults = () => {
-    setConsejoGeneral(null); 
-    setConsejoEspecifico(null);
-    setMateriaActiva(null);
-    setTopicos([]);
   }
 
   const handleGetPlanCursada = async () => {
@@ -120,8 +105,6 @@ export default function Home() {
       );
       setPlanRecomendado(response.data);
       setPlanExamenes(null);
-      setConsejoGeneral(null);
-      setConsejoEspecifico(null);
     } catch (error) {
       toast.error("Error al generar el plan");
     }
@@ -138,98 +121,36 @@ export default function Home() {
       );
       setPlanExamenes(response.data);
       setPlanRecomendado(null);
-      setConsejoGeneral(null);
-      setConsejoEspecifico(null);
     } catch (error) {
       toast.error("Error al generar estrategia");
     }
     setIsLoadingExamenes(false);
   };
   
-  const handleGetGeneralAdvice = async (tipo: 'cursada' | 'examen') => {
-    if (!token) return;
-    setIsLoadingAdvice(true);
-    clearAllResults();
-    const endpoint = tipo === 'cursada' ? '/api/sbc/consejos/cursada/general' : '/api/sbc/consejos/examen/general';
-    try {
-      const response = await axios.get<ConsejoResponse>(
-        endpoint,
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-      setConsejoGeneral(response.data.consejos);
-    } catch (error) {
-      toast.error("Error al pedir consejo general");
-    }
-    setIsLoadingAdvice(false);
-  };
-
-  const handleSelectMateria = async (materia: MateriaPerfil, tipo: 'cursada' | 'examen') => {
-    if (!token) return;
-    setIsLoadingAdvice(true);
-    clearAllResults();
-    setMateriaActiva(materia); 
-    setTipoDeConsejo(tipo); 
-    try {
-      const response = await axios.get<TopicoOntology[]>(
-        `/api/sbc/ontologia/materias/topicos`,
-        { 
-          headers: { Authorization: `Bearer ${token}` },
-          params: { materia_uri: materia.materia_uri, tipo: tipo }
-        }
-      );
-      setTopicos(response.data); 
-    } catch (error) {
-      toast.error("Error", { description: "No se pudieron encontrar tópicos." });
-    }
-    setIsLoadingAdvice(false);
-  };
-
-  const handleSelectTopico = async (topico: TopicoOntology) => {
-    if (!token || !materiaActiva || !tipoDeConsejo) return;
-    setIsLoadingAdvice(true);
-    const endpoint = tipoDeConsejo === 'cursada' 
-      ? '/api/sbc/consejos/cursada/especifico'
-      : '/api/sbc/consejos/examen/especifico';
-    const body = {
-      materia_uris_request: [materiaActiva.materia_uri], 
-      topico_uri: topico.uri 
-    };
-    try {
-      const response = await axios.post<ConsejoResponse>(
-        endpoint, body, { headers: { Authorization: `Bearer ${token}` }}
-      );
-      setConsejoEspecifico(response.data.consejos);
-    } catch (error) {
-      toast.error("Error al pedir consejo");
-    } finally {
-      setIsLoadingAdvice(false);
-      setMateriaActiva(null);
-      setTopicos([]);
-    }
-  };
-  
   if (isLoading || !user) {
     return <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">Cargando datos del usuario...</main>
   }
 
-  const isAnyLoading = isLoadingAdvice || isLoadingPlan || isLoadingExamenes;
+  const isAnyLoading = isLoadingPlan || isLoadingExamenes;
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 md:p-24 bg-gray-900 text-white">
-      <div className="w-full max-w-4xl p-8 bg-gray-800 rounded-lg shadow-lg">
+    <main className="flex min-h-screen flex-col items-center p-8 md:p-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 animate-gradient text-white">
+      <div className="w-full max-w-4xl p-8 bg-gray-800/90 backdrop-blur-md rounded-lg shadow-2xl border border-gray-700">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <div>
-            <h1 className="text-2xl font-bold">Bienvenido, {user.full_name || user.email}</h1>
+            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
+              Bienvenido, {user.full_name || user.email}
+            </h1>
             <p className="text-gray-400">Este es tu panel de control inteligente.</p>
           </div>
           <div className="flex gap-2">
              <Link href="/perfil">
-                <Button variant="secondary" className="bg-blue-900/50 text-blue-200 border border-blue-800 hover:bg-blue-900">
+                <Button variant="secondary" className="bg-blue-900/50 text-blue-200 border border-blue-800 hover:bg-blue-900 transition-all hover:scale-105">
                      <UserIcon className="mr-2 h-4 w-4"/> Mi Perfil
                 </Button>
              </Link>
-            <Button variant="outline" onClick={handleLogout} className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600">Cerrar Sesión</Button>
+            <Button variant="outline" onClick={handleLogout} className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 transition-all hover:scale-105">Cerrar Sesión</Button>
           </div>
         </div>
 
@@ -244,11 +165,12 @@ export default function Home() {
             <QuickActions
               handleGetPlanCursada={handleGetPlanCursada}
               handleGetPlanExamenes={handleGetPlanExamenes}
-              handleGetGeneralAdvice={handleGetGeneralAdvice}
               isLoadingPlan={isLoadingPlan}
               isLoadingExamenes={isLoadingExamenes}
               isAnyLoading={isAnyLoading}
             />
+
+            <TopicConsultation materiasPerfil={materiasPerfil} token={token} />
 
           </div>
 
@@ -256,8 +178,8 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-6">
 
                {/* Placeholder inicial */}
-               {!planRecomendado && !planExamenes && !consejoGeneral && !consejoEspecifico && !isAnyLoading && (
-                   <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-700 rounded-lg text-gray-500">
+               {!planRecomendado && !planExamenes && !isAnyLoading && (
+                   <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-700 rounded-lg text-gray-500 bg-gray-800/50">
                        <Lightbulb className="w-12 h-12 mb-4 opacity-20" />
                        <p className="text-center">Selecciona una opción a la izquierda para comenzar.</p>
                    </div>
@@ -275,37 +197,6 @@ export default function Home() {
               <PlanResults plan={planRecomendado} isLoading={isLoadingPlan} />
 
               <ExamenStrategy plan={planExamenes} isLoading={isLoadingExamenes} />
-
-              {/* --- OTROS RESULTADOS (TOPICOS, CONSEJOS SIMPLES) --- */}
-              {topicos.length > 0 && materiaActiva && (
-                <div className="p-5 bg-gray-800 rounded-lg shadow-lg border border-gray-700 animate-in fade-in-0">
-                  <h3 className="font-bold text-lg mb-2">Consulta Específica: {materiaActiva.label}</h3>
-                  <p className="text-sm text-gray-400 mb-4">Selecciona un tema para recibir orientación puntual.</p>
-                  <div className="flex flex-wrap gap-2">
-                    {topicos.map(topico => (
-                      <Button key={topico.uri} variant="outline" className="bg-gray-700 border-gray-600 hover:bg-gray-600" onClick={() => handleSelectTopico(topico)}>{topico.label}</Button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {consejoGeneral && (
-                <div className="p-5 bg-gray-800 rounded-lg shadow-lg border border-yellow-700/50 animate-in fade-in-0">
-                  <h3 className="font-bold text-lg text-yellow-400 mb-3">Diagnóstico General</h3>
-                  <ul className="list-disc pl-4 space-y-2 text-gray-300">
-                     {consejoGeneral.map((c, index) => <li key={index}>{c}</li>)}
-                  </ul>
-                </div>
-              )}
-
-              {consejoEspecifico && (
-                <div className="p-5 bg-gray-800 rounded-lg shadow-lg border border-green-700/50 animate-in fade-in-0">
-                  <h3 className="font-bold text-lg text-green-400 mb-3">Recomendación Puntual</h3>
-                   <ul className="list-disc pl-4 space-y-2 text-gray-300">
-                     {consejoEspecifico.map((c, index) => <li key={index}>{c}</li>)}
-                  </ul>
-                </div>
-              )}
 
           </div>
         </div>

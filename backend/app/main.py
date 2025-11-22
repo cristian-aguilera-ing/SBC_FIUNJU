@@ -60,11 +60,12 @@ def get_all_materias_from_ontology(current_user: User = Depends(get_current_user
         PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         
-        SELECT ?materia ?label ?año ?creditos ?requisito
+        SELECT ?materia ?label ?año ?creditos ?creditos_req ?requisito
             WHERE { 
                 ?materia a fiunju:Materia ; rdfs:label ?label . 
                 OPTIONAL { ?materia fiunju:perteneceAlAño ?año . }
                 OPTIONAL { ?materia fiunju:otorgaCreditos ?creditos . }
+                OPTIONAL { ?materia fiunju:requiereCreditos ?creditos_req . }
                 OPTIONAL { ?materia fiunju:tieneRequisito ?requisito . }
             }
             ORDER BY ?año ?label"""
@@ -78,12 +79,14 @@ def get_all_materias_from_ontology(current_user: User = Depends(get_current_user
         if uri not in materias_dict:
             anio_val = int(row.año) if row.año else None
             creditos_val = int(row.creditos) if row.creditos else 0
+            creditos_req_val = int(row.creditos_req) if row.creditos_req else 0
 
             materias_dict[uri] = MateriaOntology(
                 uri=uri,
                 label=str(row.label),
                 año=anio_val,
                 creditos=creditos_val,
+                creditos_requeridos=creditos_req_val,
                 requisitos=[]
             )
         

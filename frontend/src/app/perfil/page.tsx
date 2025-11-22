@@ -15,7 +15,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Trash2, ChevronDown, ChevronUp, CheckSquare, Square, BookOpenCheck, Award, BookCheck, CalendarCheck } from "lucide-react";
+import { Trash2, ChevronDown, ChevronUp, CheckSquare, Square, BookOpenCheck, Award, BookCheck, CalendarCheck, AlertTriangle } from "lucide-react";
 
 // --- Tipos de Datos ---
 enum CondicionLaboral {
@@ -35,6 +35,7 @@ interface MateriaOntology {
     label: string; 
     año: number | null; 
     creditos: number;
+    creditos_requeridos: number; // Nueva propiedad
     requisitos: string[];
 }
 interface UserMateria { 
@@ -157,7 +158,6 @@ export default function PerfilPage() {
     }
   };
 
-  // Se actualizó para soportar "PreparandoFinal"
   const handleAddMateria = async (materiaURI: string, estado: "Cursando" | "Regular" | "Aprobada" | "PreparandoFinal") => {
     if (!token || !materiaURI) return;
     
@@ -171,9 +171,6 @@ export default function PerfilPage() {
     };
 
     if (estado === "Regular" || estado === "PreparandoFinal") {
-      // Mantener o establecer la fecha si es Regular
-      // Si ya existe una fecha, no deberíamos sobreescribirla si solo cambiamos a PreparandoFinal,
-      // pero la API actual es simple. Asumiremos fecha actual si no existe.
       requestBody.fecha_regularidad = new Date().toISOString();
     }
 
@@ -276,16 +273,20 @@ export default function PerfilPage() {
 
   const sortedYears = Object.keys(materiasPorAnio).map(Number).sort((a, b) => a - b);
   const materiasCursando = userMaterias.filter(m => m.estado === "Cursando");
-
-  // Ahora mostramos las que están listas para rendir AHORA
   const materiasPreparandoFinal = userMaterias.filter(m => m.estado === "PreparandoFinal");
-
-  // Para el dropdown de selección, usamos las que son "Regular" (es decir, habilitadas para rendir pero no seleccionadas aún)
   const materiasRegularesDisponibles = userMaterias.filter(m => m.estado === "Regular");
 
-  // Lógica de filtrado para materias disponibles (Cursando Ahora)
   const aprobadasURIs = userMaterias.filter(um => um.estado === "Aprobada").map(um => um.materia_uri);
 
+  const CREDITOS_NECESARIOS = 270;
+  const creditosActuales = userMaterias
+    .filter(um => um.estado === "Aprobada")
+    .reduce((acc, um) => {
+        const materiaOnto = allMaterias.find(m => m.uri === um.materia_uri);
+        return acc + (materiaOnto?.creditos || 0);
+    }, 0);
+
+  // --- Lógica de Filtrado para Cursada (con Créditos) ---
   let materiasDisponibles = allMaterias.filter(om => {
     // 1. No cursada ni aprobada ni regular
     const yaInscripto = userMaterias.some(um => um.materia_uri === om.uri);
@@ -297,30 +298,24 @@ export default function PerfilPage() {
         if (!tieneCorrelativas) return false;
     }
 
+    // 3. Verificar créditos requeridos (Ingeniería del Conocimiento, etc.)
+    if (om.creditos_requeridos > 0 && creditosActuales < om.creditos_requeridos) {
+        return false;
+    }
+
     return true;
   });
 
-  // --- ORDENAMIENTO ---
-  // 1. Obligatorias primero (creditos == 0 o no definido) vs Optativas (creditos > 0)
-  // 2. Alfabético
+  // Ordenamiento
   materiasDisponibles.sort((a, b) => {
       const aEsOptativa = (a.creditos || 0) > 0;
       const bEsOptativa = (b.creditos || 0) > 0;
 
       if (aEsOptativa !== bEsOptativa) {
-          return aEsOptativa ? 1 : -1; // Obligatorias primero
+          return aEsOptativa ? 1 : -1;
       }
       return a.label.localeCompare(b.label);
   });
-
-
-  const CREDITOS_NECESARIOS = 270;
-  const creditosActuales = userMaterias
-    .filter(um => um.estado === "Aprobada")
-    .reduce((acc, um) => {
-        const materiaOnto = allMaterias.find(m => m.uri === um.materia_uri);
-        return acc + (materiaOnto?.creditos || 0);
-    }, 0);
 
   const porcentajeCreditos = Math.min(100, (creditosActuales / CREDITOS_NECESARIOS) * 100);
   const colorCreditos = creditosActuales >= CREDITOS_NECESARIOS ? "text-green-400" : "text-yellow-400";
@@ -405,7 +400,12 @@ export default function PerfilPage() {
                             const userMateria = userMaterias.find(um => um.materia_uri === subject.uri);
                             const isPassed = userMateria?.estado === "Aprobada";
                             const isRegular = userMateria?.estado === "Regular" || userMateria?.estado === "PreparandoFinal";
-                            const isOtherState = userMateria && !isPassed && !isRegular;
+                            // const isOtherState = userMateria && !isPassed && !isRegular;
+
+                            // Bloqueo visual para materias bloqueadas por CRÉDITOS (aunque no deberían verse en 'Cursando Ahora' list, aquí mostramos TODAS las del año)
+                            const bloqueadaPorCreditos = subject.creditos_requeridos > 0 && creditosActuales < subject.creditos_requeridos;
+                            const bloqueadaPorCorrelativas = subject.requisitos.some(req => !aprobadasURIs.includes(req));
+                            const estaBloqueada = !isPassed && (bloqueadaPorCreditos || bloqueadaPorCorrelativas);
 
                             return (
                                 <div 
@@ -416,18 +416,27 @@ export default function PerfilPage() {
                                             ? 'bg-green-900/20 border-green-800/50'
                                             : isRegular
                                                 ? 'bg-blue-900/20 border-blue-800/50'
-                                                : 'bg-gray-900/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800'}
+                                                : estaBloqueada
+                                                    ? 'bg-gray-900/60 border-gray-800 opacity-60'
+                                                    : 'bg-gray-900/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800'}
                                     `}
                                 >
                                     <div className="flex flex-col">
                                         <span className={`text-sm ${isPassed ? 'text-green-100 font-medium' : isRegular ? 'text-blue-100 font-medium' : 'text-gray-400'}`}>
                                             {subject.label}
                                         </span>
-                                        {subject.creditos > 0 && (
-                                            <span className="text-[10px] text-blue-400 flex items-center gap-1">
-                                                <Award className="h-3 w-3" /> {subject.creditos} cred.
-                                            </span>
-                                        )}
+                                        <div className="flex gap-2">
+                                            {subject.creditos > 0 && (
+                                                <span className="text-[10px] text-blue-400 flex items-center gap-1">
+                                                    <Award className="h-3 w-3" /> {subject.creditos} cred.
+                                                </span>
+                                            )}
+                                            {bloqueadaPorCreditos && (
+                                                <span className="text-[10px] text-yellow-500 flex items-center gap-1" title={`Requiere ${subject.creditos_requeridos} créditos`}>
+                                                    <AlertTriangle className="h-3 w-3" /> Req. {subject.creditos_requeridos} cred.
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="flex items-center gap-1">
@@ -438,13 +447,16 @@ export default function PerfilPage() {
                                                 if (isRegular) handleDeleteMateria(userMateria!.id); // Toggle off
                                                 else handleAddMateria(subject.uri, "Regular");
                                             }}
+                                            disabled={estaBloqueada}
                                             className={`
                                                 w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors
                                                 ${isRegular
                                                     ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.5)]'
-                                                    : 'border-gray-600 text-gray-500 hover:border-blue-500 hover:text-blue-400 bg-gray-800'}
+                                                    : estaBloqueada
+                                                        ? 'border-gray-800 text-gray-600 cursor-not-allowed'
+                                                        : 'border-gray-600 text-gray-500 hover:border-blue-500 hover:text-blue-400 bg-gray-800'}
                                             `}
-                                            title="Regularizar Materia"
+                                            title={estaBloqueada ? "No cumples requisitos" : "Regularizar Materia"}
                                         >
                                             R
                                         </button>
@@ -456,6 +468,9 @@ export default function PerfilPage() {
                                                 if (isPassed) handleDeleteMateria(userMateria!.id); // Toggle off
                                                 else handleAddMateria(subject.uri, "Aprobada");
                                             }}
+                                            // A veces se puede aprobar por equivalencia o examen libre, pero por ahora bloqueamos si no cumple requisitos para simplificar
+                                            // O permitimos aprobar final siempre? No, el usuario quiere validación.
+                                            // Pero si aprobó final, ya aprobó. Permitamos marcar aprobada (historial).
                                             className={`
                                                 w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors
                                                 ${isPassed
@@ -482,9 +497,9 @@ export default function PerfilPage() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 md:p-24 bg-gray-900 text-white">
-      <div className="w-full max-w-4xl p-8 bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-3xl font-bold mb-6">Mi Perfil Académico</h1>
+    <main className="flex min-h-screen flex-col items-center p-8 md:p-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 animate-gradient text-white">
+      <div className="w-full max-w-4xl p-8 bg-gray-800/90 backdrop-blur-md rounded-lg shadow-2xl border border-gray-700">
+        <h1 className="text-3xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-green-400">Mi Perfil Académico</h1>
         <div className="mb-8">
           <Link href="/dashboard">
             <Button variant="outline" className="bg-gray-700 text-white hover:bg-gray-600">
@@ -494,7 +509,8 @@ export default function PerfilPage() {
         </div>
 
         <form onSubmit={handleSavePerfil} className="mb-8 p-6 bg-gray-700 rounded-lg space-y-8 border border-gray-600">
-          <h2 className="text-2xl font-semibold text-blue-300 border-b border-gray-600 pb-2">1. Datos Personales & Entorno</h2>
+            {/* ... (Se mantiene igual el form de perfil) ... */}
+             <h2 className="text-2xl font-semibold text-blue-300 border-b border-gray-600 pb-2">1. Datos Personales & Entorno</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
              {/* COL 1 */}
@@ -549,7 +565,7 @@ export default function PerfilPage() {
              </div>
           </div>
 
-          <Button type="submit" className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 mt-4 font-bold py-6 text-lg shadow-lg">
+          <Button type="submit" className="w-full bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-500 hover:to-teal-500 mt-4 font-bold py-6 text-lg shadow-lg transition-transform hover:scale-[1.02]">
             Guardar Mi Perfil
           </Button>
         </form>

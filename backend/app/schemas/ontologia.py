@@ -7,6 +7,7 @@ class MateriaOntology(BaseModel):
     label: str
     año: int | None = None 
     creditos: int = 0
+    creditos_requeridos: int = 0
     requisitos: list[str] = []
 
 class TopicoOntology(BaseModel):

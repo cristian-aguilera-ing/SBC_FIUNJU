@@ -5,7 +5,6 @@ import { Loader2Icon, BrainCircuit, Target as TargetIcon } from "lucide-react";
 interface QuickActionsProps {
   handleGetPlanCursada: () => void;
   handleGetPlanExamenes: () => void;
-  handleGetGeneralAdvice: (tipo: 'cursada' | 'examen') => void;
   isLoadingPlan: boolean;
   isLoadingExamenes: boolean;
   isAnyLoading: boolean;
@@ -14,7 +13,6 @@ interface QuickActionsProps {
 const QuickActions = ({
   handleGetPlanCursada,
   handleGetPlanExamenes,
-  handleGetGeneralAdvice,
   isLoadingPlan,
   isLoadingExamenes,
   isAnyLoading
@@ -34,18 +32,6 @@ const QuickActions = ({
                 <span className="font-bold">Estrategia Finales</span>
                 <span className="text-[10px] font-normal opacity-80">Prioridad Inteligente</span>
             </Button>
-            </div>
-        </div>
-
-        <div className="p-4 bg-gray-700 rounded-lg border border-gray-600">
-            <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">Consultas Rápidas</h3>
-            <div className="space-y-2">
-                <Button size="sm" variant="ghost" onClick={() => handleGetGeneralAdvice('cursada')} disabled={isAnyLoading} className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-600">
-                    • Evaluar Cursada Actual
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => handleGetGeneralAdvice('examen')} disabled={isAnyLoading} className="w-full justify-start text-gray-300 hover:text-white hover:bg-gray-600">
-                    • Evaluar Finales Pendientes
-                </Button>
             </div>
         </div>
     </div>
