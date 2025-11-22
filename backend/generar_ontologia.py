@@ -228,6 +228,7 @@ g.add((fiunju.SistOpI, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.SistOpI, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, fiunju.TopicoGestionTiempo))
 g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, fiunju.TopicoExamenOral))
+g.add((fiunju.SistOpI, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Estructura de Datos ---
 g.add((fiunju.EstDatos, RDF.type, fiunju.Obligatoria)) 
@@ -237,6 +238,7 @@ g.add((fiunju.EstDatos, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.EstDatos, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
 g.add((fiunju.EstDatos, fiunju.tieneRequisito, fiunju.IntroProg))
 g.add((fiunju.EstDatos, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.EstDatos, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Metodología de la Programación ---
 g.add((fiunju.MetProg, RDF.type, fiunju.Obligatoria))
@@ -245,6 +247,7 @@ g.add((fiunju.MetProg, fiunju.perteneceAlAño, Literal(1, datatype=XSD.integer))
 g.add((fiunju.MetProg, fiunju.tieneRequisito, fiunju.IntroProg))
 g.add((fiunju.MetProg, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
 g.add((fiunju.MetProg, fiunju.tieneTopicoRelevante, fiunju.TopicoAprobacionTI))
+g.add((fiunju.MetProg, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Introducción a la Programación ---
 g.add((fiunju.IntroProg, RDF.type, fiunju.Obligatoria))
@@ -252,6 +255,7 @@ g.add((fiunju.IntroProg, RDFS.label, Literal("Introducción a la Programación",
 g.add((fiunju.IntroProg, fiunju.perteneceAlAño, Literal(1, datatype=XSD.integer)))
 g.add((fiunju.IntroProg, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
 g.add((fiunju.IntroProg, fiunju.tieneTopicoRelevante, fiunju.TopicoAprobacionTI))
+g.add((fiunju.IntroProg, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Organización de Computadoras ---
 g.add((fiunju.OrgComp, RDF.type, fiunju.Obligatoria))
@@ -259,6 +263,7 @@ g.add((fiunju.OrgComp, RDFS.label, Literal("Organización de Computadoras", lang
 g.add((fiunju.OrgComp, fiunju.perteneceAlAño, Literal(1, datatype=XSD.integer)))
 g.add((fiunju.OrgComp, fiunju.tieneModalidadExamen, fiunju.ExamenMultipleChoice))
 g.add((fiunju.OrgComp, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.OrgComp, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Bases de Datos ---
 g.add((fiunju.BaseDatos, RDF.type, fiunju.Obligatoria)) 
@@ -270,6 +275,7 @@ g.add((fiunju.BaseDatos, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.BaseDatos, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
 g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, fiunju.TopicoMaterialEstudio))
 g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, fiunju.TopicoExamenOral))
+g.add((fiunju.BaseDatos, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Programación Concurrente---
 g.add((fiunju.ProgCon, RDF.type, fiunju.Obligatoria))
@@ -279,6 +285,7 @@ g.add((fiunju.ProgCon, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.ProgCon, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.ProgCon, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.ProgCon, fiunju.tieneDificultadCursada, fiunju.Nivel_4))
+g.add((fiunju.ProgCon, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Arquitectura de Computadoras Paralelas ---
 g.add((fiunju.ArqParalelas, RDF.type, fiunju.Obligatoria))
@@ -291,6 +298,7 @@ g.add((fiunju.ArqParalelas, fiunju.tieneRequisito, fiunju.ArqRedes))
 g.add((fiunju.ArqParalelas, fiunju.tieneRequisito, fiunju.NivSufIng))
 g.add((fiunju.ArqParalelas, fiunju.requiereCreditos, Literal(90, datatype=XSD.integer)))
 g.add((fiunju.ArqParalelas, fiunju.tieneDificultadCursada, fiunju.Nivel_3))
+g.add((fiunju.ArqParalelas, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Arquitectua de Redes ---
 g.add((fiunju.ArqRedes, RDF.type, fiunju.Obligatoria))
@@ -300,6 +308,7 @@ g.add((fiunju.ArqRedes, fiunju.perteneceAlAño, Literal(4, datatype=XSD.integer)
 g.add((fiunju.ArqRedes, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.ArqRedes, fiunju.tieneRequisito, fiunju.SistOpI))
 g.add((fiunju.ArqRedes, fiunju.tieneDificultadCursada, fiunju.Nivel_3))
+g.add((fiunju.ArqRedes, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Desarrollo Sistemático de Programas ---
 g.add((fiunju.DesSistProg, RDF.type, fiunju.Obligatoria))
@@ -310,6 +319,7 @@ g.add((fiunju.DesSistProg, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscr
 g.add((fiunju.DesSistProg, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.DesSistProg, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.DesSistProg, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.DesSistProg, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Lógica Computacional ---
 g.add((fiunju.LogComp, RDF.type, fiunju.Obligatoria))
@@ -318,6 +328,7 @@ g.add((fiunju.LogComp, fiunju.perteneceAlAño, Literal(3, datatype=XSD.integer))
 g.add((fiunju.LogComp, fiunju.tieneModalidadExamen, fiunju.ExamenMultipleChoice))
 g.add((fiunju.LogComp, fiunju.tieneRequisito, fiunju.AlgebraLineal))
 g.add((fiunju.LogComp, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.LogComp, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Algebra Lineal ---
 g.add((fiunju.AlgebraLineal, RDF.type, fiunju.Obligatoria))
@@ -325,6 +336,7 @@ g.add((fiunju.AlgebraLineal, RDFS.label, Literal("Algebra Lineal", lang="es")))
 g.add((fiunju.AlgebraLineal, fiunju.perteneceAlAño, Literal(1, datatype=XSD.integer)))
 g.add((fiunju.AlgebraLineal, fiunju.tieneModalidadExamen, fiunju.ExamenMultipleChoice))
 g.add((fiunju.AlgebraLineal, fiunju.tieneDificultadCursada, fiunju.Nivel_3))
+g.add((fiunju.AlgebraLineal, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Calidad de Software y Testing ---
 g.add((fiunju.CalSoftTest, RDF.type, fiunju.Obligatoria))
@@ -333,6 +345,7 @@ g.add((fiunju.CalSoftTest, fiunju.perteneceAlAño, Literal(4, datatype=XSD.integ
 g.add((fiunju.CalSoftTest, fiunju.tieneModalidadExamen, fiunju.ExamenMultipleChoice))
 g.add((fiunju.CalSoftTest, fiunju.tieneRequisito, fiunju.ModOrientObjetos))
 g.add((fiunju.CalSoftTest, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.CalSoftTest, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Modelado Orientado a Objetos ---
 g.add((fiunju.ModOrientObjetos, RDF.type, fiunju.Obligatoria))
@@ -342,6 +355,7 @@ g.add((fiunju.ModOrientObjetos, fiunju.tieneModalidadExamen, fiunju.ExamenTeoric
 g.add((fiunju.ModOrientObjetos, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.ModOrientObjetos, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.ModOrientObjetos, fiunju.tieneDificultadCursada, fiunju.Nivel_3))
+g.add((fiunju.ModOrientObjetos, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Teoria de Automatas, lenguajes y Computación ---
 g.add((fiunju.TeoAutoLengComp, RDF.type, fiunju.Obligatoria))
@@ -352,6 +366,7 @@ g.add((fiunju.TeoAutoLengComp, fiunju.tieneModalidadExamen, fiunju.ExamenTeorico
 g.add((fiunju.TeoAutoLengComp, fiunju.tieneRequisito, fiunju.LogComp))
 g.add((fiunju.TeoAutoLengComp, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.TeoAutoLengComp, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.TeoAutoLengComp, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Electricidad y Magnetismo ---
 g.add((fiunju.ElecMag, RDF.type, fiunju.Obligatoria))
@@ -361,6 +376,7 @@ g.add((fiunju.ElecMag, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.ElecMag, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
 g.add((fiunju.ElecMag, fiunju.tieneRequisito, fiunju.FisicaMec))
 g.add((fiunju.ElecMag, fiunju.tieneDificultadCursada, fiunju.Nivel_3))
+g.add((fiunju.ElecMag, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Fisica Mecanica ---
 g.add((fiunju.FisicaMec, RDF.type, fiunju.Obligatoria))
@@ -371,6 +387,7 @@ g.add((fiunju.FisicaMec, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrit
 g.add((fiunju.FisicaMec, fiunju.tieneRequisito, fiunju.AnalMatemI))
 g.add((fiunju.FisicaMec, fiunju.tieneRequisito, fiunju.AlgebraLineal))
 g.add((fiunju.FisicaMec, fiunju.tieneDificultadCursada, fiunju.Nivel_4))
+g.add((fiunju.FisicaMec, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Análisis Matemático I ---
 g.add((fiunju.AnalMatemI, RDF.type, fiunju.Obligatoria))
@@ -378,6 +395,7 @@ g.add((fiunju.AnalMatemI, RDFS.label, Literal("Análisis Matemático I", lang="e
 g.add((fiunju.AnalMatemI, fiunju.perteneceAlAño, Literal(1, datatype=XSD.integer)))
 g.add((fiunju.AnalMatemI, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
 g.add((fiunju.AnalMatemI, fiunju.tieneDificultadCursada, fiunju.Nivel_4))
+g.add((fiunju.AnalMatemI, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Análisis Matemático II ---
 g.add((fiunju.AnalMatemII, RDF.type, fiunju.Obligatoria))
@@ -386,6 +404,7 @@ g.add((fiunju.AnalMatemII, fiunju.perteneceAlAño, Literal(1, datatype=XSD.integ
 g.add((fiunju.AnalMatemII, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
 g.add((fiunju.AnalMatemII, fiunju.tieneRequisito, fiunju.AnalMatemI))
 g.add((fiunju.AnalMatemII, fiunju.tieneDificultadCursada, fiunju.Nivel_4))
+g.add((fiunju.AnalMatemII, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Matemática Discreta ---
 g.add((fiunju.MatDisc, RDF.type, fiunju.Obligatoria))
@@ -394,6 +413,7 @@ g.add((fiunju.MatDisc, fiunju.perteneceAlAño, Literal(2, datatype=XSD.integer))
 g.add((fiunju.MatDisc, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
 g.add((fiunju.MatDisc, fiunju.tieneRequisito, fiunju.AlgebraLineal))
 g.add((fiunju.MatDisc, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
+g.add((fiunju.MatDisc, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Metodos de Simulacion ---
 g.add((fiunju.MetSim, RDF.type, fiunju.Obligatoria))
@@ -403,6 +423,7 @@ g.add((fiunju.MetSim, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrito))
 g.add((fiunju.MetSim, fiunju.tieneRequisito, fiunju.ProbEstad))
 g.add((fiunju.MetSim, fiunju.tieneRequisito, fiunju.CalcNum))
 g.add((fiunju.MetSim, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.MetSim, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Cálculo Numérico ---
 g.add((fiunju.CalcNum, RDF.type, fiunju.Obligatoria))
@@ -411,6 +432,7 @@ g.add((fiunju.CalcNum, fiunju.perteneceAlAño, Literal(2, datatype=XSD.integer))
 g.add((fiunju.CalcNum, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.CalcNum, fiunju.tieneRequisito, fiunju.AnalMatemII))
 g.add((fiunju.CalcNum, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
+g.add((fiunju.CalcNum, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Probabilidad y Estadística ---
 g.add((fiunju.ProbEstad, RDF.type, fiunju.Obligatoria))
@@ -420,6 +442,7 @@ g.add((fiunju.ProbEstad, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.ProbEstad, fiunju.tieneRequisito, fiunju.AlgebraLineal))
 g.add((fiunju.ProbEstad, fiunju.tieneRequisito, fiunju.AnalMatemII))
 g.add((fiunju.ProbEstad, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
+g.add((fiunju.ProbEstad, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Ingeniería del Conocimiento ---
 g.add((fiunju.IngCon, RDF.type, fiunju.Obligatoria))
@@ -431,6 +454,7 @@ g.add((fiunju.IngCon, fiunju.tieneRequisito, fiunju.NivSufIng))
 g.add((fiunju.IngCon, fiunju.tieneRequisito, fiunju.ModOrientObjetos))
 g.add((fiunju.IngCon, fiunju.requiereCreditos, Literal(90, datatype=XSD.integer)))
 g.add((fiunju.IngCon, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.IngCon, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital ---
 g.add((fiunju.FEPIED, RDF.type, fiunju.Obligatoria))
@@ -440,6 +464,7 @@ g.add((fiunju.FEPIED, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.FEPIED, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.FEPIED, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.FEPIED, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
+g.add((fiunju.FEPIED, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Organización Empresarial y Modelos de Negocios ---
 g.add((fiunju.OEMN, RDF.type, fiunju.Obligatoria))
@@ -449,6 +474,7 @@ g.add((fiunju.OEMN, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.OEMN, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.OEMN, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.OEMN, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
+g.add((fiunju.OEMN, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Teoría de la Información y la Comunicación ---
 g.add((fiunju.TIC, RDF.type, fiunju.Obligatoria))
@@ -457,6 +483,7 @@ g.add((fiunju.TIC, fiunju.perteneceAlAño, Literal(2, datatype=XSD.integer)))
 g.add((fiunju.TIC, fiunju.tieneRequisito, fiunju.OrgComp))
 g.add((fiunju.TIC, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoOral))
 g.add((fiunju.TIC, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.TIC, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Seguridad y Auditoria informatica ---
 g.add((fiunju.SegAudInf, RDF.type, fiunju.Obligatoria))
@@ -467,6 +494,7 @@ g.add((fiunju.SegAudInf, fiunju.tieneRequisito, fiunju.SistOpII))
 g.add((fiunju.SegAudInf, fiunju.tieneRequisito, fiunju.NivSufIng))
 g.add((fiunju.SegAudInf, fiunju.requiereCreditos, Literal(90, datatype=XSD.integer)))
 g.add((fiunju.SegAudInf, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.SegAudInf, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Sistemas Operativos II ---
 g.add((fiunju.SistOpII, RDF.type, fiunju.Obligatoria))
@@ -474,6 +502,7 @@ g.add((fiunju.SistOpII, RDFS.label, Literal("Sistemas Operativos II", lang="es")
 g.add((fiunju.SistOpII, fiunju.perteneceAlAño, Literal(3, datatype=XSD.integer)))
 g.add((fiunju.SistOpII, fiunju.tieneRequisito, fiunju.SistOpI))
 g.add((fiunju.SistOpII, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
+g.add((fiunju.SistOpII, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Sistemas de información ---
 g.add((fiunju.SistInf, RDF.type, fiunju.Obligatoria))
@@ -484,6 +513,7 @@ g.add((fiunju.SistInf, fiunju.tieneRequisito, fiunju.ModOrientObjetos))
 g.add((fiunju.SistInf, fiunju.tieneRequisito, fiunju.NivSufIng))
 g.add((fiunju.SistInf, fiunju.requiereCreditos, Literal(90, datatype=XSD.integer)))
 g.add((fiunju.SistInf, fiunju.tieneDificultadCursada, fiunju.Nivel_4))
+g.add((fiunju.SistInf, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Ingeniería de Software I ---
 g.add((fiunju.IngSoftI, RDF.type, fiunju.Obligatoria))
