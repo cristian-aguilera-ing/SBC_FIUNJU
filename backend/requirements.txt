@@ -11,3 +11,5 @@ bcrypt==3.2.2
 pydantic[email]
 python-jose[cryptography]
 python-multipart
+httpx==0.28.1
+pytest==9.0.1
