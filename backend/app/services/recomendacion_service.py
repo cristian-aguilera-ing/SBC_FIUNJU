@@ -357,25 +357,30 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
 
     if not materias_para_rendir:
         return {"plan_recomendado": [], "consejos_adicionales": ["No tienes finales pendientes."]}
+
     aprobadas_uris = {m.materia_uri for m in user.materias_cursadas if m.estado == "Aprobada"}
+
     query_labels = """PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?materia ?label WHERE { ?materia a <http://fi.unju.edu.ar/ontologia/informatica#Materia> ; rdfs:label ?label . }"""
     results_labels = kg.query(query_labels)
     labels_map = {str(r.materia): str(r.label) for r in results_labels}
+
     query_cred = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT (SUM(?cred) as ?t) WHERE { VALUES ?m { %s } ?m fiunju:otorgaCreditos ?cred . }""" % " ".join([f"<{u}>" for u in aprobadas_uris]) if aprobadas_uris else ""
     creditos_acumulados = 0
     if aprobadas_uris:
         try:
             for r in kg.query(query_cred): creditos_acumulados = int(r.t) if r.t else 0
         except: pass
+
     query_impacto = """PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> SELECT ?materia_actual (COUNT(DISTINCT ?materia_futura) as ?impacto) WHERE { ?materia_actual fiunju:esRequisitoPara+ ?materia_futura . } GROUP BY ?materia_actual"""
     impacto_map = {}
     for row in kg.query(query_impacto): impacto_map[str(row.materia_actual)] = int(row.impacto)
+
     materias_values = " ".join([f"<{m.materia_uri}>" for m in materias_para_rendir])
 
-    # --- CAMBIO CLAVE: Filtrar solo correlativas DIRECTAS usando FILTER NOT EXISTS ---
+    # --- QUERY SIMPLIFICADA (SIN REQUISITOS) PARA EVITAR NOT BOUND ERROR ---
     query_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-SELECT ?materia ?labelMateria ?labelModalidad ?labelDificultad (MAX(?valorNumerico) as ?maxValor) (GROUP_CONCAT(DISTINCT ?req; separator=";") AS ?requisitos) (MAX(?cred_req) as ?creditos_requeridos)
+SELECT ?materia ?labelMateria ?labelModalidad ?labelDificultad (MAX(?valorNumerico) as ?maxValor) (MAX(?cred_req) as ?creditos_requeridos)
 WHERE {{
     VALUES ?materia {{ {materias_values} }}
     ?materia rdfs:label ?labelMateria .
@@ -384,28 +389,88 @@ WHERE {{
     ?modalidad fiunju:tieneDificultadExamen ?dificultadObj .
     ?dificultadObj fiunju:tieneValor ?valorNumerico .
     ?dificultadObj rdfs:label ?labelDificultad .
-    OPTIONAL {{
-        ?materia fiunju:tieneRequisito ?req .
-        FILTER NOT EXISTS {{
-            ?materia fiunju:tieneRequisito ?inter .
-            ?inter fiunju:tieneRequisito ?req .
-        }}
-    }}
     OPTIONAL {{ ?materia fiunju:requiereCreditos ?cred_req . }}
 }} GROUP BY ?materia ?labelMateria ?labelModalidad ?labelDificultad ?valorNumerico"""
 
     results = kg.query(query_str)
+
+    # --- OBTENER REQUISITOS EN QUERY SEPARADA Y FILTRAR EN PYTHON ---
+    query_reqs = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+SELECT ?materia ?req
+WHERE {{
+    VALUES ?materia {{ {materias_values} }}
+    ?materia fiunju:tieneRequisito ?req .
+}}"""
+    results_reqs = kg.query(query_reqs)
+
+    # Estructura para guardar requisitos por materia
+    # y construir el grafo local de dependencias para filtrar transitividad
+    reqs_por_materia = defaultdict(set)
+    all_reqs_uris = set()
+
+    for row in results_reqs:
+        m_uri = str(row.materia)
+        r_uri = str(row.req)
+        reqs_por_materia[m_uri].add(r_uri)
+        all_reqs_uris.add(r_uri)
+
+    # Consultar dependencias entre los requisitos (para saber si uno es padre de otro)
+    # Consultamos: ?r1 tieneRequisito ?r2 ?
+    # Donde r1 y r2 son requisitos que aparecieron en la lista
+    if all_reqs_uris:
+        reqs_values = " ".join([f"<{u}>" for u in all_reqs_uris])
+        query_deps = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+SELECT ?r1 ?r2 WHERE {{
+    VALUES ?r1 {{ {reqs_values} }}
+    ?r1 fiunju:tieneRequisito ?r2 .
+}}"""
+        deps_results = kg.query(query_deps)
+        # is_parent_of[X] = {Y, Z} significa X requiere Y, Z. (X -> Y)
+        # Por lo tanto, si una materia M requiere X e Y, e Y es requerido por X...
+        # M -> X -> Y. M requiere X (directo) e Y (indirecto).
+        # Queremos eliminar Y de la lista de requisitos de M.
+        parent_map = defaultdict(set)
+        for row in deps_results:
+            parent_map[str(row.r1)].add(str(row.r2))
+    else:
+        parent_map = {}
+
     datos_ontologia = {}
     for row in results:
         uri = str(row.materia)
-        if uri not in datos_ontologia: datos_ontologia[uri] = { "label": str(row.labelMateria), "max_dif_valor": 0, "max_dif_label": "N/A", "modalidades": set(), "requisitos": set(), "cred_req": 0 }
+        if uri not in datos_ontologia:
+            # Filtrar directos en Python
+            raw_reqs = reqs_por_materia.get(uri, set())
+            direct_reqs = set()
+            for r in raw_reqs:
+                # Si 'r' es requerido por algún OTRO requisito 'other' que también está en 'raw_reqs',
+                # entonces 'r' NO es directo (es abuelo).
+                # Buscamos si existe un 'other' en raw_reqs tal que 'r' in parent_map[other]
+                es_indirecto = False
+                for other in raw_reqs:
+                    if r == other: continue
+                    if r in parent_map.get(other, set()):
+                        es_indirecto = True
+                        break
+                if not es_indirecto:
+                    direct_reqs.add(r)
+
+            datos_ontologia[uri] = {
+                "label": str(row.labelMateria),
+                "max_dif_valor": 0,
+                "max_dif_label": "N/A",
+                "modalidades": set(),
+                "requisitos": direct_reqs,
+                "cred_req": 0
+            }
+
         datos_ontologia[uri]["modalidades"].add(str(row.labelModalidad))
-        if row.requisitos:
-            for r in str(row.requisitos).split(';'): datos_ontologia[uri]["requisitos"].add(r)
+
         if row.creditos_requeridos: datos_ontologia[uri]["cred_req"] = int(row.creditos_requeridos)
         if int(row.maxValor) > datos_ontologia[uri]["max_dif_valor"]:
             datos_ontologia[uri]["max_dif_valor"] = int(row.maxValor)
             datos_ontologia[uri]["max_dif_label"] = str(row.labelDificultad)
+
     plan_recomendado = []
     ahora = datetime.now(timezone.utc)
     DIAS_VENCIMIENTO_REGULARIDAD = 365 * 2
