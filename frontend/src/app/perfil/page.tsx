@@ -353,11 +353,12 @@ export default function PerfilPage() {
         </div>
 
         <form onSubmit={handleSavePerfil} className="mb-8 space-y-6">
-          <h2 className="text-2xl font-semibold text-blue-300 border-b border-gray-600 pb-2">1. Datos Personales & Entorno</h2>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* ... Secciones 1 ... */}
+            <h2 className="text-2xl font-semibold text-blue-300 border-b border-gray-600 pb-2">1. Datos Personales & Entorno</h2>
 
-             {/* Tarjeta 1: Identidad y Trabajo */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+             {/* ... Tarjetas ... */}
+             {/* Tarjeta 1 */}
              <div className="bg-gray-700/50 rounded-lg border border-gray-600 p-5 flex flex-col h-full">
                 <div className="flex items-center gap-2 mb-4 text-blue-400 font-bold uppercase text-xs tracking-wider border-b border-gray-600/50 pb-2">
                     <UserIcon className="w-4 h-4" /> Identidad
@@ -381,7 +382,7 @@ export default function PerfilPage() {
                 </div>
              </div>
 
-             {/* Tarjeta 2: Equipamiento */}
+             {/* Tarjeta 2 */}
              <div className="bg-gray-700/50 rounded-lg border border-gray-600 p-5 flex flex-col h-full">
                 <div className="flex items-center gap-2 mb-4 text-green-400 font-bold uppercase text-xs tracking-wider border-b border-gray-600/50 pb-2">
                     <Laptop className="w-4 h-4" /> Recursos
@@ -404,7 +405,7 @@ export default function PerfilPage() {
                 </div>
              </div>
 
-             {/* Tarjeta 3: Contexto Hogar */}
+             {/* Tarjeta 3 */}
              <div className="bg-gray-700/50 rounded-lg border border-gray-600 p-5 flex flex-col h-full">
                 <div className="flex items-center gap-2 mb-4 text-purple-400 font-bold uppercase text-xs tracking-wider border-b border-gray-600/50 pb-2">
                     <HomeIcon className="w-4 h-4" /> Contexto de Vida
@@ -424,18 +425,18 @@ export default function PerfilPage() {
                     </div>
                 </div>
              </div>
+            </div>
 
-          </div>
-
-          <div className="flex justify-end">
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-500 font-bold px-8 shadow-lg">
-                Guardar Cambios
-            </Button>
-          </div>
+            <div className="flex justify-end">
+                <Button type="submit" className="bg-blue-600 hover:bg-blue-500 font-bold px-8 shadow-lg">
+                    Guardar Cambios
+                </Button>
+            </div>
         </form>
 
-        {/* --- 2. Historial Académico (Resto del código igual) --- */}
+        {/* --- 2. Historial Académico --- */}
         <div className="mb-8 p-6 bg-gray-900/80 rounded-lg border border-gray-700 shadow-md">
+            {/* ... (Contenido Historial igual) ... */}
             <h2 className="text-2xl font-semibold mb-2 text-blue-300 border-b border-gray-700 pb-2">2. Historial Académico</h2>
             <p className="text-sm text-gray-400 mb-6 mt-2">
                 Marca 'R' para regularizadas y 'A' para aprobadas.
@@ -450,7 +451,9 @@ export default function PerfilPage() {
         </div>
 
         {/* --- 3 y 4 (Cursando y Finales) --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* CAMBIO: Usar w-full en lugar de grid-cols-2 para pantallas grandes, para dar más espacio a los nombres */}
+        <div className="grid grid-cols-1 gap-6">
+
              {/* 3. Materias para Cursar */}
             <div className="p-6 bg-gray-700 rounded-lg border border-gray-600">
             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2 text-white">
@@ -468,11 +471,12 @@ export default function PerfilPage() {
             </div>
             <div className="space-y-2">
                 {materiasCursando.map(m => (
-                    <div key={m.id} className="flex justify-between items-center p-2 bg-gray-900/50 rounded border border-gray-600 text-sm">
-                    <span>{m.label}</span>
-                    <Trash2 className="h-4 w-4 text-red-400 cursor-pointer" onClick={() => handleDeleteMateria(m.id)} />
+                    <div key={m.id} className="flex justify-between items-center p-3 bg-gray-900/50 rounded border border-gray-600 text-sm">
+                        <span className="font-medium text-gray-200">{m.label}</span>
+                        <Trash2 className="h-4 w-4 text-red-400 cursor-pointer hover:text-red-300" onClick={() => handleDeleteMateria(m.id)} />
                     </div>
                 ))}
+                {materiasCursando.length === 0 && <p className="text-xs text-gray-400 italic">No has seleccionado materias para cursar.</p>}
             </div>
             </div>
 
@@ -496,12 +500,13 @@ export default function PerfilPage() {
             </div>
             <div className="space-y-2">
                 {materiasPreparandoFinal.map(m => (
-                    <div key={m.id} className="flex justify-between items-center p-2 bg-gray-900/50 rounded border border-gray-600 text-sm">
-                    <span className="text-indigo-200 font-medium">{m.label}</span>
-                    {/* Al borrar de esta lista, vuelve a ser solo "Regular" */}
-                    <Trash2 className="h-4 w-4 text-red-400 cursor-pointer" onClick={() => handleAddMateria(m.materia_uri, "Regular")} />
+                    <div key={m.id} className="flex justify-between items-center p-3 bg-gray-900/50 rounded border border-gray-600 text-sm">
+                        <span className="text-indigo-200 font-medium">{m.label}</span>
+                        {/* Al borrar de esta lista, vuelve a ser solo "Regular" */}
+                        <Trash2 className="h-4 w-4 text-red-400 cursor-pointer hover:text-red-300" onClick={() => handleAddMateria(m.materia_uri, "Regular")} />
                     </div>
                 ))}
+                {materiasPreparandoFinal.length === 0 && <p className="text-xs text-gray-400 italic">No has seleccionado finales para rendir.</p>}
             </div>
             </div>
         </div>

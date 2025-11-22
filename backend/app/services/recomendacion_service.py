@@ -371,7 +371,29 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
     impacto_map = {}
     for row in kg.query(query_impacto): impacto_map[str(row.materia_actual)] = int(row.impacto)
     materias_values = " ".join([f"<{m.materia_uri}>" for m in materias_para_rendir])
-    query_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#> PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> SELECT ?materia ?labelMateria ?labelModalidad ?labelDificultad (MAX(?valorNumerico) as ?maxValor) (GROUP_CONCAT(DISTINCT ?req; separator=";") AS ?requisitos) (MAX(?cred_req) as ?creditos_requeridos) WHERE {{ VALUES ?materia {{ {materias_values} }} ?materia rdfs:label ?labelMateria . ?materia fiunju:tieneModalidadExamen ?modalidad . ?modalidad rdfs:label ?labelModalidad . ?modalidad fiunju:tieneDificultadExamen ?dificultadObj . ?dificultadObj fiunju:tieneValor ?valorNumerico . ?dificultadObj rdfs:label ?labelDificultad . OPTIONAL {{ ?materia fiunju:tieneRequisito ?req . }} OPTIONAL {{ ?materia fiunju:requiereCreditos ?cred_req . }} }} GROUP BY ?materia ?labelMateria ?labelModalidad ?labelDificultad ?valorNumerico"""
+
+    # --- CAMBIO CLAVE: Filtrar solo correlativas DIRECTAS usando FILTER NOT EXISTS ---
+    query_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?materia ?labelMateria ?labelModalidad ?labelDificultad (MAX(?valorNumerico) as ?maxValor) (GROUP_CONCAT(DISTINCT ?req; separator=";") AS ?requisitos) (MAX(?cred_req) as ?creditos_requeridos)
+WHERE {{
+    VALUES ?materia {{ {materias_values} }}
+    ?materia rdfs:label ?labelMateria .
+    ?materia fiunju:tieneModalidadExamen ?modalidad .
+    ?modalidad rdfs:label ?labelModalidad .
+    ?modalidad fiunju:tieneDificultadExamen ?dificultadObj .
+    ?dificultadObj fiunju:tieneValor ?valorNumerico .
+    ?dificultadObj rdfs:label ?labelDificultad .
+    OPTIONAL {{
+        ?materia fiunju:tieneRequisito ?req .
+        FILTER NOT EXISTS {{
+            ?materia fiunju:tieneRequisito ?inter .
+            ?inter fiunju:tieneRequisito ?req .
+        }}
+    }}
+    OPTIONAL {{ ?materia fiunju:requiereCreditos ?cred_req . }}
+}} GROUP BY ?materia ?labelMateria ?labelModalidad ?labelDificultad ?valorNumerico"""
+
     results = kg.query(query_str)
     datos_ontologia = {}
     for row in results:

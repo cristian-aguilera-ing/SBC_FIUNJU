@@ -16,7 +16,7 @@ import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import PlanResults from "@/components/dashboard/PlanResults";
 import ExamenStrategy from "@/components/dashboard/ExamenStrategy";
 import QuickActions from "@/components/dashboard/QuickActions";
-import TopicConsultation from "@/components/dashboard/TopicConsultation";
+import TopicResults from "@/components/dashboard/TopicResults";
 
 export default function Home() {
   const router = useRouter();
@@ -28,9 +28,12 @@ export default function Home() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
 
+  // Vistas de Resultados
   const [planRecomendado, setPlanRecomendado] = useState<PlanCursadaRecomendado | null>(null);
-  const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const [planExamenes, setPlanExamenes] = useState<PlanExamenRecomendado | null>(null);
+  const [showTopicResults, setShowTopicResults] = useState(false);
+
+  const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const [isLoadingExamenes, setIsLoadingExamenes] = useState(false);
 
   useEffect(() => {
@@ -91,20 +94,27 @@ export default function Home() {
     setAlertas([]); 
     setPlanRecomendado(null);
     setPlanExamenes(null);
+    setShowTopicResults(false);
     setIsLoading(true);
     router.push("/login");
+  }
+
+  const clearResults = () => {
+      setPlanRecomendado(null);
+      setPlanExamenes(null);
+      setShowTopicResults(false);
   }
 
   const handleGetPlanCursada = async () => {
     if (!token) return;
     setIsLoadingPlan(true);
+    clearResults();
     try {
       const response = await axios.get<PlanCursadaRecomendado>(
         "/api/sbc/recomendacion/plan-cursada-optimo",
         { headers: { Authorization: `Bearer ${token}` }}
       );
       setPlanRecomendado(response.data);
-      setPlanExamenes(null);
     } catch (error) {
       toast.error("Error al generar el plan");
     }
@@ -114,18 +124,23 @@ export default function Home() {
   const handleGetPlanExamenes = async () => {
     if (!token) return;
     setIsLoadingExamenes(true);
+    clearResults();
     try {
       const response = await axios.get<PlanExamenRecomendado>(
         "/api/sbc/recomendacion/finales-prioritarios",
         { headers: { Authorization: `Bearer ${token}` }}
       );
       setPlanExamenes(response.data);
-      setPlanRecomendado(null);
     } catch (error) {
       toast.error("Error al generar estrategia");
     }
     setIsLoadingExamenes(false);
   };
+
+  const handleGetTopics = () => {
+      clearResults();
+      setShowTopicResults(true);
+  }
   
   if (isLoading || !user) {
     return <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">Cargando datos del usuario...</main>
@@ -165,12 +180,11 @@ export default function Home() {
             <QuickActions
               handleGetPlanCursada={handleGetPlanCursada}
               handleGetPlanExamenes={handleGetPlanExamenes}
+              handleGetTopics={handleGetTopics}
               isLoadingPlan={isLoadingPlan}
               isLoadingExamenes={isLoadingExamenes}
               isAnyLoading={isAnyLoading}
             />
-
-            <TopicConsultation materiasPerfil={materiasPerfil} token={token} />
 
           </div>
 
@@ -178,7 +192,7 @@ export default function Home() {
           <div className="lg:col-span-2 space-y-6">
 
                {/* Placeholder inicial */}
-               {!planRecomendado && !planExamenes && !isAnyLoading && (
+               {!planRecomendado && !planExamenes && !showTopicResults && !isAnyLoading && (
                    <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-700 rounded-lg text-gray-500 bg-gray-800/50">
                        <Lightbulb className="w-12 h-12 mb-4 opacity-20" />
                        <p className="text-center">Selecciona una opción a la izquierda para comenzar.</p>
@@ -197,6 +211,10 @@ export default function Home() {
               <PlanResults plan={planRecomendado} isLoading={isLoadingPlan} />
 
               <ExamenStrategy plan={planExamenes} isLoading={isLoadingExamenes} />
+
+              {showTopicResults && (
+                  <TopicResults materiasPerfil={materiasPerfil} token={token} />
+              )}
 
           </div>
         </div>
