@@ -237,7 +237,12 @@ export default function PerfilPage() {
   const materiasCursando = userMaterias.filter(m => m.estado === "Cursando");
   const materiasPreparandoFinal = userMaterias.filter(m => m.estado === "PreparandoFinal");
   const materiasRegularesDisponibles = userMaterias.filter(m => m.estado === "Regular");
+
+  // --- Lógica de Correlatividades ---
   const aprobadasURIs = userMaterias.filter(um => um.estado === "Aprobada").map(um => um.materia_uri);
+  const regularizadasURIs = userMaterias.filter(um =>
+    um.estado === "Regular" || um.estado === "PreparandoFinal" || um.estado === "Aprobada"
+  ).map(um => um.materia_uri);
 
   const CREDITOS_NECESARIOS = 270;
   const creditosActuales = userMaterias.filter(um => um.estado === "Aprobada").reduce((acc, um) => {
@@ -245,13 +250,18 @@ export default function PerfilPage() {
         return acc + (materiaOnto?.creditos || 0);
     }, 0);
 
+  // "Cursando Ahora" (Dropdown):
+  // Condición: Requisitos deben estar REGULARIZADOS (o Aprobados)
   let materiasDisponibles = allMaterias.filter(om => {
     const yaInscripto = userMaterias.some(um => um.materia_uri === om.uri);
     if (yaInscripto) return false;
+
+    // Check correlativas vs regularizadasURIs
     if (om.requisitos && om.requisitos.length > 0) {
-        const tieneCorrelativas = om.requisitos.every(req => aprobadasURIs.includes(req));
-        if (!tieneCorrelativas) return false;
+        const tieneCorrelativasParaCursar = om.requisitos.every(req => regularizadasURIs.includes(req));
+        if (!tieneCorrelativasParaCursar) return false;
     }
+
     if (om.creditos_requeridos > 0 && creditosActuales < om.creditos_requeridos) return false;
     return true;
   });
@@ -309,22 +319,31 @@ export default function PerfilPage() {
                             const userMateria = userMaterias.find(um => um.materia_uri === subject.uri);
                             const isPassed = userMateria?.estado === "Aprobada";
                             const isRegular = userMateria?.estado === "Regular" || userMateria?.estado === "PreparandoFinal";
-                            const bloqueadaPorCreditos = subject.creditos_requeridos > 0 && creditosActuales < subject.creditos_requeridos;
-                            const bloqueadaPorCorrelativas = subject.requisitos.some(req => !aprobadasURIs.includes(req));
-                            const estaBloqueada = !isPassed && (bloqueadaPorCreditos || bloqueadaPorCorrelativas);
+
+                            // --- VALIDACIÓN DE BOTONES ---
+                            // Créditos siempre necesarios para ambos
+                            const cumpleCreditos = !(subject.creditos_requeridos > 0 && creditosActuales < subject.creditos_requeridos);
+
+                            // Para Regular (R): Necesita Requisitos REGULARIZADOS (o Aprobados)
+                            const cumpleReqRegular = subject.requisitos.every(req => regularizadasURIs.includes(req));
+                            const habilitadoParaRegular = cumpleCreditos && cumpleReqRegular;
+
+                            // Para Aprobada (A): Necesita Requisitos APROBADOS
+                            const cumpleReqAprobada = subject.requisitos.every(req => aprobadasURIs.includes(req));
+                            const habilitadoParaAprobar = cumpleCreditos && cumpleReqAprobada;
 
                             return (
-                                <div key={subject.uri} className={`flex items-center p-2.5 rounded border transition-all group select-none relative justify-between ${isPassed ? 'bg-green-900/20 border-green-800/50' : isRegular ? 'bg-blue-900/20 border-blue-800/50' : estaBloqueada ? 'bg-gray-900/60 border-gray-800 opacity-60' : 'bg-gray-900/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800'}`}>
+                                <div key={subject.uri} className={`flex items-center p-2.5 rounded border transition-all group select-none relative justify-between ${isPassed ? 'bg-green-900/20 border-green-800/50' : isRegular ? 'bg-blue-900/20 border-blue-800/50' : (!habilitadoParaRegular && !habilitadoParaAprobar) ? 'bg-gray-900/60 border-gray-800 opacity-60' : 'bg-gray-900/40 border-gray-700 hover:border-gray-500 hover:bg-gray-800'}`}>
                                     <div className="flex flex-col">
                                         <span className={`text-sm ${isPassed ? 'text-green-100 font-medium' : isRegular ? 'text-blue-100 font-medium' : 'text-gray-400'}`}>{subject.label}</span>
                                         <div className="flex gap-2">
                                             {subject.creditos > 0 && <span className="text-[10px] text-blue-400 flex items-center gap-1"><Award className="h-3 w-3" /> {subject.creditos} cred.</span>}
-                                            {bloqueadaPorCreditos && <span className="text-[10px] text-yellow-500 flex items-center gap-1" title={`Requiere ${subject.creditos_requeridos} créditos`}><AlertTriangle className="h-3 w-3" /> Req. {subject.creditos_requeridos} cred.</span>}
+                                            {!cumpleCreditos && <span className="text-[10px] text-yellow-500 flex items-center gap-1" title={`Requiere ${subject.creditos_requeridos} créditos`}><AlertTriangle className="h-3 w-3" /> Req. {subject.creditos_requeridos} cred.</span>}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1">
-                                        <button type="button" onClick={() => { if (isRegular) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Regular"); }} disabled={estaBloqueada} className={`w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors ${isRegular ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.5)]' : estaBloqueada ? 'border-gray-800 text-gray-600 cursor-not-allowed' : 'border-gray-600 text-gray-500 hover:border-blue-500 hover:text-blue-400 bg-gray-800'}`} title={estaBloqueada ? "No cumples requisitos" : "Regularizar Materia"}>R</button>
-                                        <button type="button" onClick={() => { if (isPassed) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Aprobada"); }} className={`w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors ${isPassed ? 'bg-green-600 border-green-500 text-white shadow-[0_0_10px_rgba(22,163,74,0.5)]' : 'border-gray-600 text-gray-500 hover:border-green-500 hover:text-green-400 bg-gray-800'}`} title="Aprobar Final">A</button>
+                                        <button type="button" onClick={() => { if (isRegular) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Regular"); }} disabled={!habilitadoParaRegular && !isRegular} className={`w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors ${isRegular ? 'bg-blue-600 border-blue-500 text-white shadow-[0_0_10px_rgba(37,99,235,0.5)]' : (!habilitadoParaRegular) ? 'border-gray-800 text-gray-600 cursor-not-allowed' : 'border-gray-600 text-gray-500 hover:border-blue-500 hover:text-blue-400 bg-gray-800'}`} title={!habilitadoParaRegular ? "No cumples requisitos de cursada" : "Regularizar Materia"}>R</button>
+                                        <button type="button" onClick={() => { if (isPassed) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Aprobada"); }} disabled={!habilitadoParaAprobar && !isPassed} className={`w-8 h-8 rounded flex items-center justify-center border text-xs font-bold transition-colors ${isPassed ? 'bg-green-600 border-green-500 text-white shadow-[0_0_10px_rgba(22,163,74,0.5)]' : (!habilitadoParaAprobar) ? 'border-gray-800 text-gray-600 cursor-not-allowed' : 'border-gray-600 text-gray-500 hover:border-green-500 hover:text-green-400 bg-gray-800'}`} title={!habilitadoParaAprobar ? "No cumples requisitos de final" : "Aprobar Final"}>A</button>
                                     </div>
                                 </div>
                             );
