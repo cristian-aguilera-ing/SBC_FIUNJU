@@ -66,7 +66,13 @@ def get_all_materias_from_ontology(current_user: User = Depends(get_current_user
                 OPTIONAL { ?materia fiunju:perteneceAlAño ?año . }
                 OPTIONAL { ?materia fiunju:otorgaCreditos ?creditos . }
                 OPTIONAL { ?materia fiunju:requiereCreditos ?creditos_req . }
-                OPTIONAL { ?materia fiunju:tieneRequisito ?requisito . }
+                OPTIONAL {
+                    ?materia fiunju:tieneRequisito ?requisito .
+                    FILTER NOT EXISTS {
+                        ?materia fiunju:tieneRequisito ?mid .
+                        ?mid fiunju:tieneRequisito ?requisito
+                    }
+                }
             }
             ORDER BY ?año ?label"""
     
