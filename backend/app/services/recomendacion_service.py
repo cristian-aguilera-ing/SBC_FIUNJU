@@ -299,11 +299,53 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
     max_qty = reglas.get("max_qty", 5)
     
     # Lógica específica de selección (Espejo de lógica de cursada pero para finales)
-    if pid == 1: # Superviviente: Solo fáciles
+    # Lógica específica de selección (Espejo de lógica de cursada pero para finales)
+    # Lógica específica de selección (Espejo de lógica de cursada pero para finales)
+    texto_plan_final = perfil_data["finales"]["recomendacion_texto"]
+    
+    if pid == 1: # Superviviente / Crítico
+        # 1. Determinar Plan (A, B, C) basado en disponibilidad TOTAL
+        # Plan A: Normal (2)
+        # Plan B: Dificil (3)
+        # Plan C: Muy Dificil (4)
+        
+        hay_normales = any(m["dificultad"] == 2 for m in materias_data)
+        hay_dificiles = any(m["dificultad"] == 3 for m in materias_data)
+        hay_muy_dificiles = any(m["dificultad"] >= 4 for m in materias_data)
+        
+        plan_seleccionado = "A" # Default
+        texto_plan_final = "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."
+        
+        if hay_normales:
+            plan_seleccionado = "A"
+            texto_plan_final = "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."
+        elif hay_dificiles:
+            plan_seleccionado = "B"
+            texto_plan_final = "Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados)."
+        elif hay_muy_dificiles:
+            plan_seleccionado = "C"
+            texto_plan_final = "Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."
+
+        # 2. Filtrar Recomendados según el Plan
         for m in materias_data:
-            if m["dificultad"] <= 1 and len(recomendados) < max_qty:
-                recomendados.append(m)
-            else:
+            agregada = False
+            if plan_seleccionado == "A":
+                # Plan A: 1 Normal
+                if m["dificultad"] == 2 and len(recomendados) < 1:
+                    recomendados.append(m)
+                    agregada = True
+            elif plan_seleccionado == "B":
+                # Plan B: 1 Difícil
+                if m["dificultad"] == 3 and len(recomendados) < 1:
+                    recomendados.append(m)
+                    agregada = True
+            elif plan_seleccionado == "C":
+                # Plan C: 1 Muy Difícil
+                if m["dificultad"] >= 4 and len(recomendados) < 1:
+                    recomendados.append(m)
+                    agregada = True
+            
+            if not agregada:
                 otros.append(m)
                 
     elif pid in [3, 4]: # Priorizar la más difícil primero
@@ -355,16 +397,19 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
     plan_final.extend(map_to_output(recomendados, True))
     plan_final.extend(map_to_output(otros, False, motivo="No recomendado por carga horaria"))
 
+
+
     return {
         "plan_recomendado": plan_final,
         # Inyección del Arquetipo (Igual que en Cursada)
         "arquetipo": {
             "nombre": perfil_data["nombre_corto"],
             "color": perfil_data["color"],
-            "consejos": [perfil_data["finales"]["comentario"]] # Comentario del PDF sección Finales
+            "consejos": [perfil_data["cursada"]["comentario"]] # Usamos el comentario de cursada como "Diagnóstico" general
         },
         # Texto de recomendación técnica del PDF
         "consejos_adicionales": [
-            perfil_data["finales"]["recomendacion_texto"]
+            texto_plan_final, # El plan seleccionado (A, B o C)
+            perfil_data["finales"]["comentario"] # El "Consejo Clave"
         ]
     }

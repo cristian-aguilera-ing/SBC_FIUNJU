@@ -80,4 +80,5 @@ export interface MateriaExamenRecomendada {
 export interface PlanExamenRecomendado {
   plan_recomendado: MateriaExamenRecomendada[];
   consejos_adicionales: string[];
+  arquetipo: ArquetipoInfo;
 }
