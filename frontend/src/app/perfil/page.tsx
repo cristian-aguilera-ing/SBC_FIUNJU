@@ -219,12 +219,20 @@ export default function PerfilPage() {
 
   const handleDeselectAllGroup = async (subjects: MateriaOntology[]) => {
     const promises = subjects.map(subject => {
-      const existing = userMaterias.find(um => um.materia_uri === subject.uri && um.estado === "Aprobada");
+      const existing = userMaterias.find(um => um.materia_uri === subject.uri && (um.estado === "Aprobada" || um.estado === "Regular" || um.estado === "PreparandoFinal"));
       if (existing) return handleDeleteMateria(existing.id);
       return Promise.resolve(true);
     });
     await Promise.all(promises);
     toast.success("Se quitaron las materias del grupo.");
+  };
+
+  const handleResetHistory = async () => {
+    if (!confirm("¿Estás seguro de que quieres BORRAR TODO tu historial académico? Esto incluye materias aprobadas, regulares y las que estás cursando actualmente. Esta acción no se puede deshacer.")) return;
+
+    const promises = userMaterias.map(um => handleDeleteMateria(um.id));
+    await Promise.all(promises);
+    toast.success("Historial académico reiniciado correctamente.");
   };
 
   // --- Data Processing ---
@@ -327,6 +335,7 @@ export default function PerfilPage() {
                 const userMateria = userMaterias.find(um => um.materia_uri === subject.uri);
                 const isPassed = userMateria?.estado === "Aprobada";
                 const isRegular = userMateria?.estado === "Regular" || userMateria?.estado === "PreparandoFinal";
+                const isCursando = userMateria?.estado === "Cursando";
 
                 // --- VALIDACIÓN DE BOTONES ---
                 const cumpleCreditos = !(subject.creditos_requeridos > 0 && creditosActuales < subject.creditos_requeridos);
@@ -336,17 +345,24 @@ export default function PerfilPage() {
                 const habilitadoParaAprobar = cumpleCreditos && cumpleReqAprobada;
 
                 return (
-                  <div key={subject.uri} className={`flex items-center p-3 rounded-lg border transition-all group select-none relative justify-between ${isPassed ? 'bg-emerald-500/10 border-emerald-500/30' : isRegular ? 'bg-cyan-500/10 border-cyan-500/30' : (!habilitadoParaRegular && !habilitadoParaAprobar) ? 'bg-slate-900/40 border-white/5 opacity-50' : 'bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10'}`}>
+                  <div key={subject.uri} className={`flex items-center p-3 rounded-lg border transition-all group select-none relative justify-between ${isPassed ? 'bg-emerald-500/10 border-emerald-500/30' : isRegular ? 'bg-cyan-500/10 border-cyan-500/30' : isCursando ? 'bg-blue-500/10 border-blue-500/30' : (!habilitadoParaRegular && !habilitadoParaAprobar) ? 'bg-slate-900/40 border-white/5 opacity-50' : 'bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10'}`}>
                     <div className="flex flex-col">
-                      <span className={`text-sm tracking-wide ${isPassed ? 'text-emerald-200 font-medium' : isRegular ? 'text-cyan-200 font-medium' : 'text-slate-400'}`}>{subject.label}</span>
+                      <span className={`text-sm tracking-wide ${isPassed ? 'text-emerald-200 font-medium' : isRegular ? 'text-cyan-200 font-medium' : isCursando ? 'text-blue-200 font-medium' : 'text-slate-400'}`}>{subject.label}</span>
                       <div className="flex gap-2 mt-0.5">
                         {subject.creditos > 0 && <span className="text-[10px] text-cyan-400/80 flex items-center gap-1"><Award className="h-3 w-3" /> {subject.creditos} cred.</span>}
                         {!cumpleCreditos && <span className="text-[10px] text-amber-500/80 flex items-center gap-1" title={`Requiere ${subject.creditos_requeridos} créditos`}><AlertTriangle className="h-3 w-3" /> Req. {subject.creditos_requeridos} cred.</span>}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <button type="button" onClick={() => { if (isRegular) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Regular"); }} disabled={!habilitadoParaRegular && !isRegular} className={`w-7 h-7 rounded flex items-center justify-center border text-[10px] font-bold transition-all ${isRegular ? 'bg-cyan-600 border-cyan-500 text-white shadow-[0_0_10px_rgba(6,182,212,0.5)]' : (!habilitadoParaRegular) ? 'border-white/5 text-slate-600 cursor-not-allowed' : 'border-white/10 text-slate-500 hover:border-cyan-500/50 hover:text-cyan-400 bg-black/20'}`} title={!habilitadoParaRegular ? "No cumples requisitos de cursada" : "Regularizar Materia"}>R</button>
-                      <button type="button" onClick={() => { if (isPassed) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Aprobada"); }} disabled={!habilitadoParaAprobar && !isPassed} className={`w-7 h-7 rounded flex items-center justify-center border text-[10px] font-bold transition-all ${isPassed ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]' : (!habilitadoParaAprobar) ? 'border-white/5 text-slate-600 cursor-not-allowed' : 'border-white/10 text-slate-500 hover:border-emerald-500/50 hover:text-emerald-400 bg-black/20'}`} title={!habilitadoParaAprobar ? "No cumples requisitos de final" : "Aprobar Final"}>A</button>
+                    <div className="flex items-center gap-2">
+                      {isCursando && (
+                        <span className="text-[10px] font-bold bg-blue-600 text-white px-2 py-0.5 rounded animate-pulse">
+                          CURSANDO
+                        </span>
+                      )}
+                      <div className="flex items-center gap-1">
+                        <button type="button" onClick={() => { if (isRegular) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Regular"); }} disabled={!habilitadoParaRegular && !isRegular} className={`w-7 h-7 rounded flex items-center justify-center border text-[10px] font-bold transition-all ${isRegular ? 'bg-cyan-600 border-cyan-500 text-white shadow-[0_0_10px_rgba(6,182,212,0.5)]' : (!habilitadoParaRegular) ? 'border-white/5 text-slate-600 cursor-not-allowed' : 'border-white/10 text-slate-500 hover:border-cyan-500/50 hover:text-cyan-400 bg-black/20'}`} title={!habilitadoParaRegular ? "No cumples requisitos de cursada" : "Regularizar Materia"}>R</button>
+                        <button type="button" onClick={() => { if (isPassed) handleDeleteMateria(userMateria!.id); else handleAddMateria(subject.uri, "Aprobada"); }} disabled={!habilitadoParaAprobar && !isPassed} className={`w-7 h-7 rounded flex items-center justify-center border text-[10px] font-bold transition-all ${isPassed ? 'bg-emerald-600 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.5)]' : (!habilitadoParaAprobar) ? 'border-white/5 text-slate-600 cursor-not-allowed' : 'border-white/10 text-slate-500 hover:border-emerald-500/50 hover:text-emerald-400 bg-black/20'}`} title={!habilitadoParaAprobar ? "No cumples requisitos de final" : "Aprobar Final"}>A</button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -518,10 +534,20 @@ export default function PerfilPage() {
 
                 {/* SECCIÓN 2: HISTORIAL ACADÉMICO */}
                 <div className="mb-10 p-6 md:p-8 bg-white/[0.02] rounded-3xl border border-white/10 shadow-inner">
-                  <h2 className="text-xl font-display font-bold text-cyan-300 border-b border-white/10 pb-3 mb-2 flex items-center gap-2">
-                    <span className="bg-cyan-500/20 text-cyan-300 rounded px-2 py-0.5 text-sm border border-cyan-500/30">02</span>
-                    Historial Académico
-                  </h2>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-3 mb-2 gap-4">
+                    <h2 className="text-xl font-display font-bold text-cyan-300 flex items-center gap-2">
+                      <span className="bg-cyan-500/20 text-cyan-300 rounded px-2 py-0.5 text-sm border border-cyan-500/30">02</span>
+                      Historial Académico
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleResetHistory}
+                      className="text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-red-500/20"
+                    >
+                      <Trash2 className="w-3 h-3 mr-2" /> Reiniciar Historial
+                    </Button>
+                  </div>
                   <p className="text-sm text-slate-400 mb-6 mt-2 font-light">
                     Marca <span className="text-cyan-400 font-bold">R</span> para regularizadas y <span className="text-emerald-400 font-bold">A</span> para aprobadas.
                   </p>
