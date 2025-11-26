@@ -86,7 +86,7 @@ def _check_cuellos_de_botella(user: User, kg: Graph) -> list[Alerta]:
         materias_habilitadas.sort(key=lambda m: m["desbloquea_count"], reverse=True)
         
         # 3. Generar alertas solo para las Top 3 más críticas
-        for materia in materias_habilitadas[:5]:
+        for materia in materias_habilitadas[:10]:
             impacto = materia["desbloquea_count"]
             
             # Solo alertar si el impacto es significativo (traba más de 5 materias futuras)

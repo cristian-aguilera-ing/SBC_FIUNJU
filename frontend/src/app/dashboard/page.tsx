@@ -204,10 +204,13 @@ export default function Home() {
                 className="w-full"
             >
                 {/* TARJETA GLASS CONTAINER */}
-                <div className="relative backdrop-blur-xl bg-slate-900/30 border border-white/10 rounded-[2rem] shadow-2xl min-h-[85vh]">
+                <div className="relative backdrop-blur-xl bg-slate-900/40 border border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] min-h-[85vh] overflow-hidden">
                     
+                    {/* Gradiente Sutil Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
+
                     {/* Borde Brillante Superior */}
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-70" />
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-50" />
 
                     <div className="p-6 md:p-8 lg:p-10">
                         
