@@ -103,7 +103,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* HEADER PERFIL */}
-            <div className="bg-gray-800 rounded-2xl p-8 shadow-2xl border border-gray-700 relative overflow-hidden">
+            <div className="bg-gray-800 rounded-2xl p-5 shadow-2xl border border-gray-700 relative overflow-hidden">
                 {/* Fondo con gradiente sutil basado en el color del arquetipo */}
                 <div
                     className="absolute top-0 right-0 w-96 h-96 opacity-10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"
@@ -111,17 +111,17 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
                 />
 
                 <div className="relative z-10">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <div>
-                            <div className="flex items-center gap-3 mb-2">
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-[0.2em]">Tu Arquetipo Detectado</span>
+                            <div className="flex items-center gap-3 mb-1">
+                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">Tu Arquetipo Detectado</span>
                             </div>
-                            <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-2 flex items-center gap-3 drop-shadow-md">
+                            <h2 className="text-2xl md:text-3xl font-display font-bold text-white flex items-center gap-3 drop-shadow-md">
                                 <span style={{ color: plan.arquetipo.color }}>{plan.arquetipo.nombre}</span>
                             </h2>
                         </div>
                         {/* Widget Dinámico (Iconos) */}
-                        <div className="bg-gray-900/50 p-2 rounded-xl border border-white/5 backdrop-blur-sm">
+                        <div className="bg-gray-900/50 p-1.5 rounded-xl border border-white/5 backdrop-blur-sm scale-90 origin-right">
                             <WidgetDinamico arquetipo={plan.arquetipo} />
                         </div>
                     </div>
