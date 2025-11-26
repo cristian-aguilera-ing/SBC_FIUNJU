@@ -138,12 +138,45 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     max_qty = reglas.get("max_qty", 5)
     
     # Lógica específica por perfil para filtrar la selección del usuario
-    if pid == 1: # Superviviente: Solo fáciles (Nivel 1)
-        for m in materias_data:
-            if m["dificultad"] <= 1 and len(plan_sugerido) < max_qty:
-                plan_sugerido.append(m)
-            else:
-                omitidas.append(m)
+    if pid == 1: # Perfil Crítico (Antes Superviviente)
+        # Lógica Dinámica de Planes (A, B, C, D)
+        faciles = [m for m in materias_data if m["dificultad"] == 1]
+        normales = [m for m in materias_data if m["dificultad"] == 2]
+        dificiles = [m for m in materias_data if m["dificultad"] == 3]
+        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
+
+        plan_seleccionado = ""
+        texto_plan = ""
+
+        # Prioridad de Selección de Plan
+        if len(faciles) >= 2:
+            plan_seleccionado = "A"
+            # Plan A: 2 Fáciles
+            plan_sugerido.extend(faciles[:2])
+            omitidas.extend(faciles[2:] + normales + dificiles + muy_dificiles)
+        elif len(normales) >= 1:
+            plan_seleccionado = "B"
+            # Plan B: 1 Normal (y rellenar con 1 fácil si hubiera, aunque la regla dice "Solo hay normales")
+            # La regla estricta dice "1 materia Normal".
+            plan_sugerido.append(normales[0])
+            omitidas.extend(faciles + normales[1:] + dificiles + muy_dificiles)
+        elif len(dificiles) >= 1:
+            plan_seleccionado = "C"
+            # Plan C: 1 Difícil
+            plan_sugerido.append(dificiles[0])
+            omitidas.extend(faciles + normales + dificiles[1:] + muy_dificiles)
+        elif len(muy_dificiles) >= 1:
+            plan_seleccionado = "D"
+            # Plan D: 1 Muy Difícil (o nada, pero sugerimos 1 con advertencia)
+            plan_sugerido.append(muy_dificiles[0])
+            omitidas.extend(faciles + normales + dificiles + muy_dificiles[1:])
+        else:
+            # Caso borde: No hay materias o algo raro
+            plan_seleccionado = "A" # Default
+        
+        # Inyectar el texto del plan específico
+        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
+        perfil_data["cursada"]["recomendacion_texto"] = texto_plan # Pisamos el texto genérico para este request
                 
     elif pid in [3, 4, 5, 6, 7]: # Perfiles con capacidad media/alta
         # Intentamos meter las difíciles primero si el perfil lo sugiere

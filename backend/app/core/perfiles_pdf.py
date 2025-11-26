@@ -5,19 +5,30 @@ from app.models.enums import CondicionLaboral
 
 PERFILES_DATA = {
     1: {
-        "nombre_corto": "El Superviviente",
+        "nombre_corto": "Perfil Crítico", # Antes "El Superviviente"
         "color": "#ef4444", # Red-500
         "descripcion": "Trabaja mucho + Interior + Solo + Hijos",
         "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and u.es_del_interior,
         "cursada": {
-            "comentario": "Necesitas cursar muy pocas materias y priorizar las más fáciles. La perseverancia es clave.",
-            "recomendacion_texto": "2 materias fáciles\n0 materias difíciles / muy difíciles",
-            "reglas": {"max_qty": 2, "max_dificultad": 1}
+            "comentario": "Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.\n\n* trabajas tiempo completo\n* Vivis lejos\n* vivis solo\n* tenes hijo/s\n\nConsejo: Necesitas cursar muy pocas materias y priorizar las más fáciles.\nLa perseverancia es clave.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo", # Placeholder, se pisa dinámicamente
+            "reglas": {"max_qty": 2, "max_dificultad": 1},
+            "planes": {
+                "A": "Plan A (Ideal): 2 materias Fáciles. (Es el límite real de tu energía diaria; no te sobreexijas).",
+                "B": "Plan B (Solo hay Normales): 1 materia Normal. (No se recomienda cursar 2 normales, el riesgo de abandono es altísimo).",
+                "C": "Plan C (Solo hay Difíciles): 1 materia Difícil. (Advertencia: Solo si es la única actividad académica).",
+                "D": "Plan D (Solo hay Muy Difíciles): No cursar este cuatrimestre o cursar 1 Muy Difícil sabiendo que requerirá sacrificar fines de semana."
+            }
         },
         "finales": {
-            "comentario": "Te conviene rendir finales a final del cuatrimestre o al inicio.",
-            "recomendacion_texto": "1 final fácil\n0 materias difíciles",
-            "reglas": {"max_qty": 1, "max_dificultad": 1}
+            "comentario": "Te conviene rendir finales a final del cuatrimestre o al inicio, donde hay bastante demanda de chicos interesados en rendir un final.\nSiempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/B/C abajo",
+            "reglas": {"max_qty": 1, "max_dificultad": 1},
+            "planes": {
+                "A": "Plan A: 1 Final Fácil. (Ideal para mantener la constancia sin saturarte).",
+                "B": "Plan B: 1 Final Normal. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados).",
+                "C": "Plan C: 1 Final Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."
+            }
         }
     },
     2: {
