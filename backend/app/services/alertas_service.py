@@ -24,32 +24,49 @@ SELECT ?materia ?label WHERE {{
     VALUES ?materia {{ {uris_values} }}
     ?materia rdfs:label ?label .
 }}"""
-        results = kg.query(query_labels)
-        materia_labels = {str(r.materia): str(r.label) for r in results}
+        try:
+            results = kg.query(query_labels)
+            materia_labels = {str(r.materia): str(r.label) for r in results}
+        except Exception:
+            # Si falla la query (ej. grafo vacío), continuamos sin etiquetas
+            pass
 
     for materia in materias_regulares:
         if materia.fecha_regularidad:
             fecha_reg = materia.fecha_regularidad
+            
+            # --- CORRECCIÓN: Manejo de fechas string (SQLite) ---
+            if isinstance(fecha_reg, str):
+                try:
+                    # Intentamos parsear formatos comunes de BD
+                    fecha_reg = datetime.fromisoformat(str(fecha_reg))
+                except ValueError:
+                    # Si falla el parseo, saltamos esta materia para no romper todo
+                    continue
+            # ----------------------------------------------------
+
             if fecha_reg.tzinfo is None:
                 fecha_reg = fecha_reg.replace(tzinfo=timezone.utc)
 
             fecha_reg_utc = fecha_reg.astimezone(timezone.utc)
             dias_transcurridos = (ahora - fecha_reg_utc).days
             
+            label = materia_labels.get(materia.materia_uri, 'Materia')
+
             if dias_transcurridos > DIAS_VENCIMIENTO_REGULARIDAD:
                 alertas.append(Alerta(
                     tipo=TipoAlerta.RIESGO_REGULARIDAD,
-                    mensaje=f"¡Riesgo Alto! Tu regularidad para '{materia_labels.get(materia.materia_uri, 'Materia')}' ha vencido.",
+                    mensaje=f"¡Riesgo Alto! Tu regularidad para '{label}' ha vencido.",
                     materia_uri=materia.materia_uri,
-                    materia_label=materia_labels.get(materia.materia_uri)
+                    materia_label=label
                 ))
             elif dias_transcurridos > DIAS_AVISO_VENCIMIENTO:
                 dias_restantes = DIAS_VENCIMIENTO_REGULARIDAD - dias_transcurridos
                 alertas.append(Alerta(
                     tipo=TipoAlerta.RIESGO_REGULARIDAD,
-                    mensaje=f"¡Atención! Tu regularidad para '{materia_labels.get(materia.materia_uri, 'Materia')}' vence en {dias_restantes} días.",
+                    mensaje=f"¡Atención! Tu regularidad para '{label}' vence en {dias_restantes} días.",
                     materia_uri=materia.materia_uri,
-                    materia_label=materia_labels.get(materia.materia_uri)
+                    materia_label=label
                 ))
     return alertas
 
@@ -60,27 +77,32 @@ def _check_cuellos_de_botella(user: User, kg: Graph) -> list[Alerta]:
     """
     alertas = []
     
-    # 1. Obtener qué puede cursar ahora
-    # Esta función ya calcula el "desbloquea_count" TRANSITIVO (impacto real)
-    materias_habilitadas = recomendacion_service._get_materias_habilitadas(user, kg)
-    
-    # 2. Ordenar por impacto
-    materias_habilitadas.sort(key=lambda m: m["desbloquea_count"], reverse=True)
-    
-    # 3. Generar alertas solo para las Top 3 más críticas
-    for materia in materias_habilitadas[:3]:
-        impacto = materia["desbloquea_count"]
+    try:
+        # 1. Obtener qué puede cursar ahora
+        # Esta función ya calcula el "desbloquea_count" TRANSITIVO (impacto real)
+        materias_habilitadas = recomendacion_service._get_materias_habilitadas(user, kg)
         
-        # Solo alertar si el impacto es significativo (traba más de 5 materias futuras)
-        if impacto > 5: 
-            mensaje = f"'{materia['label']}' es un CUELLO DE BOTELLA CRÍTICO. Habilita el camino para {impacto} materias futuras."
+        # 2. Ordenar por impacto
+        materias_habilitadas.sort(key=lambda m: m["desbloquea_count"], reverse=True)
+        
+        # 3. Generar alertas solo para las Top 3 más críticas
+        for materia in materias_habilitadas[:3]:
+            impacto = materia["desbloquea_count"]
             
-            alertas.append(Alerta(
-                tipo=TipoAlerta.CUELLO_DE_BOTELLA,
-                mensaje=mensaje,
-                materia_uri=materia["uri"],
-                materia_label=materia["label"]
-            ))
+            # Solo alertar si el impacto es significativo (traba más de 5 materias futuras)
+            if impacto > 5: 
+                mensaje = f"'{materia['label']}' es un CUELLO DE BOTELLA CRÍTICO. Habilita el camino para {impacto} materias futuras."
+                
+                alertas.append(Alerta(
+                    tipo=TipoAlerta.CUELLO_DE_BOTELLA,
+                    mensaje=mensaje,
+                    materia_uri=materia["uri"],
+                    materia_label=materia["label"]
+                ))
+    except Exception as e:
+        print(f"Error calculando cuellos de botella: {e}")
+        # No rompemos la request, solo devolvemos lista vacía si falla esta parte
+        return []
             
     return alertas
 

@@ -27,21 +27,17 @@ class PlanCursadaRecomendado(BaseModel):
 class MateriaExamenRecomendada(BaseModel):
     uri: str
     label: str
-    # Eliminamos fecha y días restantes para limpiar la UI
     dificultad_examen_label: str
     dificultad_examen_valor: int
     modalidades: list[str]
-    
-    # Estado
     esta_habilitada: bool = True 
     motivo_bloqueo: str | None = None
     correlativas_pendientes: list[str] = []
-    
-    # Sugerencia personalizada
-    consejo_personalizado: str | None = None 
+    consejo_personalizado: str | None = None
 
 class PlanExamenRecomendado(BaseModel):
     plan_recomendado: list[MateriaExamenRecomendada]
+    arquetipo: ArquetipoInfo  # <--- AGREGAR ESTE CAMPO
     consejos_adicionales: list[str]
 
 class PlanCursadaSimuladoRequest(BaseModel):
