@@ -41,6 +41,82 @@ def _enriquecer_materias_usuario(materias_usuario, kg: Graph):
             })
     return enriquecidas
 
+def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
+    """
+    Retorna las materias que el usuario puede cursar (prerrequisitos cumplidos)
+    y calcula cuántas materias futuras desbloquea cada una.
+    """
+    # 1. Obtener todas las materias del grafo
+    query_materias = """
+    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?materia ?label WHERE {
+        ?materia a fiunju:Materia ;
+                 rdfs:label ?label .
+    }
+    """
+    all_materias = kg.query(query_materias)
+    
+    # 2. Identificar estado del usuario
+    # Consideramos "aprobado" para correlativas si está Regular o Aprobada
+    materias_aprobadas_uris = {
+        m.materia_uri for m in user.materias_cursadas 
+        if m.estado in ["Regular", "Aprobada", "PreparandoFinal"]
+    }
+    
+    # Materias que ya está cursando o aprobó (no se las sugerimos de nuevo como "habilitadas" para cursar)
+    materias_no_disponibles = {
+        m.materia_uri for m in user.materias_cursadas
+    }
+
+    habilitadas = []
+
+    for row in all_materias:
+        m_uri = str(row.materia)
+        m_label = str(row.label)
+
+        if m_uri in materias_no_disponibles:
+            continue
+
+        # 3. Verificar Prerrequisitos
+        # Obtenemos los requisitos directos de esta materia
+        query_reqs = f"""
+        PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+        SELECT ?req WHERE {{
+            <{m_uri}> fiunju:tieneRequisito ?req .
+        }}
+        """
+        reqs = kg.query(query_reqs)
+        cumple_requisitos = True
+        for r in reqs:
+            if str(r.req) not in materias_aprobadas_uris:
+                cumple_requisitos = False
+                break
+        
+        if cumple_requisitos:
+            # 4. Calcular Impacto (Desbloquea Count)
+            # Cuántas materias futuras tienen a esta como requisito (transitivo)
+            # Usamos property path + para transitividad
+            query_impacto = f"""
+            PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+            SELECT (COUNT(?future) as ?count) WHERE {{
+                ?future fiunju:tieneRequisito+ <{m_uri}> .
+            }}
+            """
+            res_impacto = kg.query(query_impacto)
+            impacto = 0
+            for r_imp in res_impacto:
+                impacto = int(r_imp["count"])
+
+            habilitadas.append({
+                "uri": m_uri,
+                "label": m_label,
+                "desbloquea_count": impacto
+            })
+            
+    return habilitadas
+
+
 def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     # 1. Identificar Perfil
     pid = obtener_perfil_id(user)

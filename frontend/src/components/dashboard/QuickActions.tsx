@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Loader2Icon, BrainCircuit, Target as TargetIcon, MessageSquare } from "lucide-react";
+import { BrainCircuit, BookOpen, GraduationCap, ArrowRight, Activity, Cpu } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 interface QuickActionsProps {
   handleGetPlanCursada: () => void;
@@ -11,37 +11,114 @@ interface QuickActionsProps {
   isAnyLoading: boolean;
 }
 
-const QuickActions = ({
+const QuickActions: React.FC<QuickActionsProps> = ({
   handleGetPlanCursada,
   handleGetPlanExamenes,
   handleGetTopics,
   isLoadingPlan,
   isLoadingExamenes,
   isAnyLoading
-}: QuickActionsProps) => {
-  return (
-    <div className="space-y-6">
-        <div className="p-4 bg-gray-700 rounded-lg border border-gray-600 shadow-lg">
-            <h3 className="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">Generador de Planes</h3>
-            <div className="space-y-3">
-                <Button onClick={handleGetPlanCursada} disabled={isAnyLoading} className="w-full bg-blue-600 hover:bg-blue-700 h-auto py-3 flex flex-col items-center">
-                    {isLoadingPlan ? <Loader2Icon className="h-5 w-5 animate-spin mb-1" /> : <BrainCircuit className="h-5 w-5 mb-1" />}
-                    <span className="font-bold">Plan de Cursada</span>
-                    <span className="text-[10px] font-normal opacity-80">Según tu Arquetipo</span>
-                </Button>
-                <Button onClick={handleGetPlanExamenes} disabled={isAnyLoading} className="w-full bg-indigo-600 hover:bg-indigo-700 h-auto py-3 flex flex-col items-center">
-                    {isLoadingExamenes ? <Loader2Icon className="h-5 w-5 animate-spin mb-1" /> : <TargetIcon className="h-5 w-5 mb-1" />}
-                    <span className="font-bold">Estrategia Finales</span>
-                    <span className="text-[10px] font-normal opacity-80">Prioridad Inteligente</span>
-                </Button>
+}) => {
+  
+  // Lógica mapeada a la estructura visual de la copia
+  const actions = [
+    {
+      label: "Plan Cursada",
+      desc: "Ruta óptima recomendada",
+      icon: BookOpen,
+      onClick: handleGetPlanCursada,
+      loading: isLoadingPlan,
+      color: "cyan"
+    },
+    {
+      label: "Estrategia Finales",
+      desc: "Priorización de exámenes",
+      icon: GraduationCap,
+      onClick: handleGetPlanExamenes,
+      loading: isLoadingExamenes,
+      color: "purple"
+    },
+    {
+      label: "Explorar Tópicos",
+      desc: "Grafo de conocimientos",
+      icon: BrainCircuit,
+      onClick: handleGetTopics,
+      loading: false, // En el original también es false (no tiene estado de carga propio)
+      color: "emerald"
+    }
+  ];
 
-                <Button onClick={handleGetTopics} disabled={isAnyLoading} variant="secondary" className="w-full bg-gray-600 hover:bg-gray-500 h-auto py-3 flex flex-col items-center border border-gray-500">
-                    <MessageSquare className="h-5 w-5 mb-1" />
-                    <span className="font-bold">Consulta por Tópicos</span>
-                    <span className="text-[10px] font-normal opacity-80">Consejos Puntuales</span>
-                </Button>
-            </div>
-        </div>
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 pb-2 mb-2 border-b border-white/10">
+          <Cpu className="h-4 w-4 text-cyan-400" />
+          <h3 className="font-display font-semibold text-slate-200 tracking-wide uppercase text-xs md:text-sm">
+            Generadores
+          </h3>
+      </div>
+
+      {/* Grid Vertical para Sidebar */}
+      <div className="grid grid-cols-1 gap-3">
+        {actions.map((action, idx) => {
+          // Lógica de deshabilitación consistente con el original:
+          // Si cualquiera está cargando, todo se deshabilita
+          const isDisabled = isAnyLoading;
+          
+          return (
+            <button
+              key={idx}
+              onClick={action.onClick}
+              disabled={isDisabled}
+              className={cn(
+                "group relative w-full overflow-hidden rounded-xl border border-white/5 p-3 text-left transition-all duration-300",
+                "bg-black/30 hover:bg-white/5 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed",
+                action.color === 'cyan' && "hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.1)]",
+                action.color === 'purple' && "hover:border-purple-500/30 hover:shadow-[0_0_15px_rgba(168,85,247,0.1)]",
+                action.color === 'emerald' && "hover:border-emerald-500/30 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]"
+              )}
+            >
+              {/* Fondo activo sutil */}
+              <div className={cn(
+                 "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+                 action.color === 'cyan' && "bg-gradient-to-r from-cyan-500/10 to-transparent",
+                 action.color === 'purple' && "bg-gradient-to-r from-purple-500/10 to-transparent",
+                 action.color === 'emerald' && "bg-gradient-to-r from-emerald-500/10 to-transparent",
+              )} />
+
+              <div className="relative flex items-center justify-between gap-3">
+                
+                {/* Icono */}
+                <div className={cn(
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-black/40 transition-colors group-hover:border-transparent group-hover:text-white",
+                  action.color === 'cyan' && "text-cyan-400 group-hover:bg-cyan-600",
+                  action.color === 'purple' && "text-purple-400 group-hover:bg-purple-600",
+                  action.color === 'emerald' && "text-emerald-400 group-hover:bg-emerald-600",
+                )}>
+                  <action.icon size={18} />
+                </div>
+                
+                {/* Texto */}
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-display font-bold text-slate-200 group-hover:text-white transition-colors text-xs uppercase tracking-wider truncate">
+                    {action.label}
+                  </h4>
+                  <p className="text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors truncate">
+                    {action.desc}
+                  </p>
+                </div>
+
+                {/* Flecha */}
+                <ArrowRight className={cn(
+                   "h-4 w-4 -translate-x-2 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 shrink-0",
+                   action.color === 'cyan' && "text-cyan-400",
+                   action.color === 'purple' && "text-purple-400",
+                   action.color === 'emerald' && "text-emerald-400",
+                )} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 };

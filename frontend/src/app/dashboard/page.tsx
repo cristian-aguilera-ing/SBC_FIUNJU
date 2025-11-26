@@ -6,20 +6,32 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { toast } from "sonner"; 
-import { Loader2Icon, Lightbulb, User as UserIcon } from "lucide-react";
+// Imports UI combinados (Lógica + Estética)
+import { Loader2Icon, Lightbulb, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
+import { motion } from 'framer-motion'; 
+import { NetworkAnimation } from '@/components/auth/NetworkAnimation'; 
+import { Rajdhani, Orbitron } from 'next/font/google';
 
+// Tipos
 import {
   User, MateriaOntology, MateriaPerfil, Alerta, PlanCursadaRecomendado, PlanExamenRecomendado
 } from "@/types";
 
+// Componentes
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import PlanResults from "@/components/dashboard/PlanResults";
 import ExamenStrategy from "@/components/dashboard/ExamenStrategy";
 import QuickActions from "@/components/dashboard/QuickActions";
 import TopicResults from "@/components/dashboard/TopicResults";
 
+// Fuentes (UI Preservada)
+const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700'], variable: '--font-rajdhani' });
+const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-orbitron' });
+
 export default function Home() {
   const router = useRouter();
+  
+  // --- LÓGICA TRASPLANTADA DESDE page.tsx (ORIGINAL) ---
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true); 
@@ -46,6 +58,7 @@ export default function Home() {
     }
   }, [router]);
 
+  // Efecto de alertas (Lógica Original: depende de token e isLoading)
   useEffect(() => {
     if (token && !isLoading) {
       const fetchAlertas = async () => {
@@ -142,83 +155,162 @@ export default function Home() {
       setShowTopicResults(true);
   }
   
+  // Cálculo de estado derivado (Lógica Original)
+  const isAnyLoading = isLoadingPlan || isLoadingExamenes;
+  // --- FIN LÓGICA TRASPLANTADA ---
+
+  // --- INTERFAZ VISUAL (COPIA PRESERVADA) ---
   if (isLoading || !user) {
-    return <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-900 text-white">Cargando datos del usuario...</main>
+    return (
+        <div className={`relative w-full h-screen overflow-hidden bg-slate-950 flex items-center justify-center ${rajdhani.variable} ${orbitron.variable} font-sans`}>
+             <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
+             <NetworkAnimation />
+             <div className="relative z-30 flex flex-col items-center gap-4 backdrop-blur-md p-10 rounded-2xl border border-cyan-500/20 bg-slate-900/40 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
+                <Loader2Icon className="h-12 w-12 text-cyan-400 animate-spin drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+                <p className="text-cyan-100 font-display tracking-[0.3em] uppercase text-sm animate-pulse mt-2">Sincronizando Núcleo...</p>
+             </div>
+        </div>
+    );
   }
 
-  const isAnyLoading = isLoadingPlan || isLoadingExamenes;
-
   return (
-    <main className="flex min-h-screen flex-col items-center p-8 md:p-24 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 animate-gradient text-white">
-      <div className="w-full max-w-4xl p-8 bg-gray-800/90 backdrop-blur-md rounded-lg shadow-2xl border border-gray-700">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-              Bienvenido, {user.full_name || user.email}
-            </h1>
-            <p className="text-gray-400">Este es tu panel de control inteligente.</p>
-          </div>
-          <div className="flex gap-2">
-             <Link href="/perfil">
-                <Button variant="secondary" className="bg-blue-900/50 text-blue-200 border border-blue-800 hover:bg-blue-900 transition-all hover:scale-105">
-                     <UserIcon className="mr-2 h-4 w-4"/> Mi Perfil
-                </Button>
-             </Link>
-            <Button variant="outline" onClick={handleLogout} className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600 transition-all hover:scale-105">Cerrar Sesión</Button>
-          </div>
-        </div>
+    // Importante: bg-slate-950 base, pero el contenido interno será transparente
+    <div className={`relative min-h-screen w-full bg-slate-950 ${rajdhani.variable} ${orbitron.variable} font-sans selection:bg-cyan-500/30`}>
+      
+      {/* --- CAPA 0: FONDO FIJO (Gradients) --- */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+         {/* Fondo base */}
+         <div className="absolute inset-0 bg-slate-950" />
+         
+         {/* Nebulosas de color */}
+         <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-purple-900/20 rounded-full blur-[120px] opacity-60" />
+         <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-cyan-900/20 rounded-full blur-[120px] opacity-60" />
+      </div>
 
-        {/* Contenido */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
-          {/* Columna Izquierda: Acciones Rápidas */}
-          <div className="lg:col-span-1 space-y-6">
+      {/* --- CAPA 1: ANIMACIÓN --- */}
+      <div className="fixed inset-0 z-10 pointer-events-none">
+         <NetworkAnimation />
+      </div>
 
-            <AlertsPanel alertas={alertas} isLoading={isLoadingAlerts} />
+      {/* --- CAPA 2: CONTENIDO PRINCIPAL --- */}
+      {/* bg-transparent es clave aquí para no tapar el fondo fixed */}
+      <div className="relative z-30 min-h-screen overflow-y-auto overflow-x-hidden bg-transparent">
+        <div className="container mx-auto px-4 py-6 md:py-10 lg:px-8 max-w-[1600px]">
+            
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full"
+            >
+                {/* TARJETA GLASS CONTAINER */}
+                <div className="relative backdrop-blur-xl bg-slate-900/30 border border-white/10 rounded-[2rem] shadow-2xl min-h-[85vh]">
+                    
+                    {/* Borde Brillante Superior */}
+                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-70" />
 
-            <QuickActions
-              handleGetPlanCursada={handleGetPlanCursada}
-              handleGetPlanExamenes={handleGetPlanExamenes}
-              handleGetTopics={handleGetTopics}
-              isLoadingPlan={isLoadingPlan}
-              isLoadingExamenes={isLoadingExamenes}
-              isAnyLoading={isAnyLoading}
-            />
+                    <div className="p-6 md:p-8 lg:p-10">
+                        
+                        {/* HEADER */}
+                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 border-b border-white/10 pb-6">
+                            <div className="flex items-center gap-5">
+                                <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-2xl border border-white/10 shadow-[0_0_15px_rgba(6,182,212,0.2)] hidden md:block">
+                                    <LayoutDashboard className="text-cyan-300 w-8 h-8 drop-shadow-md" />
+                                </div>
+                                <div>
+                                    <h1 className="text-3xl md:text-4xl font-display font-bold text-white tracking-wider uppercase drop-shadow-lg">
+                                        Panel de Control
+                                    </h1>
+                                    <p className="text-slate-300 mt-1 font-light text-sm md:text-base tracking-wide">
+                                        Bienvenido, <span className="text-cyan-300 font-medium text-shadow-sm">{user.full_name || user.email}</span>
+                                    </p>
+                                </div>
+                            </div>
 
-          </div>
+                            <div className="flex gap-3 w-full md:w-auto">
+                                <Link href="/perfil" className="flex-1 md:flex-none">
+                                    <Button variant="ghost" className="w-full h-11 bg-white/5 text-cyan-100 border border-white/10 hover:bg-cyan-500/20 hover:text-white hover:border-cyan-400/50 transition-all duration-300 backdrop-blur-sm">
+                                        <UserIcon className="mr-2 h-4 w-4"/> Mi Perfil
+                                    </Button>
+                                </Link>
+                                <Button variant="ghost" onClick={handleLogout} className="flex-1 md:flex-none h-11 bg-white/5 text-slate-300 border border-white/10 hover:bg-red-500/20 hover:text-red-300 hover:border-red-400/50 transition-all duration-300 backdrop-blur-sm">
+                                    <LogOut className="mr-2 h-4 w-4"/> Salir
+                                </Button>
+                            </div>
+                        </div>
 
-          {/* Columna Derecha: Resultados */}
-          <div className="lg:col-span-2 space-y-6">
+                        {/* GRID PRINCIPAL */}
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                            {/* COLUMNA IZQUIERDA: Sidebar */}
+                            <div className="lg:col-span-4 xl:col-span-3 space-y-6 flex flex-col">
+                                
+                                {/* 1. ALERTAS */}
+                                <AlertsPanel alertas={alertas} isLoading={isLoadingAlerts} />
 
-               {/* Placeholder inicial */}
-               {!planRecomendado && !planExamenes && !showTopicResults && !isAnyLoading && (
-                   <div className="h-full flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-700 rounded-lg text-gray-500 bg-gray-800/50">
-                       <Lightbulb className="w-12 h-12 mb-4 opacity-20" />
-                       <p className="text-center">Selecciona una opción a la izquierda para comenzar.</p>
-                   </div>
-               )}
+                                {/* 2. ACCIONES RÁPIDAS (Siempre visibles) */}
+                                <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-4 shadow-lg relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 pointer-events-none" />
+                                     <QuickActions
+                                        handleGetPlanCursada={handleGetPlanCursada}
+                                        handleGetPlanExamenes={handleGetPlanExamenes}
+                                        handleGetTopics={handleGetTopics}
+                                        isLoadingPlan={isLoadingPlan}
+                                        isLoadingExamenes={isLoadingExamenes}
+                                        isAnyLoading={isAnyLoading}
+                                    />
+                                </div>
+                            </div>
 
-              {/* Loading State */}
-              {isAnyLoading && (
-                <div className="flex flex-col justify-center items-center p-12 text-gray-400 bg-gray-800/50 rounded-lg">
-                    <Loader2Icon className="mb-3 h-8 w-8 animate-spin text-blue-500" />
-                    <p className="animate-pulse">Analizando perfil y ontología...</p>
+                            {/* COLUMNA DERECHA: Resultados */}
+                            <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+                                <div className="min-h-[400px]">
+                                    
+                                    {/* Placeholder de espera */}
+                                    {!planRecomendado && !planExamenes && !showTopicResults && !isAnyLoading && (
+                                        <motion.div 
+                                            initial={{ opacity: 0 }} 
+                                            animate={{ opacity: 1 }}
+                                            className="h-full flex flex-col items-center justify-center p-12 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]"
+                                        >
+                                            <div className="p-6 bg-slate-800/50 rounded-full mb-6 border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                                                <Lightbulb className="w-12 h-12 text-slate-500" />
+                                            </div>
+                                            <p className="font-display tracking-widest text-xl text-slate-400 uppercase">Sistema en Espera</p>
+                                            <p className="text-base text-slate-500 mt-2 font-light text-center max-w-md leading-relaxed">
+                                                Selecciona una instrucción en el panel lateral para iniciar el motor de inferencia.
+                                            </p>
+                                        </motion.div>
+                                    )}
+
+                                    {/* Spinner de Carga de Resultados */}
+                                    {isAnyLoading && (
+                                        <div className="h-[400px] flex flex-col justify-center items-center p-12 bg-white/[0.01] rounded-3xl border border-white/5">
+                                            <Loader2Icon className="mb-6 h-12 w-12 animate-spin text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                                            <p className="animate-pulse font-display tracking-[0.2em] text-cyan-400/80 uppercase text-sm">Procesando Datos...</p>
+                                        </div>
+                                    )}
+
+                                    {/* Resultados Renderizados */}
+                                    <div className="space-y-6">
+                                        <PlanResults plan={planRecomendado} isLoading={isLoadingPlan} />
+                                        <ExamenStrategy plan={planExamenes} isLoading={isLoadingExamenes} />
+                                        {showTopicResults && (
+                                            <TopicResults materiasPerfil={materiasPerfil} token={token} />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              )}
-
-              {/* Resultados */}
-              <PlanResults plan={planRecomendado} isLoading={isLoadingPlan} />
-
-              <ExamenStrategy plan={planExamenes} isLoading={isLoadingExamenes} />
-
-              {showTopicResults && (
-                  <TopicResults materiasPerfil={materiasPerfil} token={token} />
-              )}
-
-          </div>
+            </motion.div>
+            
+            <div className="mt-8 text-center text-slate-600/50 text-[10px] font-display tracking-[0.4em] uppercase select-none">
+                SBC Core v.1.0 // System Operational
+            </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
