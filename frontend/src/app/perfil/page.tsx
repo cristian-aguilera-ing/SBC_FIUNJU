@@ -25,9 +25,13 @@ import { Rajdhani, Orbitron } from 'next/font/google';
 import { NetworkAnimation } from '@/components/auth/NetworkAnimation';
 import { motion } from 'framer-motion';
 
+// import backgroundDetails from '@/img/Grupo_09.png';
+
 // Fuentes
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '600', '700'], variable: '--font-rajdhani' });
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '500', '600', '700'], variable: '--font-orbitron' });
+
+
 
 // --- Tipos de Datos ---
 enum CondicionLaboral {

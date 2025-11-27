@@ -8,7 +8,7 @@ const RecommendationCard = ({ text, color }: { text: string, color: string }) =>
     const lines = text.split('\n').filter(line => line.trim() !== '');
 
     return (
-        <div className="bg-gradient-to-r from-gray-900 to-gray-800 border border-gray-700 rounded-xl p-6 mb-6 shadow-lg relative overflow-hidden group">
+        <div className="bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-xl p-6 mb-6 shadow-lg relative overflow-hidden group">
             <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: color }} />
             <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-white/10 transition-all" />
 
@@ -44,13 +44,13 @@ const RenderPlan = ({ plan }: { plan: PlanCursadaRecomendado | null }) => {
                     </h4>
                     <div className="grid gap-3">
                         {plan.plan_recomendado.map(m => (
-                            <div key={m.uri} className="relative group overflow-hidden flex items-center justify-between p-4 bg-gradient-to-r from-gray-800 to-gray-800/50 rounded-lg border border-green-900/30 hover:border-green-500/50 transition-all shadow-md">
+                            <div key={m.uri} className="relative group overflow-hidden flex items-center justify-between p-4 bg-gradient-to-r from-white/5 to-white/10 rounded-lg border border-green-900/30 hover:border-green-500/50 transition-all shadow-md">
                                 {/* Borde izquierdo coloreado */}
                                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500"></div>
 
                                 <div className="pl-2">
                                     <strong className="text-green-100 block text-base tracking-tight">{m.label}</strong>
-                                    <span className="text-xs text-gray-400 font-mono mt-1 inline-block bg-gray-900/50 px-2 py-0.5 rounded">
+                                    <span className="text-xs text-gray-400 font-mono mt-1 inline-block bg-black/20 px-2 py-0.5 rounded">
                                         Nivel Dificultad: {m.dificultad}
                                     </span>
                                 </div>
@@ -80,7 +80,7 @@ const RenderPlan = ({ plan }: { plan: PlanCursadaRecomendado | null }) => {
                     </h4>
                     <div className="grid gap-2 opacity-60 hover:opacity-100 transition-opacity">
                         {plan.materias_omitidas.map(m => (
-                            <div key={m.uri} className="flex items-center justify-between p-2 bg-gray-900 rounded border border-gray-800 text-gray-500 text-xs">
+                            <div key={m.uri} className="flex items-center justify-between p-2 bg-black/20 rounded border border-white/5 text-gray-500 text-xs">
                                 <span className="pl-2">{m.label}</span>
                                 <span className="font-mono bg-gray-800 px-1.5 py-0.5 rounded">Dif: {m.dificultad}</span>
                             </div>
@@ -103,7 +103,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* HEADER PERFIL */}
-            <div className="bg-gray-800 rounded-2xl p-5 shadow-2xl border border-gray-700 relative overflow-hidden">
+            <div className="bg-white/5 rounded-2xl p-5 shadow-2xl border border-white/10 relative overflow-hidden">
                 {/* Fondo con gradiente sutil basado en el color del arquetipo */}
                 <div
                     className="absolute top-0 right-0 w-96 h-96 opacity-10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"
@@ -121,7 +121,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
                             </h2>
                         </div>
                         {/* Widget Dinámico (Iconos) */}
-                        <div className="bg-gray-900/50 p-1.5 rounded-xl border border-white/5 backdrop-blur-sm scale-90 origin-right">
+                        <div className="bg-black/20 p-1.5 rounded-xl border border-white/5 backdrop-blur-sm scale-90 origin-right">
                             <WidgetDinamico arquetipo={plan.arquetipo} />
                         </div>
                     </div>
@@ -129,10 +129,10 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
             </div>
 
             {/* TARJETA DE DIAGNÓSTICO (Auto-height) */}
-            <div className="relative rounded-2xl p-1 bg-gradient-to-br from-gray-800 to-gray-900 shadow-xl">
+            <div className="relative rounded-2xl p-1 bg-gradient-to-br from-white/5 to-white/10 shadow-xl">
                 <div className="absolute inset-0 rounded-2xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 20px ${plan.arquetipo.color}20` }} />
 
-                <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
+                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: plan.arquetipo.color }} />
 
                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
@@ -161,7 +161,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
             {plan.arquetipo.consejos[0].includes('Consejo:') && (
                 <div className="relative overflow-hidden rounded-xl p-6 border border-white/10 shadow-2xl group">
                     {/* Fondo Animado Sutil */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5" />
                     <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
 
                     {/* Glow Effect based on Archetype Color */}
@@ -183,7 +183,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
             )}
 
             {/* PANEL DE PLANIFICACIÓN */}
-            <div className="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-lg border border-gray-700">
+            <div className="bg-white/5 p-6 md:p-8 rounded-2xl shadow-lg border border-white/10">
                 <div className="flex items-center justify-between mb-8 border-b border-gray-700 pb-4">
                     <h3 className="font-bold text-2xl text-white flex items-center gap-3">
                         <BookOpen className="w-6 h-6 text-blue-400" /> Plan de Cursada

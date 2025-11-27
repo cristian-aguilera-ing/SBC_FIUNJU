@@ -32,36 +32,58 @@ PERFILES_DATA = {
         }
     },
     2: {
-        "nombre_corto": "El Malabarista Urbano",
+        "nombre_corto": "Perfil Bajo",
         "color": "#f97316", # Orange-500
         "descripcion": "Trabaja mucho + Capital + Familia",
         "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO and not u.es_del_interior,
         "cursada": {
-            "comentario": "Balancea tus prioridades. Procura materias con menor carga horaria y parciales accesibles.",
-            "recomendacion_texto": "1 materia normal\n1 materia fácil\nEvitar difíciles",
-            "reglas": {"max_qty": 2, "allowed_levels": [1, 2]}
+            "comentario": "Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.\n\n* trabajas tiempo completo\n* Vivis en Capital\n* No vives solo\n* tenes hijo/s\n\nConsejo: Balancea tus prioridades a las materias que querés cursar, procura que sea una materia con menor carga horaria y con parciales accesibles. Aprovecha tus tiempos libres, para estudiar en lugares tranquilos como la facultad.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 2, "max_dificultad": 2},
+            "planes": {
+                "A": "Plan A (Ideal): 2 materias Fácil. (Combinación segura gracias a que tenés buen soporte en casa).",
+                "B": "Plan B (No hay Fáciles): 2 materias Normales. (Riesgoso: Solo recomendable si las fechas de parciales no caen en la misma semana).",
+                "C": "Plan C (Solo hay Difíciles): 1 materia Difícil. (Advertencia: Estudiar en lugares tranquilos como la facultad, para evitar las distracciones del entorno).",
+                "D": "Plan D (Solo hay Muy Difíciles): 1 materia Muy Difícil. (Solo si no hay otra opción y podes concentrar toda tu atención durante toda la cursada)."
+            }
         },
         "finales": {
-            "comentario": "Prioriza las materias con finales multiple opción. Organiza un grupo de estudio.",
-            "recomendacion_texto": "1 materia normal\n1 materia fácil",
-            "reglas": {"max_qty": 2, "allowed_levels": [1, 2]}
+            "comentario": "Prioriza las materias con finales múltiple opción, para ir reduciendo las materias que tenes para rendir. Organiza un grupo de estudio para que se apoyen entre todos. Siempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 2, "max_dificultad": 2},
+            "planes": {
+                "A": "Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo).",
+                "B": "Plan B: 1 materia Difícil.",
+                "C": "Plan C: 2 materias Difíciles (Solo si los exámenes están separados por 2 semanas).",
+                "D": "Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."
+            }
         }
     },
     3: {
-        "nombre_corto": "El Guerrero Solitario",
+        "nombre_corto": "Perfil Medio-Bajo",
         "color": "#eab308", # Yellow-500
-        "descripcion": "Trabaja poco + Interior + Solo",
-        # Flexibilizamos: Si trabaja medio tiempo Y es del interior, es perfil 3 (sin importar si vive solo o no)
+        "descripcion": "Trabaja medio tiempo + Interior + Solo",
         "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO and u.es_del_interior,
         "cursada": {
-            "comentario": "Prioriza las materias troncales. Usá parciales de años anteriores y clases grabadas.",
-            "recomendacion_texto": "1 materia difícil\n1-2 materias normales\nEvitar muy difíciles",
-            "reglas": {"max_qty": 3, "max_dificultad": 3}
+            "comentario": "Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.\n\n* trabajas medio tiempo\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s\n\nConsejo: Prioriza las materias troncales, y organízate bien para no perder la promoción. Usá parciales de años anteriores y apuntes de compañeros.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 3, "max_dificultad": 3},
+            "planes": {
+                "A": "Plan A (Ideal): 1 Difícil + 2 Normal. (Tenés horas libres, pero el viaje largo consume mucha energía mental).",
+                "B": "Plan B (No hay Difíciles): 3 Normales. (Debes dedicarle más tiempo al estudio sin perder el ritmo).",
+                "C": "Plan C (Solo hay Difíciles): 2 materias Difíciles. (Riesgoso, requiere mucha disciplina y usar tus horas de viaje para leer).",
+                "D": "Plan D (No hay Normales): 1 Muy Difícil + 1 Fácil. (Es el tope máximo de carga cognitiva para tu rutina)."
+            }
         },
         "finales": {
-            "comentario": "Organiza tus tiempos y centrate en rendir el final mas dificil.",
-            "recomendacion_texto": "1 materia difícil",
-            "reglas": {"max_qty": 1, "min_dificultad": 3}
+            "comentario": "Organiza tus tiempos y centrate en rendir el final más difícil. Organiza un grupo de estudio para que se apoyen entre todos. Siempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/B/C abajo",
+            "reglas": {"max_qty": 2, "min_dificultad": 3},
+            "planes": {
+                "A": "Plan A: 1 Final Difícil. (Podés apuntar a nota alta si te organizas bien en tus otras tareas y dedicas tu tiempo a estudiar).",
+                "B": "Plan B: 2 Finales Normales. (Averigua si las fechas de ambas están en la primera y segunda semana de la mesa de examen para tener margen de estudio).",
+                "C": "Plan C: 1 Muy Difícil (Debes prepararte muy bien y en lo posible con un grupo de estudio)."
+            }
         }
     },
     4: {

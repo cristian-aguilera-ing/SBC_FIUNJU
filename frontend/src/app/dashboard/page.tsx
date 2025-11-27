@@ -5,12 +5,13 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { toast } from "sonner"; 
+import { toast } from "sonner";
 // Imports UI combinados (Lógica + Estética)
 import { Loader2Icon, Lightbulb, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
-import { motion } from 'framer-motion'; 
-import { NetworkAnimation } from '@/components/auth/NetworkAnimation'; 
+import { motion } from 'framer-motion';
+import { NetworkAnimation } from '@/components/auth/NetworkAnimation';
 import { Rajdhani, Orbitron } from 'next/font/google';
+// import backgroundDetails from '@/img/Grupo_09.png';
 
 // Tipos
 import {
@@ -30,13 +31,13 @@ const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '500', '600', '7
 
 export default function Home() {
   const router = useRouter();
-  
+
   // --- LÓGICA TRASPLANTADA DESDE page.tsx (ORIGINAL) ---
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
   const [materiasPerfil, setMateriasPerfil] = useState<MateriaPerfil[]>([]);
-  
+
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [isLoadingAlerts, setIsLoadingAlerts] = useState(true);
 
@@ -76,35 +77,35 @@ export default function Home() {
       };
       fetchAlertas();
     }
-  }, [token, isLoading]); 
+  }, [token, isLoading]);
 
   const fetchUserProfile = async (token: string) => {
     try {
       const [userResponse, ontologyResponse] = await Promise.all([
-        axios.get<User>("/api/sbc/users/me", { headers: { Authorization: `Bearer ${token}` }}),
-        axios.get<MateriaOntology[]>("/api/sbc/ontologia/materias", { headers: { Authorization: `Bearer ${token}` }})
+        axios.get<User>("/api/sbc/users/me", { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get<MateriaOntology[]>("/api/sbc/ontologia/materias", { headers: { Authorization: `Bearer ${token}` } })
       ]);
-      
+
       const userData = userResponse.data;
       const allMateriasData = ontologyResponse.data;
-      setUser(userData); 
+      setUser(userData);
 
       const enrichedMaterias = userData.materias_cursadas.map(materia => {
         const ontologyData = allMateriasData.find(om => om.uri === materia.materia_uri);
         return { ...materia, label: ontologyData?.label || materia.materia_uri.split('#')[1] };
       });
       setMateriasPerfil(enrichedMaterias);
-      setIsLoading(false); 
+      setIsLoading(false);
     } catch (error) {
       console.error("Error al cargar datos del dashboard", error);
-      handleLogout(); 
+      handleLogout();
     }
   };
 
   const handleLogout = () => {
     localStorage.removeItem("sbc_access_token");
     setUser(null); setToken(null); setMateriasPerfil([]);
-    setAlertas([]); 
+    setAlertas([]);
     setPlanRecomendado(null);
     setPlanExamenes(null);
     setShowTopicResults(false);
@@ -113,9 +114,9 @@ export default function Home() {
   }
 
   const clearResults = () => {
-      setPlanRecomendado(null);
-      setPlanExamenes(null);
-      setShowTopicResults(false);
+    setPlanRecomendado(null);
+    setPlanExamenes(null);
+    setShowTopicResults(false);
   }
 
   const handleGetPlanCursada = async () => {
@@ -125,7 +126,7 @@ export default function Home() {
     try {
       const response = await axios.get<PlanCursadaRecomendado>(
         "/api/sbc/recomendacion/plan-cursada-optimo",
-        { headers: { Authorization: `Bearer ${token}` }}
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setPlanRecomendado(response.data);
     } catch (error) {
@@ -141,7 +142,7 @@ export default function Home() {
     try {
       const response = await axios.get<PlanExamenRecomendado>(
         "/api/sbc/recomendacion/finales-prioritarios",
-        { headers: { Authorization: `Bearer ${token}` }}
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setPlanExamenes(response.data);
     } catch (error) {
@@ -151,10 +152,10 @@ export default function Home() {
   };
 
   const handleGetTopics = () => {
-      clearResults();
-      setShowTopicResults(true);
+    clearResults();
+    setShowTopicResults(true);
   }
-  
+
   // Cálculo de estado derivado (Lógica Original)
   const isAnyLoading = isLoadingPlan || isLoadingExamenes;
   // --- FIN LÓGICA TRASPLANTADA ---
@@ -162,156 +163,156 @@ export default function Home() {
   // --- INTERFAZ VISUAL (COPIA PRESERVADA) ---
   if (isLoading || !user) {
     return (
-        <div className={`relative w-full h-screen overflow-hidden bg-slate-950 flex items-center justify-center ${rajdhani.variable} ${orbitron.variable} font-sans`}>
-             <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
-             <NetworkAnimation />
-             <div className="relative z-30 flex flex-col items-center gap-4 backdrop-blur-md p-10 rounded-2xl border border-cyan-500/20 bg-slate-900/40 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
-                <Loader2Icon className="h-12 w-12 text-cyan-400 animate-spin drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
-                <p className="text-cyan-100 font-display tracking-[0.3em] uppercase text-sm animate-pulse mt-2">Sincronizando Núcleo...</p>
-             </div>
+      <div className={`relative w-full h-screen overflow-hidden bg-slate-950 flex items-center justify-center ${rajdhani.variable} ${orbitron.variable} font-sans`}>
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-black to-slate-900" />
+        <NetworkAnimation />
+        <div className="relative z-30 flex flex-col items-center gap-4 backdrop-blur-md p-10 rounded-2xl border border-cyan-500/20 bg-slate-900/40 shadow-[0_0_50px_rgba(6,182,212,0.1)]">
+          <Loader2Icon className="h-12 w-12 text-cyan-400 animate-spin drop-shadow-[0_0_10px_rgba(34,211,238,0.8)]" />
+          <p className="text-cyan-100 font-display tracking-[0.3em] uppercase text-sm animate-pulse mt-2">Sincronizando Núcleo...</p>
         </div>
+      </div>
     );
   }
 
   return (
     // Importante: bg-slate-950 base, pero el contenido interno será transparente
     <div className={`relative min-h-screen w-full bg-slate-950 ${rajdhani.variable} ${orbitron.variable} font-sans selection:bg-cyan-500/30`}>
-      
+
       {/* --- CAPA 0: FONDO FIJO (Gradients) --- */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-         {/* Fondo base */}
-         <div className="absolute inset-0 bg-slate-950" />
-         
-         {/* Nebulosas de color */}
-         <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-purple-900/20 rounded-full blur-[120px] opacity-60" />
-         <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-cyan-900/20 rounded-full blur-[120px] opacity-60" />
+        {/* Fondo base */}
+        <div className="absolute inset-0 bg-slate-950" />
+
+        {/* Nebulosas de color */}
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] bg-purple-900/20 rounded-full blur-[120px] opacity-60" />
+        <div className="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-cyan-900/20 rounded-full blur-[120px] opacity-60" />
       </div>
 
       {/* --- CAPA 1: ANIMACIÓN --- */}
       <div className="fixed inset-0 z-10 pointer-events-none">
-         <NetworkAnimation />
+        <NetworkAnimation />
       </div>
 
       {/* --- CAPA 2: CONTENIDO PRINCIPAL --- */}
       {/* bg-transparent es clave aquí para no tapar el fondo fixed */}
       <div className="relative z-30 min-h-screen overflow-y-auto overflow-x-hidden bg-transparent">
         <div className="container mx-auto px-4 py-6 md:py-10 lg:px-8 max-w-[1600px]">
-            
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full"
-            >
-                {/* TARJETA GLASS CONTAINER */}
-                <div className="relative backdrop-blur-xl bg-slate-900/40 border border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] min-h-[85vh] overflow-hidden">
-                    
-                    {/* Gradiente Sutil Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
-                    {/* Borde Brillante Superior */}
-                    <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-50" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="w-full"
+          >
+            {/* TARJETA GLASS CONTAINER */}
+            <div className="relative backdrop-blur-xl bg-slate-900/40 border border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] min-h-[85vh] overflow-hidden">
 
-                    <div className="p-6 md:p-8 lg:p-10">
-                        
-                        {/* HEADER */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 border-b border-white/10 pb-6">
-                            <div className="flex items-center gap-5">
-                                <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-2xl border border-white/10 shadow-[0_0_15px_rgba(6,182,212,0.2)] hidden md:block">
-                                    <LayoutDashboard className="text-cyan-300 w-8 h-8 drop-shadow-md" />
-                                </div>
-                                <div>
-                                    <h1 className="text-3xl md:text-4xl font-display font-bold text-white tracking-wider uppercase drop-shadow-lg">
-                                        Panel de Control
-                                    </h1>
-                                    <p className="text-slate-300 mt-1 font-light text-sm md:text-base tracking-wide">
-                                        Bienvenido, <span className="text-cyan-300 font-medium text-shadow-sm">{user.full_name || user.email}</span>
-                                    </p>
-                                </div>
-                            </div>
+              {/* Gradiente Sutil Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
 
-                            <div className="flex gap-3 w-full md:w-auto">
-                                <Link href="/perfil" className="flex-1 md:flex-none">
-                                    <Button variant="ghost" className="w-full h-11 bg-white/5 text-cyan-100 border border-white/10 hover:bg-cyan-500/20 hover:text-white hover:border-cyan-400/50 transition-all duration-300 backdrop-blur-sm">
-                                        <UserIcon className="mr-2 h-4 w-4"/> Mi Perfil
-                                    </Button>
-                                </Link>
-                                <Button variant="ghost" onClick={handleLogout} className="flex-1 md:flex-none h-11 bg-white/5 text-slate-300 border border-white/10 hover:bg-red-500/20 hover:text-red-300 hover:border-red-400/50 transition-all duration-300 backdrop-blur-sm">
-                                    <LogOut className="mr-2 h-4 w-4"/> Salir
-                                </Button>
-                            </div>
-                        </div>
+              {/* Borde Brillante Superior */}
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-50" />
 
-                        {/* GRID PRINCIPAL */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        
-                            {/* COLUMNA IZQUIERDA: Sidebar */}
-                            <div className="lg:col-span-4 xl:col-span-3 space-y-6 flex flex-col">
-                                
-                                {/* 1. ALERTAS */}
-                                <AlertsPanel alertas={alertas} isLoading={isLoadingAlerts} />
+              <div className="p-6 md:p-8 lg:p-10">
 
-                                {/* 2. ACCIONES RÁPIDAS (Siempre visibles) */}
-                                <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-4 shadow-lg relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 pointer-events-none" />
-                                     <QuickActions
-                                        handleGetPlanCursada={handleGetPlanCursada}
-                                        handleGetPlanExamenes={handleGetPlanExamenes}
-                                        handleGetTopics={handleGetTopics}
-                                        isLoadingPlan={isLoadingPlan}
-                                        isLoadingExamenes={isLoadingExamenes}
-                                        isAnyLoading={isAnyLoading}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* COLUMNA DERECHA: Resultados */}
-                            <div className="lg:col-span-8 xl:col-span-9 space-y-6">
-                                <div className="min-h-[400px]">
-                                    
-                                    {/* Placeholder de espera */}
-                                    {!planRecomendado && !planExamenes && !showTopicResults && !isAnyLoading && (
-                                        <motion.div 
-                                            initial={{ opacity: 0 }} 
-                                            animate={{ opacity: 1 }}
-                                            className="h-full flex flex-col items-center justify-center p-12 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]"
-                                        >
-                                            <div className="p-6 bg-slate-800/50 rounded-full mb-6 border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                                                <Lightbulb className="w-12 h-12 text-slate-500" />
-                                            </div>
-                                            <p className="font-display tracking-widest text-xl text-slate-400 uppercase">Sistema en Espera</p>
-                                            <p className="text-base text-slate-500 mt-2 font-light text-center max-w-md leading-relaxed">
-                                                Selecciona una instrucción en el panel lateral para iniciar el motor de inferencia.
-                                            </p>
-                                        </motion.div>
-                                    )}
-
-                                    {/* Spinner de Carga de Resultados */}
-                                    {isAnyLoading && (
-                                        <div className="h-[400px] flex flex-col justify-center items-center p-12 bg-white/[0.01] rounded-3xl border border-white/5">
-                                            <Loader2Icon className="mb-6 h-12 w-12 animate-spin text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
-                                            <p className="animate-pulse font-display tracking-[0.2em] text-cyan-400/80 uppercase text-sm">Procesando Datos...</p>
-                                        </div>
-                                    )}
-
-                                    {/* Resultados Renderizados */}
-                                    <div className="space-y-6">
-                                        <PlanResults plan={planRecomendado} isLoading={isLoadingPlan} />
-                                        <ExamenStrategy plan={planExamenes} isLoading={isLoadingExamenes} />
-                                        {showTopicResults && (
-                                            <TopicResults materiasPerfil={materiasPerfil} token={token} />
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                {/* HEADER */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 border-b border-white/10 pb-6">
+                  <div className="flex items-center gap-5">
+                    <div className="p-3 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-2xl border border-white/10 shadow-[0_0_15px_rgba(6,182,212,0.2)] hidden md:block">
+                      <LayoutDashboard className="text-cyan-300 w-8 h-8 drop-shadow-md" />
                     </div>
+                    <div>
+                      <h1 className="text-3xl md:text-4xl font-display font-bold text-white tracking-wider uppercase drop-shadow-lg">
+                        Panel de Control
+                      </h1>
+                      <p className="text-slate-300 mt-1 font-light text-sm md:text-base tracking-wide">
+                        Bienvenido, <span className="text-cyan-300 font-medium text-shadow-sm">{user.full_name || user.email}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 w-full md:w-auto">
+                    <Link href="/perfil" className="flex-1 md:flex-none">
+                      <Button variant="ghost" className="w-full h-11 bg-white/5 text-cyan-100 border border-white/10 hover:bg-cyan-500/20 hover:text-white hover:border-cyan-400/50 transition-all duration-300 backdrop-blur-sm">
+                        <UserIcon className="mr-2 h-4 w-4" /> Mi Perfil
+                      </Button>
+                    </Link>
+                    <Button variant="ghost" onClick={handleLogout} className="flex-1 md:flex-none h-11 bg-white/5 text-slate-300 border border-white/10 hover:bg-red-500/20 hover:text-red-300 hover:border-red-400/50 transition-all duration-300 backdrop-blur-sm">
+                      <LogOut className="mr-2 h-4 w-4" /> Salir
+                    </Button>
+                  </div>
                 </div>
-            </motion.div>
-            
-            <div className="mt-8 text-center text-slate-600/50 text-[10px] font-display tracking-[0.4em] uppercase select-none">
-                SBC Core v.1.0 // System Operational
+
+                {/* GRID PRINCIPAL */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                  {/* COLUMNA IZQUIERDA: Sidebar */}
+                  <div className="lg:col-span-4 xl:col-span-3 space-y-6 flex flex-col">
+
+                    {/* 1. ALERTAS */}
+                    <AlertsPanel alertas={alertas} isLoading={isLoadingAlerts} />
+
+                    {/* 2. ACCIONES RÁPIDAS (Siempre visibles) */}
+                    <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-4 shadow-lg relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 pointer-events-none" />
+                      <QuickActions
+                        handleGetPlanCursada={handleGetPlanCursada}
+                        handleGetPlanExamenes={handleGetPlanExamenes}
+                        handleGetTopics={handleGetTopics}
+                        isLoadingPlan={isLoadingPlan}
+                        isLoadingExamenes={isLoadingExamenes}
+                        isAnyLoading={isAnyLoading}
+                      />
+                    </div>
+                  </div>
+
+                  {/* COLUMNA DERECHA: Resultados */}
+                  <div className="lg:col-span-8 xl:col-span-9 space-y-6">
+                    <div className="min-h-[400px]">
+
+                      {/* Placeholder de espera */}
+                      {!planRecomendado && !planExamenes && !showTopicResults && !isAnyLoading && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="h-full flex flex-col items-center justify-center p-12 border border-dashed border-white/10 rounded-3xl bg-white/[0.01]"
+                        >
+                          <div className="p-6 bg-slate-800/50 rounded-full mb-6 border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                            <Lightbulb className="w-12 h-12 text-slate-500" />
+                          </div>
+                          <p className="font-display tracking-widest text-xl text-slate-400 uppercase">Sistema en Espera</p>
+                          <p className="text-base text-slate-500 mt-2 font-light text-center max-w-md leading-relaxed">
+                            Selecciona una instrucción en el panel lateral para iniciar el motor de inferencia.
+                          </p>
+                        </motion.div>
+                      )}
+
+                      {/* Spinner de Carga de Resultados */}
+                      {isAnyLoading && (
+                        <div className="h-[400px] flex flex-col justify-center items-center p-12 bg-white/[0.01] rounded-3xl border border-white/5">
+                          <Loader2Icon className="mb-6 h-12 w-12 animate-spin text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]" />
+                          <p className="animate-pulse font-display tracking-[0.2em] text-cyan-400/80 uppercase text-sm">Procesando Datos...</p>
+                        </div>
+                      )}
+
+                      {/* Resultados Renderizados */}
+                      <div className="space-y-6">
+                        <PlanResults plan={planRecomendado} isLoading={isLoadingPlan} />
+                        <ExamenStrategy plan={planExamenes} isLoading={isLoadingExamenes} />
+                        {showTopicResults && (
+                          <TopicResults materiasPerfil={materiasPerfil} token={token} />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
+          </motion.div>
+
+          <div className="mt-8 text-center text-slate-600/50 text-[10px] font-display tracking-[0.4em] uppercase select-none">
+            SBC Core v.1.0 // System Operational
+          </div>
         </div>
       </div>
     </div>

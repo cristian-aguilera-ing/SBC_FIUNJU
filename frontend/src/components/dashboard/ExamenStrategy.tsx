@@ -124,7 +124,8 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
         </div>
       )}
 
-      <div className="bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700">
+      {/* PANEL DE ESTRATEGIA */}
+      <div className="bg-white/5 p-6 md:p-8 rounded-2xl shadow-lg border border-white/10">
         <h3 className="font-bold text-lg text-indigo-300 mb-4 flex items-center gap-2">
           <TargetIcon className="w-5 h-5" /> Estrategia de Finales
         </h3>
@@ -138,7 +139,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
               {plan.plan_recomendado.map(m => {
                 // Lógica de colores dinámica
                 let borderColor = 'border-red-800/50';
-                let bgColor = 'bg-gradient-to-br from-gray-800 to-red-900/10';
+                let bgColor = 'bg-gradient-to-br from-white/5 to-red-900/10';
                 let textColor = 'text-red-300';
                 let badgeBg = 'bg-red-900';
                 let badgeText = 'text-red-400';
@@ -148,7 +149,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
                   if (m.dificultad_examen_valor === 2) {
                     // Normal -> Verde (Plan A)
                     borderColor = 'border-green-800/50';
-                    bgColor = 'bg-gradient-to-br from-gray-800 to-green-900/10';
+                    bgColor = 'bg-gradient-to-br from-white/5 to-green-900/10';
                     textColor = 'text-green-300';
                     badgeBg = 'bg-green-900';
                     badgeText = 'text-green-400';
@@ -156,7 +157,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
                   } else if (m.dificultad_examen_valor === 3) {
                     // Dificil -> Amarillo (Plan B - Advertencia)
                     borderColor = 'border-yellow-600/50';
-                    bgColor = 'bg-gradient-to-br from-gray-800 to-yellow-900/10';
+                    bgColor = 'bg-gradient-to-br from-white/5 to-yellow-900/10';
                     textColor = 'text-yellow-300';
                     badgeBg = 'bg-yellow-900/40';
                     badgeText = 'text-yellow-400';
@@ -164,7 +165,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
                   } else if (m.dificultad_examen_valor >= 4) {
                     // Muy Dificil -> Rojo (Plan C - Peligro)
                     borderColor = 'border-red-800/50';
-                    bgColor = 'bg-gradient-to-br from-gray-800 to-red-900/10';
+                    bgColor = 'bg-gradient-to-br from-white/5 to-red-900/10';
                     textColor = 'text-red-300';
                     badgeBg = 'bg-red-900';
                     badgeText = 'text-red-400';
