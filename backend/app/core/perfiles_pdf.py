@@ -87,36 +87,55 @@ PERFILES_DATA = {
         }
     },
     4: {
-        "nombre_corto": "Trabaja poco + Capital + Familia",
+        "nombre_corto": "Perfil Equilibrado",
         "color": "#22c55e", # Green-500
-        "descripcion": "Trabaja poco + Capital + Familia",
-        # Flexibilizamos: Si trabaja medio tiempo Y es de capital, es perfil 4
-        "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO and not u.es_del_interior,
+        "descripcion": "Trabaja medio tiempo + Capital + Familia",
+        "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.MEDIO_TIEMPO and not u.es_del_interior and not u.vive_solo and not u.tiene_hijos,
         "cursada": {
-            "comentario": "Prioriza las materias troncales, y organizate bien para no perder la promocion. Si no entiendes un tema, anda a consulta. Estudiar en la facultad te ayuda a concentrarte más. Practica parciales de años anteriores.",
-            "recomendacion_texto": "1 materia muy difícil\n1 materia difícil\n1 materia normal",
-            "reglas": {"max_qty": 3, "target_distribution": {4:1, 3:1, 2:1}}
+            "comentario": "Es el balance perfecto. Puede asumir carga, pero no extrema.\n\n* trabajas medio tiempo\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s\n\nConsejo: Prioriza las materias troncales, y organízate bien para no perder la promoción. Si no entiendes un tema, asiste a consultas. Estudiar en la facultad te ayuda a concentrarte más. Resuelve parciales de años anteriores.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 3, "max_dificultad": 4},
+            "planes": {
+                "A": "Plan A (Ideal): 1 Muy Difícil + 1 Difícil + 1 Normal. (Carga balanceada para no atrasarse y mantener buen ritmo).",
+                "B": "Plan B (No hay Normales): 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas).",
+                "C": "Plan C (Solo hay Normales): 3 materias Normales. (Ideal para limpiar materias pendientes, pero cuidado con subestimarlas y relajarte).",
+                "D": "Plan D (Solo hay Muy Difíciles): 2 materias Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas)."
+            }
         },
         "finales": {
-            "comentario": "Rendir a fin de cuatrimestre o al inicio puede ser estratégico.",
-            "recomendacion_texto": "1 muy difícil\n1 difícil\n1 normal",
-            "reglas": {"max_qty": 3}
+            "comentario": "Organiza tus tiempos y centrate en rendir el final mas dificil. Organiza un grupo de estudio para que se apoyen entre todos. Rendir a fin de cuatrimestre o al inicio puede ser estratégico. Aprovecha los horarios de consulta. Siempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/C abajo",
+            "reglas": {"max_qty": 2, "min_dificultad": 3},
+            "planes": {
+                "A": "Plan A: 1 Muy Difícil + 1 Normal. (Tenés las condiciones óptimas para concentrarte en temas complejos y aprovecha que tenes multiple choice en una).",
+                "C": "Plan C: 2 Finales Difíciles. (Solo si hay al menos 10 días de separación entre mesas de examen)."
+            }
         }
     },
     5: {
-        "nombre_corto": "El Ermitaño del Interior",
-        "color": "#3b82f6", # Blue-500
+        "nombre_corto": "Perfil Medio-Alto",
+        "color": "#0ea5e9", # Sky-500
         "descripcion": "No trabaja + Interior + Solo",
-        "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.NO_TRABAJA and u.es_del_interior and u.vive_solo,
+        "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.NO_TRABAJA and u.es_del_interior and u.vive_solo and not u.tiene_hijos,
         "cursada": {
-            "comentario": "Tenés mucho tiempo, pero vivir solo y lejos consume horas. Practicá parciales.",
-            "recomendacion_texto": "1 materia muy difícil\n1 materia difícil\n1 materia normal",
-            "reglas": {"max_qty": 3}
+            "comentario": "Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la \"energía mental\".\n\n* No trabajas\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s\n\nConsejo: Prioriza todas las materias, y organízate bien para no perder la promoción. No descuides tus tiempos libres, aprovéchalos para estudiar. Tenés mucho tiempo de estudio, pero vivir solo y lejos igual consume horas. Organízate, práctica parciales y usá apuntes de compañeros.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 4, "max_dificultad": 4},
+            "planes": {
+                "A": "Plan A (Ideal): 2 Muy Difícil + 2 Faciles. (Tu prioridad absoluta es estudiar, tenes tiempo, pero también lee durante tu viajes).",
+                "B": "Plan B (No hay Normales): 1 Muy Difícil + 2 Difíciles. (Advertencia: Alto riesgo de saturación, aprovecha todos tus tiempos libres para estudiar).",
+                "C": "Plan C (Solo Normales/Fáciles): 2 Normales + 2 Faciles. (Aprovechá para adelantar, pero ojo con coordinar grupos viviendo lejos).",
+                "D": "Plan D (Solo Difíciles): 3 materias Difíciles. (Límite extremo: requiere una disciplina estricta de estudio diario)."
+            }
         },
         "finales": {
-            "comentario": "Organiza tus tiempos para rendir 2 materias en una misma mesa.",
-            "recomendacion_texto": "1 muy difícil\n1 difícil\n1 normal",
-            "reglas": {"max_qty": 3}
+            "comentario": "Organiza tus tiempos para poder rendir 2 materias en una misma mesa. Elige materias que no tengan fechas de exámenes cercanas. Organiza un grupo de estudio para que se apoyen entre todos. Intenta inscribirte a las materias que cursaste en ese año, es decir recién finalizadas. Siempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/B abajo",
+            "reglas": {"max_qty": 2, "min_dificultad": 1},
+            "planes": {
+                "A": "Plan A: 2 Finales (Cualquier tipo). (Al tener disponibilidad total, podés permitirte preparar dos temas en simultáneo).",
+                "B": "Plan B: 1 Final (cualquier tipo). (Al tener disponibilidad total, podés permitirte prepararte para sacar buenas notas)."
+            }
         }
     },
     6: {
