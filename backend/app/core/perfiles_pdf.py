@@ -53,7 +53,7 @@ PERFILES_DATA = {
             "reglas": {"max_qty": 2, "max_dificultad": 2},
             "planes": {
                 "A": "Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo).",
-                "B": "Plan B: 1 materia Difícil.",
+                "B": "Plan B: 1 materia Difícil. (Dedica tu tiempo a estudiar, practica con parciales de años anteriores y usa apuntes de compañeros).",
                 "C": "Plan C: 2 materias Difíciles (Solo si los exámenes están separados por 2 semanas).",
                 "D": "Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."
             }
@@ -139,36 +139,56 @@ PERFILES_DATA = {
         }
     },
     6: {
-        "nombre_corto": "El Heredero del Trono",
-        "color": "#a855f7", # Purple-500
-        "descripcion": "No trabaja + Capital + Familia (Ideal)",
+        "nombre_corto": "Perfil Super Alto",
+        "color": "#8b5cf6", # Violet-500
+        "descripcion": "No trabaja + Capital + Familia",
         "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.NO_TRABAJA and not u.es_del_interior and not u.vive_solo and not u.tiene_hijos,
         "cursada": {
-            "comentario": "Tenés el perfil con más disponibilidad. Prioriza todas las materias. No te quedes libre.",
-            "recomendacion_texto": "3 materias (muy difícil/difícil)\n1 normal",
-            "reglas": {"max_qty": 4, "min_dificultad": 2}
+            "comentario": "Disponibilidad total. Su única restricción es su propia capacidad de concentración.\n\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s\n\nConsejo: Tenés el perfil con más disponibilidad. Prioriza todas las materias, y organízate bien para no perder la promoción. No te quedes libre. No descuides tus tiempos libres, aprovechalos para estudiar hace apuntes de cada tema, para estar al día.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 5, "max_dificultad": 5},
+            "planes": {
+                "A": "Plan A (Ideal): 3 Muy Difíciles + 1 Difícil. (Tenés capacidad total, el único límite son los horarios de cursada).",
+                "B": "Plan B (Mix): 4 o 5 materias variadas. (Priorizá correlativas; no curses por cursar si no te traban la carrera).",
+                "C": "Plan C (Solo Fáciles): Máximo permitido por sistema. (Usalo para subir promedio, pero no pierdas el hábito de estudio fuerte).",
+                "D": "Plan D (Solo Muy Difíciles): 3 materias Muy Difíciles. (Advertencia: Si procrastinas, perdés el cuatrimestre entero; requiere constancia)."
+            }
         },
         "finales": {
-            "comentario": "Podés preparar varias materias a la vez. Intenta inscribirte a las materias recién cursadas.",
-            "recomendacion_texto": "3 muy difícil/difícil\n1 normal",
-            "reglas": {"max_qty": 4}
+            "comentario": "Podés preparar varias materias a la vez. Organiza tus tiempos para poder rendir 2 materias en una misma mesa. Elige materias que no tengan fechas de exámenes cercanas. Organiza un grupo de estudio para que se apoyen entre todos. Intenta inscribirte a las materias que cursaste en ese año, es decir recién finalizadas. Siempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/B abajo",
+            "reglas": {"max_qty": 3, "min_dificultad": 1},
+            "planes": {
+                "A": "Plan A: 2 Finales. (Tenes el tiempo y la capacidad para preparar dos finales de cualquier tipo).",
+                "B": "Plan B: 2 Difíciles + 1 Normal. (Podés prepararte para desarrollar temas extensos sin problemas de tiempo ni logística).",
+                "C": "Plan C: 3 materias Normales. (Busca que las fechas sean en forma escalonada para rendir una por semana y aprobarlas)."
+            }
         }
     },
     7: {
-        "nombre_corto": "El Padre/Madre Full-Time",
-        "color": "#a16207", # Yellow-800/Brown
-        "descripcion": "No trabaja (o poco) + Hijos",
-        # Condición fuerte: Si tiene hijos y no trabaja full time (si trabaja full time cae en el 1 o 2)
-        "condiciones": lambda u: u.tiene_hijos and u.condicion_laboral != CondicionLaboral.TIEMPO_COMPLETO,
+        "nombre_corto": "Perfil Atípico",
+        "color": "#e11d48", # Rose-600
+        "descripcion": "No trabaja + Capital + Hijos",
+        "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.NO_TRABAJA and not u.es_del_interior and not u.vive_solo and u.tiene_hijos,
         "cursada": {
-            "comentario": "Cuidá tus tiempos, tomá buenas notas y mantené constancia.",
-            "recomendacion_texto": "1 muy difícil\n1 difícil\n1 normal",
-            "reglas": {"max_qty": 3}
+            "comentario": "Tiempo libre de trabajo, pero los hijos interrumpen el \"flow\" de estudio constante.\n\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* Tenes hijo/s\n\nConsejo: Cuidá tus tiempos, tomá buenas notas y mantente constante para no perder promoción. Practica con materiales de otros años. Prioriza materias troncales.",
+            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "reglas": {"max_qty": 3, "max_dificultad": 4},
+            "planes": {
+                "A": "Plan A (Ideal): 1 Muy Difícil + 1 Difícil + 1 Normal. (Tus tiempos libres úsalos correctamente para estudiar al 100%).",
+                "B": "Plan B (No hay Normales): 1 Muy Difícil + 1 Difícil + 1 Fácil. (Tus tiempos libres úsalos correctamente para estudiar al 100%).",
+                "C": "Plan C (Solo hay Difíciles): 2 materias Difíciles. (Solo es viable si tenés soporte externo o grupo de estudio virtual para no viajar tanto).",
+                "D": "Plan D (Solo hay Muy Difíciles): 2 materias Muy Difícil. (Advertencia: Concentra todo el esfuerzo acá para asegurar el éxito sin riesgos)."
+            }
         },
         "finales": {
-            "comentario": "Enfócate en una materia troncal por mesa.",
-            "recomendacion_texto": "1 muy difícil\n1 difícil\n1 normal",
-            "reglas": {"max_qty": 3}
+            "comentario": "Enfócate en una materia troncal por mesa. Rendí preferentemente al final/inicio del cuatrimestre. Intenta inscribirte a las materias que cursaste en ese año, es decir recién finalizadas. Siempre consultá a la cátedra sobre el formato del final.",
+            "recomendacion_texto": "Ver Plan A/B abajo",
+            "reglas": {"max_qty": 2, "min_dificultad": 2},
+            "planes": {
+                "A": "Plan A: 1 Muy Difícil + 1 Normal. (Condición obligatoria: busca un lugar tranquilo para estudiar y dedicate a estudiar todo el tiempo que puedas).",
+                "B": "Plan B: 2 Finales Difíciles. (No recomendado salvo que tengas el apoyo total por varios días en casa)."
+            }
         }
     }
 }

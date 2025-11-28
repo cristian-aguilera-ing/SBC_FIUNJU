@@ -310,17 +310,96 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
             
         texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
 
-    elif pid in [6, 7]: # Perfiles con capacidad media/alta
-        # Intentamos meter las difíciles primero si el perfil lo sugiere
-        # Reordenamos: Primero Muy Difíciles, luego Difíciles, luego Normales
-        materias_data.sort(key=lambda x: x["dificultad"], reverse=True)
+    elif pid == 6: # Perfil Super Alto
+        # Lógica Dinámica de Planes (A, B, C, D)
+        faciles = [m for m in materias_data if m["dificultad"] == 1]
+        normales = [m for m in materias_data if m["dificultad"] == 2]
+        dificiles = [m for m in materias_data if m["dificultad"] == 3]
+        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
+
+        plan_seleccionado = ""
         
-        for m in materias_data:
-            if len(plan_sugerido) < max_qty:
-                plan_sugerido.append(m)
-            else:
-                omitidas.append(m)
-    
+        # Plan A: 3 Muy Difíciles + 1 Difícil
+        if len(muy_dificiles) >= 3 and len(dificiles) >= 1:
+            plan_seleccionado = "A"
+            plan_sugerido.extend(muy_dificiles[:3])
+            plan_sugerido.append(dificiles[0])
+            omitidas.extend(faciles + normales + dificiles[1:] + muy_dificiles[3:])
+        
+        # Plan B: 4-5 Variadas (Mix)
+        elif len(materias_data) >= 4:
+            plan_seleccionado = "B"
+            # Priorizamos correlativas (ya vienen ordenadas por dificultad, pero podemos asumir que el orden natural es bueno o mezclar)
+            # Vamos a tomar un mix: 1 Muy Dificil, 1 Dificil, 1 Normal, 1 Facil si es posible, sino rellenar
+            # O simplemente las primeras 5 disponibles
+            plan_sugerido.extend(materias_data[:min(5, len(materias_data))])
+            omitidas.extend(materias_data[5:])
+            
+        # Plan C: Solo Fáciles (Max permitido)
+        elif len(faciles) >= 1:
+            plan_seleccionado = "C"
+            plan_sugerido.extend(faciles[:min(max_qty, len(faciles))])
+            omitidas.extend(faciles[max_qty:] + normales + dificiles + muy_dificiles)
+            
+        # Plan D: 3 Muy Difíciles
+        elif len(muy_dificiles) >= 3:
+            plan_seleccionado = "D"
+            plan_sugerido.extend(muy_dificiles[:3])
+            omitidas.extend(faciles + normales + dificiles + muy_dificiles[3:])
+            
+        else:
+            # Fallback
+            plan_seleccionado = "A"
+            plan_sugerido.extend(materias_data[:min(4, len(materias_data))])
+            
+        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
+
+    elif pid == 7: # Perfil Atípico
+        # Lógica Dinámica de Planes (A, B, C, D)
+        faciles = [m for m in materias_data if m["dificultad"] == 1]
+        normales = [m for m in materias_data if m["dificultad"] == 2]
+        dificiles = [m for m in materias_data if m["dificultad"] == 3]
+        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
+
+        plan_seleccionado = ""
+        
+        # Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal
+        if len(muy_dificiles) >= 1 and len(dificiles) >= 1 and len(normales) >= 1:
+            plan_seleccionado = "A"
+            plan_sugerido.append(muy_dificiles[0])
+            plan_sugerido.append(dificiles[0])
+            plan_sugerido.append(normales[0])
+            omitidas.extend(faciles + normales[1:] + dificiles[1:] + muy_dificiles[1:])
+        
+        # Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil
+        elif len(muy_dificiles) >= 1 and len(dificiles) >= 1 and len(faciles) >= 1:
+            plan_seleccionado = "B"
+            plan_sugerido.append(muy_dificiles[0])
+            plan_sugerido.append(dificiles[0])
+            plan_sugerido.append(faciles[0])
+            omitidas.extend(faciles[1:] + normales + dificiles[1:] + muy_dificiles[1:])
+            
+        # Plan C: 2 Difíciles (Solo hay Difíciles)
+        elif len(dificiles) >= 2:
+            plan_seleccionado = "C"
+            plan_sugerido.extend(dificiles[:2])
+            omitidas.extend(faciles + normales + dificiles[2:] + muy_dificiles)
+            
+        # Plan D: 2 Muy Difíciles
+        elif len(muy_dificiles) >= 2:
+            plan_seleccionado = "D"
+            plan_sugerido.extend(muy_dificiles[:2])
+            omitidas.extend(faciles + normales + dificiles + muy_dificiles[2:])
+            
+        else:
+            # Fallback
+            plan_seleccionado = "A"
+            if muy_dificiles: plan_sugerido.append(muy_dificiles[0])
+            if dificiles: plan_sugerido.append(dificiles[0])
+            if normales: plan_sugerido.append(normales[0])
+            
+        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
+
     elif pid == 2: # Perfil Bajo
         # Lógica Dinámica de Planes (A, B, C, D)
         faciles = [m for m in materias_data if m["dificultad"] == 1]
@@ -367,11 +446,11 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
         # perfil_data["cursada"]["recomendacion_texto"] = texto_plan # Avoid modifying global state
 
-    else: # Default: Balanceado
-        # Buscamos 1 facil y 1 normal primero
+    else: # Fallback general si hubiera más perfiles (A, B, C, D)
         faciles = [m for m in materias_data if m["dificultad"] == 1]
         normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] >= 3]
+        dificiles = [m for m in materias_data if m["dificultad"] == 3]
+        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
         
         # Llenar slots
         current_count = 0
@@ -656,21 +735,43 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
             
         texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
 
-    elif pid in []: # Placeholder
-        materias_data.sort(key=lambda x: x["dificultad"], reverse=True)
-        # Tomar la primera difícil
-        if materias_data:
-            recomendados.append(materias_data[0])
-            # El resto a "otros" si excede max_qty o si la estrategia es solo 1
-            resto = materias_data[1:]
-            if len(recomendados) < max_qty:
-                 # Si el perfil permite más de 1, rellenamos con las siguientes
-                 cupo_restante = max_qty - len(recomendados)
-                 recomendados.extend(resto[:cupo_restante])
-                 otros.extend(resto[cupo_restante:])
-            else:
-                 otros.extend(resto)
-                 
+    elif pid == 6: # Perfil Super Alto
+        # Plan A: 2 Finales (Cualquier tipo)
+        # Plan B: 2 Difíciles + 1 Normal
+        # Plan C: 3 materias Normales
+        
+        normales = [m for m in materias_data if m["dificultad"] == 2]
+        dificiles = [m for m in materias_data if m["dificultad"] == 3]
+        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
+
+        plan_seleccionado = "A" # Default
+        
+        # Plan B: 2 Difíciles + 1 Normal
+        if len(dificiles) >= 2 and len(normales) >= 1:
+            plan_seleccionado = "B"
+            recomendados.extend(dificiles[:2])
+            recomendados.append(normales[0])
+            otros.extend(normales[1:] + dificiles[2:] + muy_dificiles)
+            
+        # Plan C: 3 materias Normales
+        elif len(normales) >= 3:
+            plan_seleccionado = "C"
+            recomendados.extend(normales[:3])
+            otros.extend(normales[3:] + dificiles + muy_dificiles)
+            
+        # Plan A: 2 Finales (Cualquier tipo) - Fallback logic
+        else:
+            plan_seleccionado = "A"
+            # Tomamos las 2 primeras disponibles (ya ordenadas por dificultad o como vengan)
+            if len(materias_data) >= 2:
+                recomendados.extend(materias_data[:2])
+                otros.extend(materias_data[2:])
+            elif materias_data:
+                recomendados.extend(materias_data)
+            
+        texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
+
+
     else: # Balanceado / Heredero (Llenar cupo)
         # Heredero (Perfil 6) o Equilibrado: puede rendir varias.
         # Ordenamos por dificultad descendente para aprovechar capacidad
