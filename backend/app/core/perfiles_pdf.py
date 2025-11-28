@@ -167,7 +167,7 @@ PERFILES_DATA = {
     },
     7: {
         "nombre_corto": "Perfil Atípico",
-        "color": "#e11d48", # Rose-600
+        "color": "#ec4899", # Pink-500
         "descripcion": "No trabaja + Capital + Hijos",
         "condiciones": lambda u: u.condicion_laboral == CondicionLaboral.NO_TRABAJA and not u.es_del_interior and not u.vive_solo and u.tiene_hijos,
         "cursada": {

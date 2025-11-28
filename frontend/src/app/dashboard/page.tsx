@@ -196,7 +196,7 @@ export default function Home() {
       {/* --- CAPA 2: CONTENIDO PRINCIPAL --- */}
       {/* bg-transparent es clave aquí para no tapar el fondo fixed */}
       <div className="relative z-30 min-h-screen overflow-y-auto overflow-x-hidden bg-transparent">
-        <div className="container mx-auto px-4 py-6 md:py-10 lg:px-8 max-w-[1600px]">
+        <div className="container mx-auto px-4 py-4 md:py-6 lg:px-8 max-w-7xl">
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -205,7 +205,7 @@ export default function Home() {
             className="w-full"
           >
             {/* TARJETA GLASS CONTAINER */}
-            <div className="relative backdrop-blur-xl bg-slate-900/40 border border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] min-h-[85vh] overflow-hidden">
+            <div className="relative backdrop-blur-xl bg-slate-900/20 border border-white/5 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] min-h-[85vh] overflow-hidden">
 
               {/* Gradiente Sutil Overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none" />
@@ -213,7 +213,7 @@ export default function Home() {
               {/* Borde Brillante Superior */}
               <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 to-transparent opacity-50" />
 
-              <div className="p-6 md:p-8 lg:p-10">
+              <div className="p-4 md:p-6">
 
                 {/* HEADER */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-6 border-b border-white/10 pb-6">
@@ -253,7 +253,7 @@ export default function Home() {
                     <AlertsPanel alertas={alertas} isLoading={isLoadingAlerts} />
 
                     {/* 2. ACCIONES RÁPIDAS (Siempre visibles) */}
-                    <div className="backdrop-blur-md bg-white/5 rounded-2xl border border-white/10 p-4 shadow-lg relative overflow-hidden">
+                    <div className="backdrop-blur-md bg-white/[0.02] rounded-2xl border border-white/5 p-4 shadow-lg relative overflow-hidden">
                       <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-purple-500/5 pointer-events-none" />
                       <QuickActions
                         handleGetPlanCursada={handleGetPlanCursada}

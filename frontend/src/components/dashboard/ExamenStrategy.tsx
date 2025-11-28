@@ -45,7 +45,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
       {/* HEADER PERFIL */}
-      <div className="bg-gray-800 rounded-2xl p-5 shadow-2xl border border-gray-700 relative overflow-hidden">
+      <div className="bg-gray-800/30 rounded-2xl p-5 shadow-2xl border border-white/5 relative overflow-hidden">
         {/* Fondo con gradiente sutil basado en el color del arquetipo */}
         <div
           className="absolute top-0 right-0 w-96 h-96 opacity-10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"
@@ -74,7 +74,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
       <div className="relative rounded-2xl p-1 bg-gradient-to-br from-gray-800 to-gray-900 shadow-xl">
         <div className="absolute inset-0 rounded-2xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 20px ${plan.arquetipo.color}20` }} />
 
-        <div className="bg-gray-900/90 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
+        <div className="bg-gray-900/40 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: plan.arquetipo.color }} />
 
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
@@ -125,7 +125,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
       )}
 
       {/* PANEL DE ESTRATEGIA */}
-      <div className="bg-white/5 p-6 md:p-8 rounded-2xl shadow-lg border border-white/10">
+      <div className="bg-white/[0.02] p-6 md:p-8 rounded-2xl shadow-lg border border-white/5">
         <h3 className="font-bold text-lg text-indigo-300 mb-4 flex items-center gap-2">
           <TargetIcon className="w-5 h-5" /> Estrategia de Finales
         </h3>

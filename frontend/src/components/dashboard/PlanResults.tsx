@@ -103,7 +103,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
             {/* HEADER PERFIL */}
-            <div className="bg-white/5 rounded-2xl p-5 shadow-2xl border border-white/10 relative overflow-hidden">
+            <div className="bg-white/[0.02] rounded-2xl p-5 shadow-2xl border border-white/5 relative overflow-hidden">
                 {/* Fondo con gradiente sutil basado en el color del arquetipo */}
                 <div
                     className="absolute top-0 right-0 w-96 h-96 opacity-10 rounded-full blur-[100px] -mr-20 -mt-20 pointer-events-none"
@@ -132,7 +132,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
             <div className="relative rounded-2xl p-1 bg-gradient-to-br from-white/5 to-white/10 shadow-xl">
                 <div className="absolute inset-0 rounded-2xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 20px ${plan.arquetipo.color}20` }} />
 
-                <div className="bg-slate-900/60 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
+                <div className="bg-slate-900/30 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: plan.arquetipo.color }} />
 
                     <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
@@ -140,7 +140,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
                         Diagnóstico
                     </h3>
 
-                    <div className="text-gray-300 text-base md:text-lg leading-relaxed space-y-2">
+                    <div className="text-gray-300 text-sm md:text-base leading-relaxed space-y-2">
                         {plan.arquetipo.consejos[0].split('Consejo:')[0].split('\n').map((line, i) => {
                             const isBullet = line.trim().startsWith('*');
                             if (!line.trim()) return null;
@@ -174,7 +174,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
 
                         <div>
                             <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Consejo Clave</h4>
-                            <p className="text-xl md:text-2xl font-display font-medium text-white leading-tight drop-shadow-sm">
+                            <p className="text-lg md:text-xl font-display font-medium text-white leading-tight drop-shadow-sm">
                                 {plan.arquetipo.consejos[0].split('Consejo:')[1].trim()}
                             </p>
                         </div>
@@ -183,7 +183,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
             )}
 
             {/* PANEL DE PLANIFICACIÓN */}
-            <div className="bg-white/5 p-6 md:p-8 rounded-2xl shadow-lg border border-white/10">
+            <div className="bg-white/[0.02] p-6 md:p-8 rounded-2xl shadow-lg border border-white/5">
                 <div className="flex items-center justify-between mb-8 border-b border-gray-700 pb-4">
                     <h3 className="font-bold text-2xl text-white flex items-center gap-3">
                         <BookOpen className="w-6 h-6 text-blue-400" /> Plan de Cursada
