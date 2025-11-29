@@ -98,6 +98,20 @@ g.add((fiunju.requiereDisponibilidadDe, RDFS.range, fiunju.NivelDificultadCursad
 g.add((fiunju.tieneEstrategiaPosible, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneEstrategiaPosible, RDFS.domain, fiunju.ArquetipoEstudiante))
 g.add((fiunju.tieneEstrategiaPosible, RDFS.range, fiunju.EstrategiaRecomendacion))
+
+# --- NUEVA CLASE: Estrategia de Examen ---
+g.add((fiunju.EstrategiaExamen, RDF.type, RDFS.Class))
+
+# Propiedades de Estrategia Examen
+g.add((fiunju.tieneEstrategiaExamen, RDF.type, OWL.ObjectProperty))
+g.add((fiunju.tieneEstrategiaExamen, RDFS.domain, fiunju.ArquetipoEstudiante))
+g.add((fiunju.tieneEstrategiaExamen, RDFS.range, fiunju.EstrategiaExamen))
+
+g.add((fiunju.requiereDificultadExamen, RDF.type, OWL.ObjectProperty))
+g.add((fiunju.requiereDificultadExamen, RDFS.domain, fiunju.EstrategiaExamen))
+g.add((fiunju.requiereDificultadExamen, RDFS.range, fiunju.NivelDificultadExamen))
+
+# Reutilizamos propiedades: ordenPrioridad, descripcionPlan, cantidadMaterias, cantidadMinimaRequerida
 # ---------------------------------------
 
 # --- 2.5. Axiomas y Reglas Avanzadas ---
@@ -331,6 +345,107 @@ e_at_d = crear_estrategia("Estrategia_Atipico_D", 4, "Plan D: 2 Muy Difíciles. 
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaPosible, e_at_d))
 
 # ---------------------------------------------------------
+# --- 3.0.2. Población de Estrategias de EXAMEN por Arquetipo ---
+
+def crear_estrategia_examen(id_estrategia, orden, descripcion, cant_materias, dificultad_req_uri, min_req):
+    est_uri = fiunju[id_estrategia]
+    g.add((est_uri, RDF.type, fiunju.EstrategiaExamen))
+    g.add((est_uri, fiunju.ordenPrioridad, Literal(orden, datatype=XSD.integer)))
+    g.add((est_uri, fiunju.descripcionPlan, Literal(descripcion, lang="es")))
+    g.add((est_uri, fiunju.cantidadMaterias, Literal(cant_materias, datatype=XSD.integer)))
+    if dificultad_req_uri:
+        g.add((est_uri, fiunju.requiereDificultadExamen, dificultad_req_uri))
+    g.add((est_uri, fiunju.cantidadMinimaRequerida, Literal(min_req, datatype=XSD.integer)))
+    return est_uri
+
+# 1. Perfil Crítico
+# Plan A: 1 Final Normal
+ex_crit_a = crear_estrategia_examen("EstrategiaExamen_Critico_A", 1, "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte).", 1, fiunju.ExamenNormal, 1)
+g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaExamen, ex_crit_a))
+
+# Plan B: 1 Final Difícil
+ex_crit_b = crear_estrategia_examen("EstrategiaExamen_Critico_B", 2, "Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados).", 1, fiunju.ExamenDificil, 1)
+g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaExamen, ex_crit_b))
+
+# Plan C: 1 Final Muy Difícil (No recomendado)
+ex_crit_c = crear_estrategia_examen("EstrategiaExamen_Critico_C", 3, "Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada.", 1, fiunju.ExamenMuyDificil, 1)
+g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaExamen, ex_crit_c))
+
+
+# 2. Perfil Bajo
+# Plan A: 1 Normal + 1 Difícil
+ex_bajo_a = crear_estrategia_examen("EstrategiaExamen_Bajo_A", 1, "Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo).", 2, fiunju.ExamenNormal, 1) # Req min 1 Normal (y el motor completará)
+g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaExamen, ex_bajo_a))
+
+# Plan B: 2 Difíciles
+ex_bajo_b = crear_estrategia_examen("EstrategiaExamen_Bajo_B", 2, "Plan B: 2 Difíciles (Solo si los exámenes están separados por 2 semanas).", 2, fiunju.ExamenDificil, 2)
+g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaExamen, ex_bajo_b))
+
+# Plan C: 1 Muy Difícil
+ex_bajo_c = crear_estrategia_examen("EstrategiaExamen_Bajo_C", 3, "Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra).", 1, fiunju.ExamenMuyDificil, 1)
+g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaExamen, ex_bajo_c))
+
+
+# 3. Perfil Medio-Bajo
+# Plan A: 1 Difícil
+ex_mb_a = crear_estrategia_examen("EstrategiaExamen_MedioBajo_A", 1, "Plan A: 1 Final Difícil. (Podés apuntar a nota alta si te organizas bien en tus otras tareas y dedicas tu tiempo a estudiar).", 1, fiunju.ExamenDificil, 1)
+g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaExamen, ex_mb_a))
+
+# Plan B: 2 Normales
+ex_mb_b = crear_estrategia_examen("EstrategiaExamen_MedioBajo_B", 2, "Plan B: 2 Finales Normales. (Averigua si las fechas de ambas están en la primera y segunda semana de la mesa de examen para tener margen de estudio).", 2, fiunju.ExamenNormal, 2)
+g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaExamen, ex_mb_b))
+
+# Plan C: 1 Muy Difícil
+ex_mb_c = crear_estrategia_examen("EstrategiaExamen_MedioBajo_C", 3, "Plan C: 1 Muy Difícil (Debes prepararte muy bien y en lo posible con un grupo de estudio).", 1, fiunju.ExamenMuyDificil, 1)
+g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaExamen, ex_mb_c))
+
+
+# 4. Perfil Equilibrado
+# Plan A: 1 Normal + 1 Difícil
+ex_eq_a = crear_estrategia_examen("EstrategiaExamen_Equilibrado_A", 1, "Plan A: 1 Normal + 1 Difícil. (Tenés las condiciones óptimas para concentrarte en temas complejos y aprovecha que tenes multiple choice en una).", 2, fiunju.ExamenDificil, 1)
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_a))
+
+# Plan B: 2 Difíciles
+ex_eq_b = crear_estrategia_examen("EstrategiaExamen_Equilibrado_B", 2, "Plan B: 2 Difíciles. (Solo si hay al menos 10 días de separación entre mesas de examen).", 2, fiunju.ExamenDificil, 2)
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_b))
+
+# Plan C: 1 Muy Difícil
+ex_eq_c = crear_estrategia_examen("EstrategiaExamen_Equilibrado_C", 3, "Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra).", 1, fiunju.ExamenMuyDificil, 1)
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_c))
+
+
+# 5. Perfil Medio-Alto
+# Plan A: 2 Finales (Cualquier tipo)
+ex_ma_a = crear_estrategia_examen("EstrategiaExamen_MedioAlto_A", 1, "Plan A: 2 Finales (Cualquier tipo). (Al tener disponibilidad total, podés permitirte preparar dos temas en simultáneo).", 2, None, 0)
+g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaExamen, ex_ma_a))
+
+# Plan B: 1 Final (Cualquier tipo)
+ex_ma_b = crear_estrategia_examen("EstrategiaExamen_MedioAlto_B", 2, "Plan B: 1 Final (cualquier tipo). (Al tener disponibilidad total, podés permitirte prepararte para sacar buenas notas).", 1, None, 0)
+g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaExamen, ex_ma_b))
+
+
+# 6. Perfil Super Alto
+# Plan A: 2 Finales (Cualquier tipo)
+ex_sa_a = crear_estrategia_examen("EstrategiaExamen_SuperAlto_A", 1, "Plan A: 2 Finales. (Tenes el tiempo y la capacidad para preparar dos finales de cualquier tipo).", 2, None, 0)
+g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaExamen, ex_sa_a))
+
+# Plan B: 2 Difíciles + 1 Normal
+ex_sa_b = crear_estrategia_examen("EstrategiaExamen_SuperAlto_B", 2, "Plan B: 2 Difíciles + 1 Normal. (Podés prepararte para desarrollar temas extensos sin problemas de tiempo ni logística).", 3, fiunju.ExamenDificil, 2)
+g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaExamen, ex_sa_b))
+
+# Plan C: 3 Normales
+ex_sa_c = crear_estrategia_examen("EstrategiaExamen_SuperAlto_C", 3, "Plan C: 3 materias Normales. (Busca que las fechas sean en forma escalonada para rendir una por semana y aprobarlas).", 3, fiunju.ExamenNormal, 3)
+g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaExamen, ex_sa_c))
+
+
+# 7. Perfil Atípico
+# Plan A: 1 Muy Difícil + 1 Normal
+ex_at_a = crear_estrategia_examen("EstrategiaExamen_Atipico_A", 1, "Plan A: 1 Muy Difícil + 1 Normal. (Condición obligatoria: busca un lugar tranquilo para estudiar y dedicate a estudiar todo el tiempo que puedas).", 2, fiunju.ExamenMuyDificil, 1)
+g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaExamen, ex_at_a))
+
+# Plan B: 2 Difíciles
+ex_at_b = crear_estrategia_examen("EstrategiaExamen_Atipico_B", 2, "Plan B: 2 Finales Difíciles. (No recomendado salvo que tengas el apoyo total por varios días en casa).", 2, fiunju.ExamenDificil, 2)
+g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaExamen, ex_at_b))
 
 # --- 3.1. Individuos: Niveles de Dificultad (Examen) ---
 niveles_examen_data = {

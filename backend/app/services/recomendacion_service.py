@@ -329,240 +329,147 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
         
         materias_data = list(temp_map.values())
 
-    # 3. Filtrar/Priorizar según reglas PDF
+    # 3. Motor de Recomendación Genérico (Basado en Ontología)
     recomendados = []
     otros = []
+    texto_plan_final = "Plan Personalizado"
     
-    # Ordenamos base por dificultad
-    materias_data.sort(key=lambda x: x["dificultad"]) 
+    # Obtener estrategias del arquetipo desde la ontología
+    nombre_arquetipo = perfil_data["nombre_corto"]
+    query_estrategias = f"""
+    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+    SELECT ?estrategia ?orden ?descripcion ?cant ?min_req ?dificultad_req_valor WHERE {{
+        ?arquetipo fiunju:tieneNombreArquetipo "{nombre_arquetipo}"@es .
+        ?arquetipo fiunju:tieneEstrategiaExamen ?estrategia .
+        ?estrategia fiunju:ordenPrioridad ?orden .
+        ?estrategia fiunju:descripcionPlan ?descripcion .
+        ?estrategia fiunju:cantidadMaterias ?cant .
+        ?estrategia fiunju:cantidadMinimaRequerida ?min_req .
+        OPTIONAL {{ 
+            ?estrategia fiunju:requiereDificultadExamen ?dificultad_req_uri .
+            ?dificultad_req_uri fiunju:tieneValor ?dificultad_req_valor .
+        }}
+    }} ORDER BY ?orden
+    """
     
-    max_qty = reglas.get("max_qty", 5)
+    estrategias = []
+    try:
+        estrategias = list(kg.query(query_estrategias))
+    except Exception as e:
+        print(f"Error consultando estrategias de examen: {e}")
+
+    estrategia_match = None
     
-    # Lógica específica de selección (Espejo de lógica de cursada pero para finales)
-    # Lógica específica de selección (Espejo de lógica de cursada pero para finales)
-    # Lógica específica de selección (Espejo de lógica de cursada pero para finales)
-    texto_plan_final = perfil_data["finales"]["recomendacion_texto"]
+    # Ordenamos materias por dificultad descendente (heuristic default: sacar lo difícil primero)
+    materias_data.sort(key=lambda x: x["dificultad"], reverse=True)
     
-    if pid == 1: # Superviviente / Crítico
-        # 1. Determinar Plan (A, B, C) basado en disponibilidad TOTAL
-        # Plan A: Normal (2)
-        # Plan B: Dificil (3)
-        # Plan C: Muy Dificil (4)
+    for row in estrategias:
+        min_req = int(row.min_req)
+        cant_total = int(row.cant)
+        req_diff = int(row.dificultad_req_valor) if row.dificultad_req_valor else None
         
-        hay_normales = any(m["dificultad"] == 2 for m in materias_data)
-        hay_dificiles = any(m["dificultad"] == 3 for m in materias_data)
-        hay_muy_dificiles = any(m["dificultad"] >= 4 for m in materias_data)
-        
-        plan_seleccionado = "A" # Default
-        texto_plan_final = "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."
-        
-        if hay_normales:
-            plan_seleccionado = "A"
-            texto_plan_final = "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."
-        elif hay_dificiles:
-            plan_seleccionado = "B"
-            texto_plan_final = "Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados)."
-        elif hay_muy_dificiles:
-            plan_seleccionado = "C"
-            texto_plan_final = "Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."
-
-        # 2. Filtrar Recomendados según el Plan
-        for m in materias_data:
-            agregada = False
-            if plan_seleccionado == "A":
-                # Plan A: 1 Normal
-                if m["dificultad"] == 2 and len(recomendados) < 1:
-                    recomendados.append(m)
-                    agregada = True
-            elif plan_seleccionado == "B":
-                # Plan B: 1 Difícil
-                if m["dificultad"] == 3 and len(recomendados) < 1:
-                    recomendados.append(m)
-                    agregada = True
-            elif plan_seleccionado == "C":
-                # Plan C: 1 Muy Difícil
-                if m["dificultad"] >= 4 and len(recomendados) < 1:
-                    recomendados.append(m)
-                    agregada = True
-            
-            if not agregada:
-                otros.append(m)
-
-    elif pid == 2: # Perfil Bajo
-        # Plan A: 1 Normal + 1 Difícil
-        # Plan B: 1 Difícil
-        # Plan C: 2 Difíciles
-        # Plan D: 1 Muy Difícil
-
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = "A" # Default
-        texto_plan_final = ""
-
-        # Lógica de selección
-        if len(normales) >= 1 and len(dificiles) >= 1:
-            plan_seleccionado = "A"
-            recomendados.append(normales[0])
-            recomendados.append(dificiles[0])
-            otros.extend(normales[1:] + dificiles[1:] + muy_dificiles)
-        elif len(dificiles) >= 2:
-             # Plan C: 2 Difíciles
-             plan_seleccionado = "C"
-             recomendados.extend(dificiles[:2])
-             otros.extend(normales + dificiles[2:] + muy_dificiles)
-        elif len(dificiles) >= 1:
-             # Plan B: 1 Difícil
-             plan_seleccionado = "B"
-             recomendados.append(dificiles[0])
-             otros.extend(normales + dificiles[1:] + muy_dificiles)
-        elif len(muy_dificiles) >= 1:
-             # Plan D: 1 Muy Difícil
-             plan_seleccionado = "D"
-             recomendados.append(muy_dificiles[0])
-             otros.extend(normales + dificiles + muy_dificiles[1:])
+        candidates = []
+        if req_diff:
+            # Buscamos coincidencia exacta de dificultad
+            candidates = [m for m in materias_data if m["dificultad"] == req_diff]
         else:
-             # Fallback (ej: solo normales)
-             plan_seleccionado = "A"
-             if normales: recomendados.append(normales[0])
-             elif dificiles: recomendados.append(dificiles[0])
-             elif muy_dificiles: recomendados.append(muy_dificiles[0])
-        
-        texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-                
-    elif pid == 3: # Perfil Medio-Bajo
-        # Plan A: 1 Final Difícil
-        # Plan B: 2 Finales Normales
-        # Plan C: 1 Muy Difícil
-
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = "A" # Default
-        
-        if len(dificiles) >= 1:
-            plan_seleccionado = "A"
-            recomendados.append(dificiles[0])
-            otros.extend(normales + dificiles[1:] + muy_dificiles)
-        elif len(normales) >= 2:
-            plan_seleccionado = "B"
-            recomendados.extend(normales[:2])
-            otros.extend(normales[2:] + dificiles + muy_dificiles)
-        elif len(muy_dificiles) >= 1:
-            plan_seleccionado = "C"
-            recomendados.append(muy_dificiles[0])
-            otros.extend(normales + dificiles + muy_dificiles[1:])
-        else:
-            # Fallback
-            plan_seleccionado = "A"
-            if dificiles: recomendados.append(dificiles[0])
-            elif normales: recomendados.extend(normales[:2])
-            elif muy_dificiles: recomendados.append(muy_dificiles[0])
+            # Si no hay requisito de dificultad, todas son candidatas
+            candidates = materias_data
             
-        texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 4: # Perfil Equilibrado
-        # Plan A: 1 Muy Difícil + 1 Normal
-        # Plan C: 2 Difíciles
-        
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = "A" # Default
-        
-        if len(muy_dificiles) >= 1 and len(normales) >= 1:
-            plan_seleccionado = "A"
-            recomendados.append(muy_dificiles[0])
-            recomendados.append(normales[0])
-            otros.extend(normales[1:] + dificiles + muy_dificiles[1:])
-        elif len(dificiles) >= 2:
-            plan_seleccionado = "C"
-            recomendados.extend(dificiles[:2])
-            otros.extend(normales + dificiles[2:] + muy_dificiles)
-        else:
-             # Fallback
-            plan_seleccionado = "A"
-            if muy_dificiles: recomendados.append(muy_dificiles[0])
-            if normales: recomendados.append(normales[0])
+        # Verificamos si cumplimos el requisito mínimo
+        if len(candidates) >= min_req:
+            # Validación estricta de "Relleno" (Filler)
+            # Si el plan requiere X cantidad total, y ya cubrimos el min_req de la dificultad obligatoria,
+            # verificamos si tenemos suficientes materias "más fáciles" para llenar el resto.
+            # Esto evita que un plan "1 Normal + 1 Dificil" se active si solo tenemos "2 Dificiles".
             
-        texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 5: # Perfil Medio-Alto
-        # Plan A: 2 Finales (Cualquier tipo)
-        # Plan B: 1 Final (Cualquier tipo)
-        
-        # Simplemente tomamos las 2 primeras disponibles, priorizando las que ya están listas
-        todas_disponibles = materias_data # Ya vienen filtradas por estado? No, materias_data son todas las del usuario enriquecidas?
-        # No, materias_data en generar_estrategia_examenes son las "PreparandoFinal" enriquecidas.
-        
-        # Ordenamos por dificultad descendente para "Cualquier tipo" (o ascendente? El usuario dice "Cualquier tipo").
-        # Vamos a priorizar variedad o simplemente cantidad. Plan A dice 2.
-        
-        plan_seleccionado = "A"
-        
-        if len(materias_data) >= 2:
-            plan_seleccionado = "A"
-            recomendados.extend(materias_data[:2])
-            otros.extend(materias_data[2:])
-        elif len(materias_data) == 1:
-            plan_seleccionado = "B"
-            recomendados.append(materias_data[0])
-        else:
-            plan_seleccionado = "B" # Fallback
+            match_possible = True
+            count_primary = min_req # Tomamos lo justo y necesario de la dificultad requerida
+            slots_remaining = cant_total - count_primary
             
-        texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 6: # Perfil Super Alto
-        # Plan A: 2 Finales (Cualquier tipo)
-        # Plan B: 2 Difíciles + 1 Normal
-        # Plan C: 3 materias Normales
-        
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = "A" # Default
-        
-        # Plan B: 2 Difíciles + 1 Normal
-        if len(dificiles) >= 2 and len(normales) >= 1:
-            plan_seleccionado = "B"
-            recomendados.extend(dificiles[:2])
-            recomendados.append(normales[0])
-            otros.extend(normales[1:] + dificiles[2:] + muy_dificiles)
+            if slots_remaining > 0:
+                if req_diff:
+                    # Si hay requisito de dificultad, el relleno debe ser ESTRICTAMENTE MENOR
+                    # (Asumimos que los planes mixtos buscan balance, no saturación)
+                    fillers = [m for m in materias_data if m["dificultad"] < req_diff]
+                else:
+                    # Si no hay requisito (ej: 2 Cualquiera), el relleno es cualquier cosa que sobre
+                    # (Pero ojo, candidates ya son todas. Simplemente chequeamos total)
+                    fillers = materias_data # Simplificación, chequeamos len total abajo
+                    
+                if req_diff and len(fillers) < slots_remaining:
+                    match_possible = False
+                elif not req_diff and len(materias_data) < cant_total:
+                    match_possible = False
             
-        # Plan C: 3 materias Normales
-        elif len(normales) >= 3:
-            plan_seleccionado = "C"
-            recomendados.extend(normales[:3])
-            otros.extend(normales[3:] + dificiles + muy_dificiles)
+            if match_possible:
+                estrategia_match = {
+                    "descripcion": str(row.descripcion),
+                    "cant": cant_total,
+                    "min_req": min_req,
+                    "req_diff": req_diff
+                }
+                break
             
-        # Plan A: 2 Finales (Cualquier tipo) - Fallback logic
-        else:
-            plan_seleccionado = "A"
-            # Tomamos las 2 primeras disponibles (ya ordenadas por dificultad o como vengan)
-            if len(materias_data) >= 2:
-                recomendados.extend(materias_data[:2])
-                otros.extend(materias_data[2:])
-            elif materias_data:
-                recomendados.extend(materias_data)
-            
-        texto_plan_final = perfil_data["finales"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-
-    else: # Balanceado / Heredero (Llenar cupo)
-        # Heredero (Perfil 6) o Equilibrado: puede rendir varias.
-        # Ordenamos por dificultad descendente para aprovechar capacidad
-        if pid in [6]: 
-             materias_data.sort(key=lambda x: x["dificultad"], reverse=True)
+    if estrategia_match:
+        texto_plan_final = estrategia_match["descripcion"]
+        target_qty = estrategia_match["cant"]
+        req_diff = estrategia_match["req_diff"]
         
-        for m in materias_data:
-            if len(recomendados) < max_qty:
+        taken_uris = set()
+        
+        # 1. Cumplir el requisito primario (min_req de la dificultad específica)
+        if req_diff:
+            primary_candidates = [m for m in materias_data if m["dificultad"] == req_diff]
+            # Tomamos la cantidad mínima requerida de esta dificultad
+            count_to_take = min(len(primary_candidates), estrategia_match["min_req"])
+            # Si el plan pide SOLO esta dificultad (ej: "1 Dificil" y cant=1), tomamos hasta target_qty
+            # Si el plan es mixto (ej: "1 Dificil + 1 Normal"), tomamos min_req y luego rellenamos.
+            # Heurística: Tomamos min_req.
+            
+            for i in range(count_to_take):
+                m = primary_candidates[i]
                 recomendados.append(m)
-            else:
-                otros.append(m)
+                taken_uris.add(m["uri"])
+                
+            # 2. Rellenar hasta target_qty con el resto
+            # Ordenamos el resto por dificultad ASCENDENTE (para equilibrar carga y evitar meter Muy Dificiles si no se piden)
+            remaining = [m for m in materias_data if m["uri"] not in taken_uris]
+            
+            # FILTRO CLAVE: Si la estrategia pide una dificultad específica (ej: Dificil), 
+            # no deberíamos rellenar con cosas MÁS difíciles (Muy Dificil) salvo que sea explícito.
+            # Vamos a filtrar 'remaining' para que solo tenga dificultad <= req_diff (o un poco más flexible?)
+            # Para ser seguros: solo rellenamos con dificultad <= req_diff si req_diff existe.
+            # O mejor aún: Si el plan es "1 Normal + 1 Dificil" (req_diff=3), no queremos Muy Dificil (4).
+            
+            if req_diff:
+                remaining = [m for m in remaining if m["dificultad"] <= req_diff]
+
+            remaining.sort(key=lambda x: x["dificultad"]) # De menor a mayor dificultad para el relleno
+            
+            while len(recomendados) < target_qty and remaining:
+                m = remaining.pop(0)
+                recomendados.append(m)
+                taken_uris.add(m["uri"])
+                
+            # El resto va a "otros"
+            otros = [m for m in materias_data if m["uri"] not in taken_uris]
+            
+        else:
+            # Sin requisito de dificultad específico (ej: "2 Cualquiera")
+            # Tomamos las top N (ya ordenadas descendente arriba)
+            recomendados = materias_data[:target_qty]
+            otros = materias_data[target_qty:]
+            
+    else:
+        # Fallback si no hay estrategia (o no hay materias suficientes para ninguna)
+        # Recomendamos 1 si hay
+        if materias_data:
+            recomendados.append(materias_data[0])
+            otros = materias_data[1:]
+            texto_plan_final = "Plan Genérico (No se encontraron estrategias específicas aplicables)"
+        else:
+            texto_plan_final = "No tienes finales pendientes para rendir."
 
     # 4. Formatear respuesta
     plan_final = []

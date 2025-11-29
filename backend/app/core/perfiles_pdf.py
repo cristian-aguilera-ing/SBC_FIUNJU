@@ -25,9 +25,9 @@ PERFILES_DATA = {
             "recomendacion_texto": "Ver Plan A/B/C abajo",
             "reglas": {"max_qty": 1, "max_dificultad": 1},
             "planes": {
-                "A": "Plan A: 1 Final Fácil. (Ideal para mantener la constancia sin saturarte).",
-                "B": "Plan B: 1 Final Normal. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados).",
-                "C": "Plan C: 1 Final Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."
+                "A": "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte).",
+                "B": "Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados).",
+                "C": "Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."
             }
         }
     },
@@ -49,13 +49,12 @@ PERFILES_DATA = {
         },
         "finales": {
             "comentario": "Prioriza las materias con finales múltiple opción, para ir reduciendo las materias que tenes para rendir. Organiza un grupo de estudio para que se apoyen entre todos. Siempre consultá a la cátedra sobre el formato del final.",
-            "recomendacion_texto": "Ver Plan A/B/C/D abajo",
+            "recomendacion_texto": "Ver Plan A/B/C abajo",
             "reglas": {"max_qty": 2, "max_dificultad": 2},
             "planes": {
                 "A": "Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo).",
-                "B": "Plan B: 1 materia Difícil. (Dedica tu tiempo a estudiar, practica con parciales de años anteriores y usa apuntes de compañeros).",
-                "C": "Plan C: 2 materias Difíciles (Solo si los exámenes están separados por 2 semanas).",
-                "D": "Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."
+                "B": "Plan B: 2 materias Difíciles (Solo si los exámenes están separados por 2 semanas).",
+                "C": "Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."
             }
         }
     },
