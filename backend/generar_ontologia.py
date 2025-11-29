@@ -168,36 +168,43 @@ print("PASO 3: Poblando el grafo (ABox)...")
 g.add((fiunju.ArquetipoCritico, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoCritico, fiunju.tieneNombreArquetipo, Literal("Perfil Crítico", lang="es")))
 g.add((fiunju.ArquetipoCritico, fiunju.tieneColorIdentificativo, Literal("red", datatype=XSD.string)))
+g.add((fiunju.ArquetipoCritico, fiunju.tieneConsejoClave, Literal("Necesitas cursar muy pocas materias y priorizar las más fáciles. La perseverancia es clave.", lang="es")))
 
 # 2. Perfil Bajo
 g.add((fiunju.ArquetipoBajo, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoBajo, fiunju.tieneNombreArquetipo, Literal("Perfil Bajo", lang="es")))
 g.add((fiunju.ArquetipoBajo, fiunju.tieneColorIdentificativo, Literal("orange", datatype=XSD.string)))
+g.add((fiunju.ArquetipoBajo, fiunju.tieneConsejoClave, Literal("Balancea tus prioridades a las materias que querés cursar, procura que sea una materia con menor carga horaria y con parciales accesibles. Aprovecha tus tiempos libres, para estudiar en lugares tranquilos como la facultad.", lang="es")))
 
 # 3. Perfil Medio-Bajo
 g.add((fiunju.ArquetipoMedioBajo, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneNombreArquetipo, Literal("Perfil Medio-Bajo", lang="es")))
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneColorIdentificativo, Literal("yellow", datatype=XSD.string)))
+g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneConsejoClave, Literal("Prioriza las materias troncales, y organízate bien para no perder la promoción. Usá parciales de años anteriores y apuntes de compañeros.", lang="es")))
 
 # 4. Perfil Equilibrado
 g.add((fiunju.ArquetipoEquilibrado, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneNombreArquetipo, Literal("Perfil Equilibrado", lang="es")))
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneColorIdentificativo, Literal("green", datatype=XSD.string)))
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneConsejoClave, Literal("Prioriza las materias troncales, y organízate bien para no perder la promoción. Si no entiendes un tema, asiste a consultas. Estudiar en la facultad te ayuda a concentrarte más. Resuelve parciales de años anteriores.", lang="es")))
 
 # 5. Perfil Medio-Alto
 g.add((fiunju.ArquetipoMedioAlto, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneNombreArquetipo, Literal("Perfil Medio-Alto", lang="es")))
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneColorIdentificativo, Literal("blue", datatype=XSD.string)))
+g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneConsejoClave, Literal("Prioriza todas las materias, y organízate bien para no perder la promoción. No descuides tus tiempos libres, aprovéchalos para estudiar. Tenés mucho tiempo de estudio, pero vivir solo y lejos igual consume horas. Organízate, práctica parciales y usá apuntes de compañeros.", lang="es")))
 
 # 6. Perfil Super Alto
 g.add((fiunju.ArquetipoSuperAlto, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneNombreArquetipo, Literal("Perfil Super Alto", lang="es")))
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneColorIdentificativo, Literal("violet", datatype=XSD.string)))
+g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneConsejoClave, Literal("Tenés el perfil con más disponibilidad. Prioriza todas las materias, y organízate bien para no perder la promoción. No te quedes libre. No descuides tus tiempos libres, aprovechalos para estudiar hace apuntes de cada tema, para estar al día.", lang="es")))
 
 # 7. Perfil Atípico
 g.add((fiunju.ArquetipoAtipico, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneNombreArquetipo, Literal("Perfil Atípico", lang="es")))
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneColorIdentificativo, Literal("brown", datatype=XSD.string)))
+g.add((fiunju.ArquetipoAtipico, fiunju.tieneConsejoClave, Literal("Cuidá tus tiempos, tomá buenas notas y mantente constante para no perder promoción. Practica con materiales de otros años. Prioriza materias troncales.", lang="es")))
 
 # ---------------------------------------------------------
 

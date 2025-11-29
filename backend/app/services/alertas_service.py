@@ -82,11 +82,15 @@ def _check_cuellos_de_botella(user: User, kg: Graph) -> list[Alerta]:
         # Esta función ya calcula el "desbloquea_count" TRANSITIVO (impacto real)
         materias_habilitadas = recomendacion_service._get_materias_habilitadas(user, kg)
         
+        # FILTRO ADICIONAL: Excluir las que el usuario YA está cursando
+        # (Porque si ya la está cursando, no es un "cuello de botella pendiente de tomar")
+        materias_pendientes = [m for m in materias_habilitadas if not m.get("es_cursando", False)]
+        
         # 2. Ordenar por impacto
-        materias_habilitadas.sort(key=lambda m: m["desbloquea_count"], reverse=True)
+        materias_pendientes.sort(key=lambda m: m["desbloquea_count"], reverse=True)
         
         # 3. Generar alertas solo para las Top 3 más críticas
-        for materia in materias_habilitadas[:10]:
+        for materia in materias_pendientes[:10]:
             impacto = materia["desbloquea_count"]
             
             # Solo alertar si el impacto es significativo (traba más de 5 materias futuras)

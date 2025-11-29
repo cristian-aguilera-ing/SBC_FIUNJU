@@ -203,9 +203,11 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     query_estrategias = f"""
     PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?orden ?desc ?cant ?minReq ?difValor
+    SELECT ?orden ?desc ?cant ?minReq ?difValor ?consejo
     WHERE {{
         fiunju:{arquetipo_uri} fiunju:tieneEstrategiaPosible ?est .
+        
+        OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneConsejoClave ?consejo . }}
         
         ?est fiunju:ordenPrioridad ?orden ;
              fiunju:descripcionPlan ?desc ;
@@ -224,6 +226,7 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     plan_seleccionado = []
     omitidas = []
     texto_recomendacion = "No se encontró una estrategia específica, mostrando mejores opciones disponibles."
+    consejo_clave = "Consejo no disponible."
     
     estrategia_encontrada = False
     
@@ -244,6 +247,9 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
 
     estrategias_validas = []
     for row in estrategias_res:
+        if row.consejo:
+            consejo_clave = str(row.consejo)
+            
         desc = str(row.desc)
         cant_a_sugerir = int(row.cant)
         min_req = int(row.minReq)
@@ -370,7 +376,7 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         "arquetipo": {
             "nombre": perfil_data["nombre_corto"],
             "color": perfil_data["color"],
-            "consejos": [perfil_data["cursada"]["comentario"]]
+            "consejos": [consejo_clave]
         },
         "consejos_adicionales": [texto_recomendacion]
     }
