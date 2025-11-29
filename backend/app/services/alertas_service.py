@@ -110,10 +110,66 @@ def _check_cuellos_de_botella(user: User, kg: Graph) -> list[Alerta]:
             
     return alertas
 
+def _check_pps_readiness(user: User, kg: Graph) -> list[Alerta]:
+    """Verifica si el alumno está en condiciones o cerca de iniciar la PPS."""
+    alertas = []
+    
+    # Verificar si ya la hizo o la está haciendo
+    for m in user.materias_cursadas:
+        if "PPS" in m.materia_uri or "PracticaProfesional" in m.materia_uri:
+            if m.estado in ["Aprobada", "Cursando", "Regular"]:
+                return []
+
+    # Obtener créditos actuales
+    creditos_actuales = 0
+    # (Esta lógica debería ser más robusta consultando la ontología, pero por ahora sumamos créditos de aprobadas)
+    # Asumimos que el user model tiene los créditos o los calculamos.
+    # Como no tenemos los créditos en el user model directamente, estimamos o usamos una query.
+    # Mejor usamos una query SPARQL rápida para sumar créditos de aprobadas.
+    
+    uris_aprobadas = " ".join([f"<{m.materia_uri}>" for m in user.materias_cursadas if m.estado == "Aprobada"])
+    if not uris_aprobadas:
+        return []
+        
+    query_creditos = f"""
+    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+    SELECT (SUM(?cred) as ?total) WHERE {{
+        VALUES ?materia {{ {uris_aprobadas} }}
+        ?materia fiunju:otorgaCreditos ?cred .
+    }}
+    """
+    try:
+        res = kg.query(query_creditos)
+        for r in res:
+            if r.total:
+                creditos_actuales = int(r.total)
+    except Exception:
+        pass
+        
+    # Requisito PPS: 270 créditos (según ontología)
+    REQ_CREDITOS = 270
+    
+    if creditos_actuales >= REQ_CREDITOS:
+        alertas.append(Alerta(
+            tipo=TipoAlerta.OPORTUNIDAD_ACADEMICA,
+            mensaje=f"¡Felicitaciones! Tienes {creditos_actuales} créditos. Ya estás habilitado para iniciar tu Práctica Profesional Supervisada (PPS).",
+            materia_label="Práctica Profesional Supervisada"
+        ))
+    elif creditos_actuales >= (REQ_CREDITOS - 30): # A 30 créditos (aprox 3-4 materias)
+        faltan = REQ_CREDITOS - creditos_actuales
+        alertas.append(Alerta(
+            tipo=TipoAlerta.OPORTUNIDAD_ACADEMICA,
+            mensaje=f"Estás muy cerca de la PPS. Tienes {creditos_actuales} créditos, te faltan solo {faltan} para habilitarla.",
+            materia_label="Práctica Profesional Supervisada"
+        ))
+        
+    return alertas
+
 def generar_alertas_proactivas(user: User, kg: Graph) -> list[Alerta]:
     # Incluimos también 'PreparandoFinal' ya que siguen siendo regulares
     materias_regulares = [m for m in user.materias_cursadas if m.estado == "Regular" or m.estado == "PreparandoFinal"]
     alertas_regularidad = _check_riesgo_regularidad(user, materias_regulares, kg)
     alertas_cuello_botella = _check_cuellos_de_botella(user, kg)
+    alertas_pps = _check_pps_readiness(user, kg)
     
-    return alertas_regularidad + alertas_cuello_botella
+    return alertas_regularidad + alertas_cuello_botella + alertas_pps

@@ -203,11 +203,12 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     query_estrategias = f"""
     PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?orden ?desc ?cant ?minReq ?difValor ?consejo
+    SELECT ?orden ?desc ?cant ?minReq ?difValor ?consejo ?diagnostico
     WHERE {{
         fiunju:{arquetipo_uri} fiunju:tieneEstrategiaPosible ?est .
         
         OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneConsejoClave ?consejo . }}
+        OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneTarjetaDiagnostico ?diagnostico . }}
         
         ?est fiunju:ordenPrioridad ?orden ;
              fiunju:descripcionPlan ?desc ;
@@ -221,12 +222,13 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     }}
     ORDER BY ?orden
     """
-    estrategias_res = kg.query(query_estrategias)
+    results = kg.query(query_estrategias)
     
     plan_seleccionado = []
     omitidas = []
     texto_recomendacion = "No se encontró una estrategia específica, mostrando mejores opciones disponibles."
     consejo_clave = "Consejo no disponible."
+    tarjeta_diagnostico = "Diagnóstico no disponible."
     
     estrategia_encontrada = False
     
@@ -246,9 +248,11 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
                     user_selection_counts[4] += 1
 
     estrategias_validas = []
-    for row in estrategias_res:
+    for row in results:
         if row.consejo:
             consejo_clave = str(row.consejo)
+        if row.diagnostico:
+            tarjeta_diagnostico = str(row.diagnostico)
             
         desc = str(row.desc)
         cant_a_sugerir = int(row.cant)
@@ -309,36 +313,48 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         cant_a_sugerir = int(row.cant)
         
         # Construir plan
-        seleccion = candidatas[:cant_a_sugerir]
-        plan_seleccionado.extend(seleccion)
-        
-        if len(plan_seleccionado) < cant_a_sugerir:
-            faltantes = cant_a_sugerir - len(plan_seleccionado)
-            uris_sel = {m["uri"] for m in plan_seleccionado}
-            resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
-            plan_seleccionado.extend(resto[:faltantes])
+        if uris_cursando:
+             # MODO ESTRICTO: Si el usuario seleccionó materias, el plan ES esa selección.
+             # No rellenamos con nada más.
+             plan_seleccionado = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
+        else:
+            # MODO AUTOMÁTICO: Llenamos según estrategia
+            seleccion = candidatas[:cant_a_sugerir]
+            plan_seleccionado.extend(seleccion)
+            
+            if len(plan_seleccionado) < cant_a_sugerir:
+                faltantes = cant_a_sugerir - len(plan_seleccionado)
+                uris_sel = {m["uri"] for m in plan_seleccionado}
+                resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
+                plan_seleccionado.extend(resto[:faltantes])
             
         # Identificar omitidas
         uris_sel = {m["uri"] for m in plan_seleccionado}
         
         if uris_cursando:
             # Si el usuario seleccionó materias, "Omitidas" (Postergar) son SOLO las que él eligió
-            # pero que no entraron en el plan.
-            omitidas = [m for m in materias_habilitadas 
-                        if m["uri"] not in uris_sel and m["uri"] in uris_cursando]
+            # pero que no entraron en el plan (aunque en modo estricto, todas entran en plan_seleccionado,
+            # salvo que queramos mostrar las que NO eligió como "disponibles pero no elegidas"?
+            # El usuario pidió: "seleccione 2 materias... calcular solo de esas materias".
+            # Si plan_seleccionado == uris_cursando, entonces omitidas (de cursando) es vacío.
+            # Pero si el usuario seleccionó 4 y el plan ideal era de 2, ¿qué hacemos?
+            # El usuario dijo: "seleccione 2 materias... calcular solo de esas materias".
+            # Entonces el plan recomendado son esas 2.
+            omitidas = [] 
         else:
             # Comportamiento default: Todo lo que sobra
             omitidas = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
 
     # 5. Fallback si ninguna estrategia coincide
-
-    # 5. Fallback si ninguna estrategia coincide
     if not estrategia_encontrada:
         # Tomar las top N por prioridad (ya ordenadas)
         default_qty = 3
-        plan_seleccionado = materias_habilitadas[:default_qty]
-        omitidas = materias_habilitadas[default_qty:]
-        texto_recomendacion = "Plan Genérico: Basado en las materias que desbloquean más correlativas."
+        if uris_cursando:
+             plan_seleccionado = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
+        else:
+             plan_seleccionado = materias_habilitadas[:default_qty]
+             
+        omitidas = [m for m in materias_habilitadas if m["uri"] not in {x["uri"] for x in plan_seleccionado}]
 
     # Helper para formatear dificultad
     def get_dificultad_label(val):

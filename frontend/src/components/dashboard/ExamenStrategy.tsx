@@ -82,19 +82,12 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
             Diagnóstico
           </h3>
 
-          <div className="text-gray-300 text-base md:text-lg leading-relaxed space-y-2">
-            {plan.arquetipo.consejos[0].split('Consejo:')[0].split('\n').map((line, i) => {
-              const isBullet = line.trim().startsWith('*');
-              if (!line.trim()) return null;
-              return (
-                <p key={i} className={`
-                            ${isBullet ? "ml-6 pl-4 border-l-2 border-gray-700 italic text-gray-400" : ""}
-                            ${i === 0 ? "font-medium text-white mb-2" : ""}
-                        `}>
-                  {line.replace('*', '').trim()}
-                </p>
-              );
-            })}
+          <div className="text-gray-300 text-base md:text-lg leading-relaxed space-y-2 whitespace-pre-wrap">
+            {plan.arquetipo.diagnostico ? (
+              plan.arquetipo.diagnostico
+            ) : (
+              plan.arquetipo.consejos[0].split('Consejo:')[0]
+            )}
           </div>
         </div>
       </div>

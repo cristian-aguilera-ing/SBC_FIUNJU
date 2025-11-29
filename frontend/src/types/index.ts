@@ -33,6 +33,7 @@ export enum TipoAlerta {
   RIESGO_REGULARIDAD = "riesgo_regularidad",
   CUELLO_DE_BOTELLA = "cuello_de_botella",
   SOBRECARGA = "sobrecarga",
+  OPORTUNIDAD_ACADEMICA = "oportunidad_academica",
 }
 
 export interface Alerta {
@@ -56,6 +57,7 @@ export interface ArquetipoInfo {
   nombre: string;
   color: string;
   consejos: string[];
+  diagnostico?: string;
 }
 
 export interface PlanCursadaRecomendado {

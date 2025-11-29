@@ -5,7 +5,8 @@ from enum import Enum
 class TipoAlerta(str, Enum):
     RIESGO_REGULARIDAD = "riesgo_regularidad"
     CUELLO_DE_BOTELLA = "cuello_de_botella"
-    SOBRECARGA = "sobrecarga" # (Lo usaremos más adelante)
+    SOBRECARGA = "sobrecarga"
+    OPORTUNIDAD_ACADEMICA = "oportunidad_academica"
 
 class Alerta(BaseModel):
     tipo: TipoAlerta
