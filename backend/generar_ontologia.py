@@ -968,7 +968,8 @@ print(f"Grafo DESPUÉS del razonador tiene {len(g)} tripletas.")
 # --- 5. Serialización del Grafo Final ---
 print("PASO 5: Serializando el grafo...")
 # Define dónde guardar el archivo
-output_dir = Path("ontologies") # Guardar en una carpeta local
+# MODIFICADO: Usar ruta absoluta basada en la ubicación del script
+output_dir = Path(__file__).resolve().parent / "ontologies"
 output_file = output_dir / "fiunju_ontologia_GENERADA.ttl"
 
 # Crea la carpeta 'ontologies' si no existe
