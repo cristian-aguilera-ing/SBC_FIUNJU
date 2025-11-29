@@ -1,0 +1,17 @@
+total 272
+drwxr-xr-x@ 16 cristianaguilera  staff    512 Nov 29 15:26 .
+drwxr-xr-x@ 42 cristianaguilera  staff   1344 Nov 29 12:14 ..
+-rw-r--r--@  1 cristianaguilera  staff   8196 Nov 21 01:40 .DS_Store
+-rw-r--r--@  1 cristianaguilera  staff    650 Nov 21 18:28 Dockerfile
+drwxr-xr-x   7 cristianaguilera  staff    224 Nov 21 18:28 alembic
+-rw-r--r--@  1 cristianaguilera  staff   4809 Nov 21 18:28 alembic.ini
+drwxr-xr-x@ 10 cristianaguilera  staff    320 Nov 22 22:57 app
+-rw-r--r--   1 cristianaguilera  staff     44 Nov 29 15:05 debug_ontology.log
+-rw-r--r--@  1 cristianaguilera  staff   1120 Nov 29 15:24 debug_ontology_query.py
+-rw-r--r--@  1 cristianaguilera  staff  61625 Nov 29 14:08 generar_ontologia.py
+drwxr-xr-x   4 cristianaguilera  staff    128 Nov  7 03:02 ontologies
+-rw-r--r--@  1 cristianaguilera  staff      0 Nov 29 15:25 output.txt
+-rw-r--r--@  1 cristianaguilera  staff      0 Nov 29 15:26 output_ls.txt
+-rw-r--r--@  1 cristianaguilera  staff    207 Nov 22 12:56 requirements.txt
+-rw-r--r--@  1 cristianaguilera  staff  36864 Nov 21 20:12 test.db
+drwxr-xr-x@  6 cristianaguilera  staff    192 Nov 22 13:29 tests

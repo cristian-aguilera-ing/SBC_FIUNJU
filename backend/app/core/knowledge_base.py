@@ -10,7 +10,9 @@ def load_knowledge_base() -> Graph:
     g = Graph()
     
     # Apunta al archivo que 'generar_ontologia.py' crea
-    ontology_file_path = "/app/ontologies/fiunju_ontologia_GENERADA.ttl"
+    # Usamos path relativo para que funcione local y en docker
+    base_path = Path(__file__).resolve().parent.parent.parent
+    ontology_file_path = base_path / "ontologies" / "fiunju_ontologia_GENERADA.ttl"
     
     try:
         print(f"Intentando cargar ontología desde: {ontology_file_path}")

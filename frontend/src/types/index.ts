@@ -57,6 +57,7 @@ export interface ArquetipoInfo {
   nombre: string;
   color: string;
   consejos: string[];
+  consejo_clave?: string;
   diagnostico?: string;
 }
 

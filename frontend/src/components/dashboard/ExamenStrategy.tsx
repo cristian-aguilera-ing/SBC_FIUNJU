@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlanExamenRecomendado } from '@/types';
-import { TargetIcon, LockKeyhole, AlertCircle, CheckCircle, Info } from "lucide-react";
+import { CheckCircle, AlertTriangle, BookOpen, Clock, Trophy, Target, ArrowRight, Info, X, Lightbulb, AlertCircle } from 'lucide-react';
 import WidgetDinamico from './WidgetDinamico';
 
 // Componente para renderizar la tarjeta de recomendación estética (Estrategia Específica)
@@ -22,7 +22,7 @@ const RecommendationCard = ({ text, color }: { text: string, color: string }) =>
               className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0 shadow-[0_0_10px_currentColor]"
               style={{ backgroundColor: color, color: color }}
             />
-            <p className="text-lg md:text-xl text-white leading-relaxed font-medium tracking-wide">
+            <p className="text-xs md:text-sm text-white leading-relaxed font-medium tracking-wide">
               {line.replace(/[✔✓]/g, '').trim()}
             </p>
           </div>
@@ -70,57 +70,46 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
         </div>
       </div>
 
-      {/* TARJETA DE DIAGNÓSTICO (Auto-height) */}
-      <div className="relative rounded-2xl p-1 bg-gradient-to-br from-gray-800 to-gray-900 shadow-xl">
-        <div className="absolute inset-0 rounded-2xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 20px ${plan.arquetipo.color}20` }} />
+      {/* TARJETA DE DIAGNÓSTICO (Compacta) */}
+      <div className="relative rounded-xl p-0.5 bg-gradient-to-br from-white/5 to-white/10 shadow-lg mt-4">
+        <div className="absolute inset-0 rounded-xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 15px ${plan.arquetipo.color}15` }} />
 
-        <div className="bg-gray-900/40 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: plan.arquetipo.color }} />
+        <div className="bg-slate-900/40 backdrop-blur-xl rounded-xl p-4 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: plan.arquetipo.color }} />
 
-          <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
-            <CheckCircle className="w-5 h-5" style={{ color: plan.arquetipo.color }} />
+          <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <CheckCircle className="w-4 h-4" style={{ color: plan.arquetipo.color }} />
             Diagnóstico
           </h3>
 
-          <div className="text-gray-300 text-base md:text-lg leading-relaxed space-y-2 whitespace-pre-wrap">
-            {plan.arquetipo.diagnostico ? (
-              plan.arquetipo.diagnostico
-            ) : (
-              plan.arquetipo.consejos[0].split('Consejo:')[0]
-            )}
+          <div className="text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap">
+            {plan.arquetipo.diagnostico || "Diagnóstico no disponible."}
           </div>
         </div>
       </div>
 
-      {/* TARJETA DE CONSEJO CLAVE */}
-      {keyAdvice && (
-        <div className="relative overflow-hidden rounded-xl p-6 border border-white/10 shadow-2xl group">
-          {/* Fondo Animado Sutil */}
-          <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900" />
-          <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+      {/* TARJETA DE CONSEJO CLAVE (Compacta y Separada) */}
+      {/* TARJETA DE CONSEJO CLAVE (Compacta y Separada) */}
+      <div className="relative rounded-xl p-0.5 bg-gradient-to-br from-white/5 to-white/10 shadow-lg mt-3">
+        <div className="absolute inset-0 rounded-xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 15px ${plan.arquetipo.color}15` }} />
 
-          {/* Glow Effect based on Archetype Color */}
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full blur-[80px] opacity-20" style={{ backgroundColor: plan.arquetipo.color }} />
+        <div className="bg-slate-900/40 backdrop-blur-xl rounded-xl p-4 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: plan.arquetipo.color }} />
 
-          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-            <div className="p-3 rounded-full bg-white/5 border border-white/10 shadow-inner shrink-0">
-              <Info className="w-8 h-8" style={{ color: plan.arquetipo.color }} />
-            </div>
+          <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2 uppercase tracking-wide">
+            <Lightbulb className="w-4 h-4" style={{ color: plan.arquetipo.color }} />
+            Consejo Clave
+          </h3>
 
-            <div>
-              <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Consejo Clave</h4>
-              <p className="text-xl md:text-2xl font-display font-medium text-white leading-tight drop-shadow-sm">
-                {keyAdvice}
-              </p>
-            </div>
+          <div className="text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap">
+            {plan.arquetipo.consejo_clave || (keyAdvice || "").split('Consejo:')[0]}
           </div>
         </div>
-      )}
-
+      </div>
       {/* PANEL DE ESTRATEGIA */}
       <div className="bg-white/[0.02] p-6 md:p-8 rounded-2xl shadow-lg border border-white/5">
         <h3 className="font-bold text-lg text-indigo-300 mb-4 flex items-center gap-2">
-          <TargetIcon className="w-5 h-5" /> Estrategia de Finales
+          <Target className="w-5 h-5" /> Estrategia de Finales
         </h3>
 
         {/* Aquí usamos el nuevo componente estético para la recomendación */}
@@ -225,7 +214,7 @@ const ExamenStrategy = ({ plan, isLoading }: { plan: PlanExamenRecomendado | nul
           ) : <p className="text-sm text-gray-400 text-center italic">¡Estás al día! No tienes finales pendientes.</p>}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -203,12 +203,9 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     query_estrategias = f"""
     PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?orden ?desc ?cant ?minReq ?difValor ?consejo ?diagnostico
+    SELECT ?orden ?desc ?cant ?minReq ?difValor
     WHERE {{
         fiunju:{arquetipo_uri} fiunju:tieneEstrategiaPosible ?est .
-        
-        OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneConsejoClave ?consejo . }}
-        OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneTarjetaDiagnostico ?diagnostico . }}
         
         ?est fiunju:ordenPrioridad ?orden ;
              fiunju:descripcionPlan ?desc ;
@@ -227,8 +224,27 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     plan_seleccionado = []
     omitidas = []
     texto_recomendacion = "No se encontró una estrategia específica, mostrando mejores opciones disponibles."
-    consejo_clave = "Consejo no disponible."
+    
+    # Fetch diagnostic card and key advice from ontology (DECOUPLED)
     tarjeta_diagnostico = "Diagnóstico no disponible."
+    consejo_clave = "Consejo no disponible."
+    
+    try:
+        query_info = f"""
+        PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+        SELECT ?diagnostico ?consejo WHERE {{
+            OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneTarjetaDiagnostico ?diagnostico . }}
+            OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneConsejoClave ?consejo . }}
+        }}
+        """
+        res_info = list(kg.query(query_info))
+        if res_info:
+            if res_info[0].diagnostico:
+                tarjeta_diagnostico = str(res_info[0].diagnostico)
+            if res_info[0].consejo:
+                consejo_clave = str(res_info[0].consejo)
+    except Exception as e:
+        print(f"Error fetching archetype info: {e}")
     
     estrategia_encontrada = False
     
@@ -249,11 +265,6 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
 
     estrategias_validas = []
     for row in results:
-        if row.consejo:
-            consejo_clave = str(row.consejo)
-        if row.diagnostico:
-            tarjeta_diagnostico = str(row.diagnostico)
-            
         desc = str(row.desc)
         cant_a_sugerir = int(row.cant)
         min_req = int(row.minReq)
@@ -392,7 +403,9 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         "arquetipo": {
             "nombre": perfil_data["nombre_corto"],
             "color": perfil_data["color"],
-            "consejos": [consejo_clave]
+            "consejos": [consejo_clave],
+            "consejo_clave": consejo_clave, # Nuevo campo explícito
+            "diagnostico": tarjeta_diagnostico
         },
         "consejos_adicionales": [texto_recomendacion]
     }
@@ -625,19 +638,42 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
     plan_final.extend(map_to_output(recomendados, True))
     plan_final.extend(map_to_output(otros, False, motivo="No recomendado por carga horaria"))
 
-
+    # Fetch diagnostic card and key advice from ontology
+    tarjeta_diagnostico = "Diagnóstico no disponible."
+    consejo_clave = "Consejo no disponible."
+    
+    try:
+        query_info = f"""
+        PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+        SELECT ?diagnostico ?consejo WHERE {{
+            OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneTarjetaDiagnostico ?diagnostico . }}
+            OPTIONAL {{ fiunju:{arquetipo_uri} fiunju:tieneConsejoClave ?consejo . }}
+        }}
+        """
+        res_info = list(kg.query(query_info))
+        if res_info:
+            if res_info[0].diagnostico:
+                tarjeta_diagnostico = str(res_info[0].diagnostico)
+            if res_info[0].consejo:
+                consejo_clave = str(res_info[0].consejo)
+    except Exception as e:
+        print(f"Error fetching archetype info: {e}")
+    
+    # DEBUG: Force diagnostic if empty
+    if tarjeta_diagnostico == "Diagnóstico no disponible.":
+        tarjeta_diagnostico = "DEBUG: El backend está ejecutando el nuevo código, pero la query falló o no trajo datos."
 
     return {
         "plan_recomendado": plan_final,
-        # Inyección del Arquetipo (Igual que en Cursada)
         "arquetipo": {
             "nombre": perfil_data["nombre_corto"],
             "color": perfil_data["color"],
-            "consejos": [perfil_data["cursada"]["comentario"]] # Usamos el comentario de cursada como "Diagnóstico" general
+            "consejos": [consejo_clave], # Mantener compatibilidad
+            "consejo_clave": consejo_clave, # Nuevo campo explícito
+            "diagnostico": tarjeta_diagnostico
         },
-        # Texto de recomendación técnica del PDF
         "consejos_adicionales": [
-            texto_plan_final, # El plan seleccionado (A, B o C)
-            perfil_data["finales"]["comentario"] # El "Consejo Clave"
+            texto_plan_final,
+            perfil_data["finales"]["comentario"]
         ]
     }

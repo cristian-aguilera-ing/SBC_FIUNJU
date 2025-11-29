@@ -423,9 +423,13 @@ g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_a))
 ex_eq_b = crear_estrategia_examen("EstrategiaExamen_Equilibrado_B", 2, "Plan B: 2 Difíciles. (Solo si hay al menos 10 días de separación entre mesas de examen).", 2, fiunju.ExamenDificil, 2)
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_b))
 
-# Plan C: 1 Muy Difícil
-ex_eq_c = crear_estrategia_examen("EstrategiaExamen_Equilibrado_C", 3, "Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra).", 1, fiunju.ExamenMuyDificil, 1)
+# Plan C: 1 Difícil
+ex_eq_c = crear_estrategia_examen("EstrategiaExamen_Equilibrado_C", 3, "Plan C: 1 Difícil. (Solo tenes esta materia para rendir, tenes tiempo para estudiar.).", 1, fiunju.ExamenDificil, 1)
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_c))
+
+# Plan D: 1 Muy Difícil
+ex_eq_d = crear_estrategia_examen("EstrategiaExamen_Equilibrado_D", 4, "Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra).", 1, fiunju.ExamenMuyDificil, 1)
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaExamen, ex_eq_d))
 
 
 # 5. Perfil Medio-Alto

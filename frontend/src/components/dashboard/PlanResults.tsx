@@ -1,7 +1,7 @@
 import React from 'react';
 import { PlanCursadaRecomendado } from '@/types';
 import WidgetDinamico from './WidgetDinamico';
-import { BookOpen, CheckCircle, XCircle, Info, Check } from "lucide-react";
+import { CheckCircle, AlertTriangle, BookOpen, Clock, Trophy, Target, ArrowRight, Info, X, Lightbulb, XCircle } from 'lucide-react';
 
 // Componente para renderizar la tarjeta de recomendación estética (Estrategia Específica)
 const RecommendationCard = ({ text, color }: { text: string, color: string }) => {
@@ -22,7 +22,7 @@ const RecommendationCard = ({ text, color }: { text: string, color: string }) =>
                             className="mt-1.5 w-2 h-2 rounded-full flex-shrink-0 shadow-[0_0_10px_currentColor]"
                             style={{ backgroundColor: color, color: color }}
                         />
-                        <p className="text-lg md:text-xl text-white leading-relaxed font-medium tracking-wide">
+                        <p className="text-xs md:text-sm text-white leading-relaxed font-medium tracking-wide">
                             {line.replace(/[✔✓]/g, '').trim()}
                         </p>
                     </div>
@@ -128,53 +128,44 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
                 </div>
             </div>
 
-            {/* TARJETA DE DIAGNÓSTICO (Auto-height) */}
-            <div className="relative rounded-2xl p-1 bg-gradient-to-br from-white/5 to-white/10 shadow-xl">
-                <div className="absolute inset-0 rounded-2xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 20px ${plan.arquetipo.color}20` }} />
+            {/* TARJETA DE DIAGNÓSTICO (Compacta) */}
+            <div className="relative rounded-xl p-0.5 bg-gradient-to-br from-white/5 to-white/10 shadow-lg mt-4">
+                <div className="absolute inset-0 rounded-xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 15px ${plan.arquetipo.color}15` }} />
 
-                <div className="bg-slate-900/30 backdrop-blur-xl rounded-xl p-6 md:p-8 relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: plan.arquetipo.color }} />
+                <div className="bg-slate-900/40 backdrop-blur-xl rounded-xl p-4 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: plan.arquetipo.color }} />
 
-                    <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
-                        <CheckCircle className="w-5 h-5" style={{ color: plan.arquetipo.color }} />
+                    <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2 uppercase tracking-wide">
+                        <CheckCircle className="w-4 h-4" style={{ color: plan.arquetipo.color }} />
                         Diagnóstico
                     </h3>
 
-                    <div className="text-gray-300 text-sm md:text-base leading-relaxed space-y-2 whitespace-pre-wrap">
-                        {plan.arquetipo.diagnostico ? (
-                            plan.arquetipo.diagnostico
-                        ) : (
-                            // Fallback antiguo por si acaso
-                            plan.arquetipo.consejos[0].split('Consejo:')[0]
-                        )}
+                    <div className="text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap">
+                        {plan.arquetipo.diagnostico || "Diagnóstico no disponible."}
                     </div>
                 </div>
             </div>
 
-            {/* TARJETA DE CONSEJO (Separada y Llamativa) */}
-            {plan.arquetipo.consejos[0].includes('Consejo:') && (
-                <div className="relative overflow-hidden rounded-xl p-6 border border-white/10 shadow-2xl group">
-                    {/* Fondo Animado Sutil */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-white/10 to-white/5" />
-                    <div className="absolute inset-0 opacity-10 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] mix-blend-overlay" />
+            {/* TARJETA DE CONSEJO CLAVE (Compacta y Separada) */}
+            <div className="relative rounded-xl p-0.5 bg-gradient-to-br from-white/5 to-white/10 shadow-lg mt-3">
+                <div className="absolute inset-0 rounded-xl opacity-20" style={{ border: `1px solid ${plan.arquetipo.color}`, boxShadow: `0 0 15px ${plan.arquetipo.color}15` }} />
 
-                    {/* Glow Effect based on Archetype Color */}
-                    <div className="absolute -left-20 -bottom-20 w-64 h-64 rounded-full blur-[80px] opacity-20" style={{ backgroundColor: plan.arquetipo.color }} />
+                <div className="bg-slate-900/40 backdrop-blur-xl rounded-xl p-4 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-0.5" style={{ backgroundColor: plan.arquetipo.color }} />
 
-                    <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center gap-6">
-                        <div className="p-3 rounded-full bg-white/5 border border-white/10 shadow-inner shrink-0">
-                            <Info className="w-8 h-8" style={{ color: plan.arquetipo.color }} />
-                        </div>
+                    <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2 uppercase tracking-wide">
+                        <Lightbulb className="w-4 h-4" style={{ color: plan.arquetipo.color }} />
+                        Consejo Clave
+                    </h3>
 
-                        <div>
-                            <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Consejo Clave</h4>
-                            <p className="text-lg md:text-xl font-display font-medium text-white leading-tight drop-shadow-sm">
-                                {plan.arquetipo.consejos[0].split('Consejo:')[1].trim()}
-                            </p>
-                        </div>
+                    <div className="text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap">
+                        {plan.arquetipo.consejo_clave || plan.arquetipo.consejos[0].split('Consejo:')[0]}
                     </div>
                 </div>
-            )}
+            </div>
+
+
+
 
             {/* PANEL DE PLANIFICACIÓN */}
             <div className="bg-white/[0.02] p-6 md:p-8 rounded-2xl shadow-lg border border-white/5">
@@ -189,7 +180,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
 
                 <RenderPlan plan={plan} />
             </div>
-        </div>
+        </div >
     );
 };
 
