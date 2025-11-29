@@ -7,38 +7,14 @@
 fiunju:ArquetipoEstudiante a rdfs:Class ;
     owl:sameAs fiunju:ArquetipoEstudiante .
 
-fiunju:ExamenMultipleChoice a rdfs:Class ;
-    rdfs:label "Examen Multiple Choice"@es ;
-    fiunju:tieneDificultadExamen fiunju:ExamenNormal ;
-    rdfs:subClassOf fiunju:ModalidadExamenFinal ;
-    owl:disjointWith fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    owl:sameAs fiunju:ExamenMultipleChoice .
+fiunju:ComponentePlan a rdfs:Class ;
+    owl:sameAs fiunju:ComponentePlan .
 
-fiunju:ExamenTeoricoEscrito a rdfs:Class ;
-    rdfs:label "Examen Teórico Escrito"@es ;
-    fiunju:tieneDificultadExamen fiunju:ExamenDificil ;
-    rdfs:subClassOf fiunju:ModalidadExamenFinal ;
-    owl:disjointWith fiunju:ExamenTeoricoOral ;
-    owl:sameAs fiunju:ExamenTeoricoEscrito .
+fiunju:CondicionDisponibilidad a rdfs:Class ;
+    owl:sameAs fiunju:CondicionDisponibilidad .
 
-fiunju:ExamenTeoricoOral a rdfs:Class ;
-    rdfs:label "Examen Teórico Oral"@es ;
-    fiunju:tieneDificultadExamen fiunju:ExamenMuyDificil ;
-    rdfs:subClassOf fiunju:ModalidadExamenFinal ;
-    owl:sameAs fiunju:ExamenTeoricoOral .
-
-fiunju:FactorAcademico a rdfs:Class ;
-    owl:sameAs fiunju:FactorAcademico .
-
-fiunju:FactorMentalidad a rdfs:Class ;
-    owl:sameAs fiunju:FactorMentalidad .
-
-fiunju:FactorPersonal a rdfs:Class ;
-    owl:sameAs fiunju:FactorPersonal .
-
-fiunju:FactorPlanificacion a rdfs:Class ;
-    owl:sameAs fiunju:FactorPlanificacion .
+fiunju:EstrategiaRecomendacion a rdfs:Class ;
+    owl:sameAs fiunju:EstrategiaRecomendacion .
 
 fiunju:Materia a rdfs:Class ;
     owl:sameAs fiunju:Materia .
@@ -56,119 +32,71 @@ fiunju:TopicoDeConsejo a rdfs:Class ;
     owl:sameAs fiunju:TopicoDeConsejo .
 
 fiunju:ArquetipoEquilibrado a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "green"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Equilibrado"@es ;
+    fiunju:tieneColorIdentificativo "green" ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Equilibrado_A,
+        fiunju:Est_Equilibrado_B,
+        fiunju:Est_Equilibrado_C,
+        fiunju:Est_Equilibrado_D ;
+    fiunju:tieneNombreArquetipo "El Equilibrado" ;
     owl:sameAs fiunju:ArquetipoEquilibrado .
 
 fiunju:ArquetipoErmitano a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "blue"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Ermitaño del Interior"@es ;
+    fiunju:tieneColorIdentificativo "blue" ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Ermitano_A,
+        fiunju:Est_Ermitano_B,
+        fiunju:Est_Ermitano_C,
+        fiunju:Est_Ermitano_D ;
+    fiunju:tieneNombreArquetipo "El Ermitaño del Interior" ;
     owl:sameAs fiunju:ArquetipoErmitano .
 
 fiunju:ArquetipoGuerrero a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "yellow"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Guerrero Solitario"@es ;
+    fiunju:tieneColorIdentificativo "yellow" ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Guerrero_A,
+        fiunju:Est_Guerrero_B,
+        fiunju:Est_Guerrero_C,
+        fiunju:Est_Guerrero_D ;
+    fiunju:tieneNombreArquetipo "El Guerrero Solitario" ;
     owl:sameAs fiunju:ArquetipoGuerrero .
 
 fiunju:ArquetipoHeredero a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "violet"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Heredero del Trono"@es ;
+    fiunju:tieneColorIdentificativo "violet" ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Heredero_A,
+        fiunju:Est_Heredero_B,
+        fiunju:Est_Heredero_C,
+        fiunju:Est_Heredero_D ;
+    fiunju:tieneNombreArquetipo "El Heredero del Trono" ;
     owl:sameAs fiunju:ArquetipoHeredero .
 
 fiunju:ArquetipoMalabarista a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "orange"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Malabarista Urbano"@es ;
+    fiunju:tieneColorIdentificativo "orange" ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Malabarista_A,
+        fiunju:Est_Malabarista_B,
+        fiunju:Est_Malabarista_C,
+        fiunju:Est_Malabarista_D ;
+    fiunju:tieneNombreArquetipo "El Malabarista Urbano" ;
     owl:sameAs fiunju:ArquetipoMalabarista .
 
 fiunju:ArquetipoPadreFullTime a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "brown"^^xsd:string ;
-    fiunju:tieneConsejoBase "Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."@es ;
-    fiunju:tieneNombreArquetipo "El Padre/Madre Full-Time"@es ;
+    fiunju:tieneColorIdentificativo "brown" ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Equilibrado_A,
+        fiunju:Est_Equilibrado_B,
+        fiunju:Est_Equilibrado_C,
+        fiunju:Est_Equilibrado_D ;
+    fiunju:tieneNombreArquetipo "El Padre/Madre Full-Time" ;
     owl:sameAs fiunju:ArquetipoPadreFullTime .
 
 fiunju:ArquetipoSuperviviente a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "red"^^xsd:string ;
-    fiunju:tieneConsejoBase "Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."@es ;
-    fiunju:tieneNombreArquetipo "El Superviviente"@es ;
+    fiunju:tieneColorIdentificativo "red" ;
+    fiunju:tieneConsejoBase "Usa Pomodoro." ;
+    fiunju:tieneEstrategiaPosible fiunju:Est_Superviviente_A,
+        fiunju:Est_Superviviente_B,
+        fiunju:Est_Superviviente_C,
+        fiunju:Est_Superviviente_D ;
+    fiunju:tieneNombreArquetipo "El Superviviente" ;
     owl:sameAs fiunju:ArquetipoSuperviviente .
 
-fiunju:ExamenFacil a fiunju:NivelDificultadExamen ;
-    rdfs:label "Fácil"@es ;
-    fiunju:tieneValor 1 ;
-    owl:sameAs fiunju:ExamenFacil .
-
-fiunju:FA_ColegioSecundario a fiunju:FactorAcademico ;
-    rdfs:label "Colegio Secundario (Técnica vs. Bachiller)"@es ;
-    fiunju:tienePrioridad 3 ;
-    owl:sameAs fiunju:FA_ColegioSecundario .
-
-fiunju:FA_HabitoEstudio a fiunju:FactorAcademico ;
-    rdfs:label "Hábito de Estudio (constante vs. último momento)"@es ;
-    fiunju:tienePrioridad 1 ;
-    owl:sameAs fiunju:FA_HabitoEstudio .
-
-fiunju:FA_MetodoEstudio a fiunju:FactorAcademico ;
-    rdfs:label "Método de Estudio (solo vs. grupo, leer vs. escuchar)"@es ;
-    fiunju:tienePrioridad 2 ;
-    owl:sameAs fiunju:FA_MetodoEstudio .
-
-fiunju:FP_LugarResidencia a fiunju:FactorPersonal ;
-    rdfs:label "Lugar de Residencia (Interior vs. Capital)"@es ;
-    fiunju:tienePrioridad 4 ;
-    owl:sameAs fiunju:FP_LugarResidencia .
-
-fiunju:FP_SituacionHogar a fiunju:FactorPersonal ;
-    rdfs:label "Situación de Hogar (vive solo, tiene hijos)"@es ;
-    fiunju:tienePrioridad 2 ;
-    owl:sameAs fiunju:FP_SituacionHogar .
-
-fiunju:FP_TipoTrabajo a fiunju:FactorPersonal ;
-    rdfs:label "El trabajo está relacionado con la informática"@es ;
-    fiunju:tienePrioridad 3 ;
-    owl:sameAs fiunju:FP_TipoTrabajo .
-
-fiunju:FP_Trabaja a fiunju:FactorPersonal ;
-    rdfs:label "Trabaja"@es ;
-    fiunju:tienePrioridad 1 ;
-    owl:sameAs fiunju:FP_Trabaja .
-
-fiunju:IntInnEntrep a fiunju:Materia,
-        fiunju:Optativa ;
-    rdfs:label "Introducción a la Innovación y Entrepreneurship"@es ;
-    fiunju:otorgaCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    owl:sameAs fiunju:IntInnEntrep .
-
-fiunju:ModProNeg a fiunju:Materia,
-        fiunju:Optativa ;
-    rdfs:label "Modelado y Proceso de Negocios"@es ;
-    fiunju:otorgaCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    owl:sameAs fiunju:ModProNeg .
-
-fiunju:PPS a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Practica Profesional Supervisada"@es ;
-    fiunju:perteneceAlAño 5 ;
-    fiunju:requiereCreditos 270 ;
-    fiunju:requiereCuartoAnoAprobado true ;
-    owl:sameAs fiunju:PPS .
-
-fiunju:TIC a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Teoría de la Información y la Comunicación"@es ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    owl:sameAs fiunju:TIC .
-
-fiunju:TopicoExamenEscrito a fiunju:TopicoDeConsejo ;
-    rdfs:label "Preparación para Examen Escrito"@es ;
-    owl:sameAs fiunju:TopicoExamenEscrito .
-
-fiunju:tienePrioridad owl:sameAs fiunju:tienePrioridad .
+fiunju:MateriaDeAltoEsfuerzo rdfs:subClassOf fiunju:Materia ;
+    owl:sameAs fiunju:MateriaDeAltoEsfuerzo .
 
 rdf:HTML a rdfs:Datatype ;
     owl:sameAs rdf:HTML .
@@ -270,6 +198,9 @@ xsd:positiveInteger a rdfs:Datatype ;
 xsd:short a rdfs:Datatype ;
     owl:sameAs xsd:short .
 
+xsd:string a rdfs:Datatype ;
+    owl:sameAs xsd:string .
+
 xsd:time a rdfs:Datatype ;
     owl:sameAs xsd:time .
 
@@ -313,28 +244,503 @@ owl:sameAs owl:sameAs owl:sameAs .
 owl:versionInfo a owl:AnnotationProperty ;
     owl:sameAs owl:versionInfo .
 
-fiunju:ExamenDificil a fiunju:NivelDificultadExamen ;
-    rdfs:label "Difícil"@es ;
-    fiunju:tieneValor 3 ;
-    owl:sameAs fiunju:ExamenDificil .
+fiunju:Est_Equilibrado_A_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Equilibrado_A_comp_0 .
 
-fiunju:ExamenMuyDificil a fiunju:NivelDificultadExamen ;
-    rdfs:label "Muy Difícil"@es ;
-    fiunju:tieneValor 4 ;
-    owl:sameAs fiunju:ExamenMuyDificil .
+fiunju:Est_Equilibrado_A_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Equilibrado_A_comp_1 .
 
-fiunju:ExamenNormal a fiunju:NivelDificultadExamen ;
-    rdfs:label "Normal"@es ;
-    fiunju:tieneValor 2 ;
-    owl:sameAs fiunju:ExamenNormal .
+fiunju:Est_Equilibrado_A_comp_2 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Equilibrado_A_comp_2 .
 
-fiunju:TopicoGestionTiempo a fiunju:TopicoDeConsejo ;
-    rdfs:label "Gestión del Tiempo"@es ;
-    owl:sameAs fiunju:TopicoGestionTiempo .
+fiunju:Est_Equilibrado_A_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Equilibrado_A_cond_0 .
 
-fiunju:TopicoMaterialEstudio a fiunju:TopicoDeConsejo ;
-    rdfs:label "Material de Estudio"@es ;
-    owl:sameAs fiunju:TopicoMaterialEstudio .
+fiunju:Est_Equilibrado_A_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Equilibrado_A_cond_1 .
+
+fiunju:Est_Equilibrado_A_cond_2 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Equilibrado_A_cond_2 .
+
+fiunju:Est_Equilibrado_B_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Equilibrado_B_comp_0 .
+
+fiunju:Est_Equilibrado_B_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Equilibrado_B_comp_1 .
+
+fiunju:Est_Equilibrado_B_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Equilibrado_B_cond_0 .
+
+fiunju:Est_Equilibrado_B_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Equilibrado_B_cond_1 .
+
+fiunju:Est_Equilibrado_C_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 3 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Equilibrado_C_comp_0 .
+
+fiunju:Est_Equilibrado_C_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Equilibrado_C_cond_0 .
+
+fiunju:Est_Equilibrado_D_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Equilibrado_D_comp_0 .
+
+fiunju:Est_Equilibrado_D_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Equilibrado_D_cond_0 .
+
+fiunju:Est_Ermitano_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan A: 2 Muy Dif + 2 Fáciles"@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:tieneComponente fiunju:Est_Ermitano_A_comp_0,
+        fiunju:Est_Ermitano_A_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Ermitano_A_cond_0,
+        fiunju:Est_Ermitano_A_cond_1 ;
+    owl:sameAs fiunju:Est_Ermitano_A .
+
+fiunju:Est_Ermitano_A_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Ermitano_A_comp_0 .
+
+fiunju:Est_Ermitano_A_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Ermitano_A_comp_1 .
+
+fiunju:Est_Ermitano_A_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Ermitano_A_cond_0 .
+
+fiunju:Est_Ermitano_A_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Ermitano_A_cond_1 .
+
+fiunju:Est_Ermitano_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Dif + 2 Dif"@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:tieneComponente fiunju:Est_Ermitano_B_comp_0,
+        fiunju:Est_Ermitano_B_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Ermitano_B_cond_0,
+        fiunju:Est_Ermitano_B_cond_1 ;
+    owl:sameAs fiunju:Est_Ermitano_B .
+
+fiunju:Est_Ermitano_B_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Ermitano_B_comp_0 .
+
+fiunju:Est_Ermitano_B_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Ermitano_B_comp_1 .
+
+fiunju:Est_Ermitano_B_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Ermitano_B_cond_0 .
+
+fiunju:Est_Ermitano_B_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Ermitano_B_cond_1 .
+
+fiunju:Est_Ermitano_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan C: 2 Normales + 2 Fáciles"@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:tieneComponente fiunju:Est_Ermitano_C_comp_0,
+        fiunju:Est_Ermitano_C_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Ermitano_C_cond_0,
+        fiunju:Est_Ermitano_C_cond_1 ;
+    owl:sameAs fiunju:Est_Ermitano_C .
+
+fiunju:Est_Ermitano_C_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Ermitano_C_comp_0 .
+
+fiunju:Est_Ermitano_C_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Ermitano_C_comp_1 .
+
+fiunju:Est_Ermitano_C_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Ermitano_C_cond_0 .
+
+fiunju:Est_Ermitano_C_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Ermitano_C_cond_1 .
+
+fiunju:Est_Ermitano_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan D: 3 Difíciles"@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:tieneComponente fiunju:Est_Ermitano_D_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Ermitano_D_cond_0 ;
+    owl:sameAs fiunju:Est_Ermitano_D .
+
+fiunju:Est_Ermitano_D_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 3 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Ermitano_D_comp_0 .
+
+fiunju:Est_Ermitano_D_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Ermitano_D_cond_0 .
+
+fiunju:Est_Guerrero_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan A: 2 Fáciles"@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:tieneComponente fiunju:Est_Guerrero_A_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Guerrero_A_cond_0 ;
+    owl:sameAs fiunju:Est_Guerrero_A .
+
+fiunju:Est_Guerrero_A_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Guerrero_A_comp_0 .
+
+fiunju:Est_Guerrero_A_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Guerrero_A_cond_0 .
+
+fiunju:Est_Guerrero_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan B: 2 Normales"@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:tieneComponente fiunju:Est_Guerrero_B_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Guerrero_B_cond_0 ;
+    owl:sameAs fiunju:Est_Guerrero_B .
+
+fiunju:Est_Guerrero_B_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Guerrero_B_comp_0 .
+
+fiunju:Est_Guerrero_B_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Guerrero_B_cond_0 .
+
+fiunju:Est_Guerrero_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan C: 1 Difícil"@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:tieneComponente fiunju:Est_Guerrero_C_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Guerrero_C_cond_0 ;
+    owl:sameAs fiunju:Est_Guerrero_C .
+
+fiunju:Est_Guerrero_C_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Guerrero_C_comp_0 .
+
+fiunju:Est_Guerrero_C_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Guerrero_C_cond_0 .
+
+fiunju:Est_Guerrero_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil"@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:tieneComponente fiunju:Est_Guerrero_D_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Guerrero_D_cond_0 ;
+    owl:sameAs fiunju:Est_Guerrero_D .
+
+fiunju:Est_Guerrero_D_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Guerrero_D_comp_0 .
+
+fiunju:Est_Guerrero_D_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Guerrero_D_cond_0 .
+
+fiunju:Est_Heredero_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan A: 3 Muy Dif + 1 Dif"@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:tieneComponente fiunju:Est_Heredero_A_comp_0,
+        fiunju:Est_Heredero_A_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Heredero_A_cond_0,
+        fiunju:Est_Heredero_A_cond_1 ;
+    owl:sameAs fiunju:Est_Heredero_A .
+
+fiunju:Est_Heredero_A_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 3 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Heredero_A_comp_0 .
+
+fiunju:Est_Heredero_A_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Heredero_A_comp_1 .
+
+fiunju:Est_Heredero_A_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Heredero_A_cond_0 .
+
+fiunju:Est_Heredero_A_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Heredero_A_cond_1 .
+
+fiunju:Est_Heredero_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan B: Mix Balanceado (5 Materias)"@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:tieneComponente fiunju:Est_Heredero_B_comp_0,
+        fiunju:Est_Heredero_B_comp_1,
+        fiunju:Est_Heredero_B_comp_2,
+        fiunju:Est_Heredero_B_comp_3 ;
+    owl:sameAs fiunju:Est_Heredero_B .
+
+fiunju:Est_Heredero_B_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Heredero_B_comp_0 .
+
+fiunju:Est_Heredero_B_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Heredero_B_comp_1 .
+
+fiunju:Est_Heredero_B_comp_2 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Heredero_B_comp_2 .
+
+fiunju:Est_Heredero_B_comp_3 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Heredero_B_comp_3 .
+
+fiunju:Est_Heredero_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan C: Carga máxima de materias fáciles"@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:tieneComponente fiunju:Est_Heredero_C_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Heredero_C_cond_0 ;
+    owl:sameAs fiunju:Est_Heredero_C .
+
+fiunju:Est_Heredero_C_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 5 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Heredero_C_comp_0 .
+
+fiunju:Est_Heredero_C_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Heredero_C_cond_0 .
+
+fiunju:Est_Heredero_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan D: 3 Muy Difíciles"@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:tieneComponente fiunju:Est_Heredero_D_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Heredero_D_cond_0 ;
+    owl:sameAs fiunju:Est_Heredero_D .
+
+fiunju:Est_Heredero_D_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 3 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Heredero_D_comp_0 .
+
+fiunju:Est_Heredero_D_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Heredero_D_cond_0 .
+
+fiunju:Est_Malabarista_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan A: 1 Difícil + 2 Normales"@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:tieneComponente fiunju:Est_Malabarista_A_comp_0,
+        fiunju:Est_Malabarista_A_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Malabarista_A_cond_0,
+        fiunju:Est_Malabarista_A_cond_1 ;
+    owl:sameAs fiunju:Est_Malabarista_A .
+
+fiunju:Est_Malabarista_A_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Malabarista_A_comp_0 .
+
+fiunju:Est_Malabarista_A_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Malabarista_A_comp_1 .
+
+fiunju:Est_Malabarista_A_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Malabarista_A_cond_0 .
+
+fiunju:Est_Malabarista_A_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Malabarista_A_cond_1 .
+
+fiunju:Est_Malabarista_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan B: 3 Normales"@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:tieneComponente fiunju:Est_Malabarista_B_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Malabarista_B_cond_0 ;
+    owl:sameAs fiunju:Est_Malabarista_B .
+
+fiunju:Est_Malabarista_B_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 3 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Malabarista_B_comp_0 .
+
+fiunju:Est_Malabarista_B_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Malabarista_B_cond_0 .
+
+fiunju:Est_Malabarista_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan C: 2 Difíciles"@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:tieneComponente fiunju:Est_Malabarista_C_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Malabarista_C_cond_0 ;
+    owl:sameAs fiunju:Est_Malabarista_C .
+
+fiunju:Est_Malabarista_C_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Malabarista_C_comp_0 .
+
+fiunju:Est_Malabarista_C_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Malabarista_C_cond_0 .
+
+fiunju:Est_Malabarista_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil + 1 Fácil"@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:tieneComponente fiunju:Est_Malabarista_D_comp_0,
+        fiunju:Est_Malabarista_D_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Malabarista_D_cond_0,
+        fiunju:Est_Malabarista_D_cond_1 ;
+    owl:sameAs fiunju:Est_Malabarista_D .
+
+fiunju:Est_Malabarista_D_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Malabarista_D_comp_0 .
+
+fiunju:Est_Malabarista_D_comp_1 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Malabarista_D_comp_1 .
+
+fiunju:Est_Malabarista_D_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Malabarista_D_cond_0 .
+
+fiunju:Est_Malabarista_D_cond_1 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Malabarista_D_cond_1 .
+
+fiunju:Est_Superviviente_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan A: 2 Materias Fáciles"@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:tieneComponente fiunju:Est_Superviviente_A_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Superviviente_A_cond_0 ;
+    owl:sameAs fiunju:Est_Superviviente_A .
+
+fiunju:Est_Superviviente_A_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 2 ;
+    fiunju:sugerirNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Superviviente_A_comp_0 .
+
+fiunju:Est_Superviviente_A_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:requiereNivel fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Est_Superviviente_A_cond_0 .
+
+fiunju:Est_Superviviente_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan B: 1 Materia Normal"@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:tieneComponente fiunju:Est_Superviviente_B_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Superviviente_B_cond_0 ;
+    owl:sameAs fiunju:Est_Superviviente_B .
+
+fiunju:Est_Superviviente_B_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Superviviente_B_comp_0 .
+
+fiunju:Est_Superviviente_B_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Est_Superviviente_B_cond_0 .
+
+fiunju:Est_Superviviente_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan C: 1 Materia Difícil"@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:tieneComponente fiunju:Est_Superviviente_C_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Superviviente_C_cond_0 ;
+    owl:sameAs fiunju:Est_Superviviente_C .
+
+fiunju:Est_Superviviente_C_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Superviviente_C_comp_0 .
+
+fiunju:Est_Superviviente_C_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Est_Superviviente_C_cond_0 .
+
+fiunju:Est_Superviviente_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan D: 1 Materia Muy Difícil"@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:tieneComponente fiunju:Est_Superviviente_D_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Superviviente_D_cond_0 ;
+    owl:sameAs fiunju:Est_Superviviente_D .
+
+fiunju:Est_Superviviente_D_comp_0 a fiunju:ComponentePlan ;
+    fiunju:sugerirCantidad 1 ;
+    fiunju:sugerirNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Superviviente_D_comp_0 .
+
+fiunju:Est_Superviviente_D_cond_0 a fiunju:CondicionDisponibilidad ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:requiereNivel fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Est_Superviviente_D_cond_0 .
+
+xsd:boolean a rdfs:Datatype ;
+    owl:disjointWith xsd:decimal ;
+    owl:sameAs xsd:boolean .
 
 true a xsd:boolean ;
     owl:sameAs true .
@@ -343,26 +749,35 @@ true a xsd:boolean ;
         xsd:integer ;
     owl:sameAs 270 .
 
-"blue"^^xsd:string a xsd:string ;
-    owl:sameAs "blue"^^xsd:string .
+"El Equilibrado" owl:sameAs "El Equilibrado" .
 
-"brown"^^xsd:string a xsd:string ;
-    owl:sameAs "brown"^^xsd:string .
+"El Ermitaño del Interior" owl:sameAs "El Ermitaño del Interior" .
 
-"green"^^xsd:string a xsd:string ;
-    owl:sameAs "green"^^xsd:string .
+"El Guerrero Solitario" owl:sameAs "El Guerrero Solitario" .
 
-"orange"^^xsd:string a xsd:string ;
-    owl:sameAs "orange"^^xsd:string .
+"El Heredero del Trono" owl:sameAs "El Heredero del Trono" .
 
-"red"^^xsd:string a xsd:string ;
-    owl:sameAs "red"^^xsd:string .
+"El Malabarista Urbano" owl:sameAs "El Malabarista Urbano" .
 
-"violet"^^xsd:string a xsd:string ;
-    owl:sameAs "violet"^^xsd:string .
+"El Padre/Madre Full-Time" owl:sameAs "El Padre/Madre Full-Time" .
 
-"yellow"^^xsd:string a xsd:string ;
-    owl:sameAs "yellow"^^xsd:string .
+"El Superviviente" owl:sameAs "El Superviviente" .
+
+"Usa Pomodoro." owl:sameAs "Usa Pomodoro." .
+
+"blue" owl:sameAs "blue" .
+
+"brown" owl:sameAs "brown" .
+
+"green" owl:sameAs "green" .
+
+"orange" owl:sameAs "orange" .
+
+"red" owl:sameAs "red" .
+
+"violet" owl:sameAs "violet" .
+
+"yellow" owl:sameAs "yellow" .
 
 "Algebra Lineal"@es owl:sameAs "Algebra Lineal"@es .
 
@@ -374,8 +789,6 @@ true a xsd:boolean ;
 
 "Aplicaciones de Base de Datos II"@es owl:sameAs "Aplicaciones de Base de Datos II"@es .
 
-"Aprobación de Trabajos Integrador"@es owl:sameAs "Aprobación de Trabajos Integrador"@es .
-
 "Arquitectura de Computadoras Paralelas"@es owl:sameAs "Arquitectura de Computadoras Paralelas"@es .
 
 "Arquitectura de Redes"@es owl:sameAs "Arquitectura de Redes"@es .
@@ -384,64 +797,27 @@ true a xsd:boolean ;
 
 "Calidad de Software y Testing"@es owl:sameAs "Calidad de Software y Testing"@es .
 
-"Colegio Secundario (Técnica vs. Bachiller)"@es owl:sameAs "Colegio Secundario (Técnica vs. Bachiller)"@es .
-
 "Compiladores"@es owl:sameAs "Compiladores"@es .
 
-"Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."@es a xsd:string ;
-    owl:sameAs "Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."@es .
-
 "Cálculo Numérico"@es owl:sameAs "Cálculo Numérico"@es .
-
-"Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."@es a xsd:string ;
-    owl:sameAs "Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."@es .
 
 "Desarrollo Sistemático de Programas"@es owl:sameAs "Desarrollo Sistemático de Programas"@es .
 
 "Desarrollo y Arquitecturas Avanzadas de Software"@es owl:sameAs "Desarrollo y Arquitecturas Avanzadas de Software"@es .
 
-"El Equilibrado"@es a xsd:string ;
-    owl:sameAs "El Equilibrado"@es .
-
-"El Ermitaño del Interior"@es a xsd:string ;
-    owl:sameAs "El Ermitaño del Interior"@es .
-
-"El Guerrero Solitario"@es a xsd:string ;
-    owl:sameAs "El Guerrero Solitario"@es .
-
-"El Heredero del Trono"@es a xsd:string ;
-    owl:sameAs "El Heredero del Trono"@es .
-
-"El Malabarista Urbano"@es a xsd:string ;
-    owl:sameAs "El Malabarista Urbano"@es .
-
-"El Padre/Madre Full-Time"@es a xsd:string ;
-    owl:sameAs "El Padre/Madre Full-Time"@es .
-
-"El Superviviente"@es a xsd:string ;
-    owl:sameAs "El Superviviente"@es .
-
-"El trabajo está relacionado con la informática"@es owl:sameAs "El trabajo está relacionado con la informática"@es .
+"Difícil"@es owl:sameAs "Difícil"@es .
 
 "Electricidad y Magnetismo"@es owl:sameAs "Electricidad y Magnetismo"@es .
 
 "Estructura de Datos"@es owl:sameAs "Estructura de Datos"@es .
 
-"Examen Multiple Choice"@es owl:sameAs "Examen Multiple Choice"@es .
-
-"Examen Teórico Escrito"@es owl:sameAs "Examen Teórico Escrito"@es .
-
-"Examen Teórico Oral"@es owl:sameAs "Examen Teórico Oral"@es .
-
 "Fisica Mecanica"@es owl:sameAs "Fisica Mecanica"@es .
 
 "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es owl:sameAs "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es .
 
+"Fácil"@es owl:sameAs "Fácil"@es .
+
 "Gestión Ambiental"@es owl:sameAs "Gestión Ambiental"@es .
-
-"Gestión del Tiempo"@es owl:sameAs "Gestión del Tiempo"@es .
-
-"Hábito de Estudio (constante vs. último momento)"@es owl:sameAs "Hábito de Estudio (constante vs. último momento)"@es .
 
 "Ingeniería de Software I"@es owl:sameAs "Ingeniería de Software I"@es .
 
@@ -451,21 +827,15 @@ true a xsd:boolean ;
 
 "Inteligencia Artificial"@es owl:sameAs "Inteligencia Artificial"@es .
 
-"Introducción a la Innovación y Entrepreneurship"@es owl:sameAs "Introducción a la Innovación y Entrepreneurship"@es .
-
 "Introducción a la Programación"@es owl:sameAs "Introducción a la Programación"@es .
 
 "Introducción al Procesamiento Digital de Imágenes"@es owl:sameAs "Introducción al Procesamiento Digital de Imágenes"@es .
 
 "Legislación, Etica y Ejercicio Profesional"@es owl:sameAs "Legislación, Etica y Ejercicio Profesional"@es .
 
-"Lugar de Residencia (Interior vs. Capital)"@es owl:sameAs "Lugar de Residencia (Interior vs. Capital)"@es .
-
 "Lógica Computacional"@es owl:sameAs "Lógica Computacional"@es .
 
 "Matemática Discreta"@es owl:sameAs "Matemática Discreta"@es .
-
-"Material de Estudio"@es owl:sameAs "Material de Estudio"@es .
 
 "Metodología de la Programación"@es owl:sameAs "Metodología de la Programación"@es .
 
@@ -475,25 +845,67 @@ true a xsd:boolean ;
 
 "Modelado y Proceso de Negocios"@es owl:sameAs "Modelado y Proceso de Negocios"@es .
 
-"Muy Difícil"@es owl:sameAs "Muy Difícil"@es .
-
 "Muy difícil"@es owl:sameAs "Muy difícil"@es .
-
-"Método de Estudio (solo vs. grupo, leer vs. escuchar)"@es owl:sameAs "Método de Estudio (solo vs. grupo, leer vs. escuchar)"@es .
 
 "Nivel de Aptitud de Ingles"@es owl:sameAs "Nivel de Aptitud de Ingles"@es .
 
 "Nivel de Suficiencia de Ingles"@es owl:sameAs "Nivel de Suficiencia de Ingles"@es .
 
+"Normal"@es owl:sameAs "Normal"@es .
+
 "Organización Empresarial y Modelos de Negocios"@es owl:sameAs "Organización Empresarial y Modelos de Negocios"@es .
 
 "Organización de Computadoras"@es owl:sameAs "Organización de Computadoras"@es .
 
+"Plan A: 1 Difícil + 2 Normales"@es owl:sameAs "Plan A: 1 Difícil + 2 Normales"@es .
+
+"Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es owl:sameAs "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es .
+
+"Plan A: 2 Fáciles"@es owl:sameAs "Plan A: 2 Fáciles"@es .
+
+"Plan A: 2 Materias Fáciles"@es owl:sameAs "Plan A: 2 Materias Fáciles"@es .
+
+"Plan A: 2 Muy Dif + 2 Fáciles"@es owl:sameAs "Plan A: 2 Muy Dif + 2 Fáciles"@es .
+
+"Plan A: 3 Muy Dif + 1 Dif"@es owl:sameAs "Plan A: 3 Muy Dif + 1 Dif"@es .
+
+"Plan B: 1 Materia Normal"@es owl:sameAs "Plan B: 1 Materia Normal"@es .
+
+"Plan B: 1 Muy Dif + 2 Dif"@es owl:sameAs "Plan B: 1 Muy Dif + 2 Dif"@es .
+
+"Plan B: 1 Muy Difícil + 1 Difícil"@es owl:sameAs "Plan B: 1 Muy Difícil + 1 Difícil"@es .
+
+"Plan B: 2 Normales"@es owl:sameAs "Plan B: 2 Normales"@es .
+
+"Plan B: 3 Normales"@es owl:sameAs "Plan B: 3 Normales"@es .
+
+"Plan B: Mix Balanceado (5 Materias)"@es owl:sameAs "Plan B: Mix Balanceado (5 Materias)"@es .
+
+"Plan C: 1 Difícil"@es owl:sameAs "Plan C: 1 Difícil"@es .
+
+"Plan C: 1 Materia Difícil"@es owl:sameAs "Plan C: 1 Materia Difícil"@es .
+
+"Plan C: 2 Difíciles"@es owl:sameAs "Plan C: 2 Difíciles"@es .
+
+"Plan C: 2 Normales + 2 Fáciles"@es owl:sameAs "Plan C: 2 Normales + 2 Fáciles"@es .
+
+"Plan C: 3 Normales"@es owl:sameAs "Plan C: 3 Normales"@es .
+
+"Plan C: Carga máxima de materias fáciles"@es owl:sameAs "Plan C: Carga máxima de materias fáciles"@es .
+
+"Plan D: 1 Materia Muy Difícil"@es owl:sameAs "Plan D: 1 Materia Muy Difícil"@es .
+
+"Plan D: 1 Muy Difícil"@es owl:sameAs "Plan D: 1 Muy Difícil"@es .
+
+"Plan D: 1 Muy Difícil + 1 Fácil"@es owl:sameAs "Plan D: 1 Muy Difícil + 1 Fácil"@es .
+
+"Plan D: 2 Muy Difíciles"@es owl:sameAs "Plan D: 2 Muy Difíciles"@es .
+
+"Plan D: 3 Difíciles"@es owl:sameAs "Plan D: 3 Difíciles"@es .
+
+"Plan D: 3 Muy Difíciles"@es owl:sameAs "Plan D: 3 Muy Difíciles"@es .
+
 "Practica Profesional Supervisada"@es owl:sameAs "Practica Profesional Supervisada"@es .
-
-"Preparación para Examen Escrito"@es owl:sameAs "Preparación para Examen Escrito"@es .
-
-"Preparación para Examen Oral"@es owl:sameAs "Preparación para Examen Oral"@es .
 
 "Probabilidad y Estadística"@es owl:sameAs "Probabilidad y Estadística"@es .
 
@@ -511,8 +923,6 @@ true a xsd:boolean ;
 
 "Sistemas de información"@es owl:sameAs "Sistemas de información"@es .
 
-"Situación de Hogar (vive solo, tiene hijos)"@es owl:sameAs "Situación de Hogar (vive solo, tiene hijos)"@es .
-
 "Taller de Formación Profesional"@es owl:sameAs "Taller de Formación Profesional"@es .
 
 "Taller de Metodología de la Investigación Científica"@es owl:sameAs "Taller de Metodología de la Investigación Científica"@es .
@@ -521,44 +931,61 @@ true a xsd:boolean ;
 
 "Teoría de la Información y la Comunicación"@es owl:sameAs "Teoría de la Información y la Comunicación"@es .
 
-"Trabaja"@es owl:sameAs "Trabaja"@es .
+fiunju:Est_Equilibrado_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:tieneComponente fiunju:Est_Equilibrado_A_comp_0,
+        fiunju:Est_Equilibrado_A_comp_1,
+        fiunju:Est_Equilibrado_A_comp_2 ;
+    fiunju:tieneCondicion fiunju:Est_Equilibrado_A_cond_0,
+        fiunju:Est_Equilibrado_A_cond_1,
+        fiunju:Est_Equilibrado_A_cond_2 ;
+    owl:sameAs fiunju:Est_Equilibrado_A .
 
-fiunju:LegEticaProf a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Legislación, Etica y Ejercicio Profesional"@es ;
-    fiunju:perteneceAlAño 5 ;
-    fiunju:requiereCreditos 180 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:NivAptIng,
-        fiunju:NivSufIng ;
-    owl:sameAs fiunju:LegEticaProf .
+fiunju:Est_Equilibrado_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil"@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:tieneComponente fiunju:Est_Equilibrado_B_comp_0,
+        fiunju:Est_Equilibrado_B_comp_1 ;
+    fiunju:tieneCondicion fiunju:Est_Equilibrado_B_cond_0,
+        fiunju:Est_Equilibrado_B_cond_1 ;
+    owl:sameAs fiunju:Est_Equilibrado_B .
 
-fiunju:MatDisc a fiunju:Materia,
+fiunju:Est_Equilibrado_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan C: 3 Normales"@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:tieneComponente fiunju:Est_Equilibrado_C_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Equilibrado_C_cond_0 ;
+    owl:sameAs fiunju:Est_Equilibrado_C .
+
+fiunju:Est_Equilibrado_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles"@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:tieneComponente fiunju:Est_Equilibrado_D_comp_0 ;
+    fiunju:tieneCondicion fiunju:Est_Equilibrado_D_cond_0 ;
+    owl:sameAs fiunju:Est_Equilibrado_D .
+
+fiunju:ExamenMultipleChoice owl:sameAs fiunju:ExamenMultipleChoice .
+
+fiunju:TIC a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Matemática Discreta"@es ;
-    fiunju:esRequisitoPara fiunju:SistInt ;
+    rdfs:label "Teoría de la Información y la Comunicación"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal ;
-    owl:sameAs fiunju:MatDisc .
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneRequisito fiunju:OrgComp ;
+    owl:sameAs fiunju:TIC .
 
-fiunju:MateriaDeAltoEsfuerzo rdfs:subClassOf fiunju:Materia ;
-    owl:sameAs fiunju:MateriaDeAltoEsfuerzo .
+fiunju:cantidadMinimaRequerida a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:subPropertyOf fiunju:cantidadMinimaRequerida ;
+    owl:equivalentProperty fiunju:cantidadMinimaRequerida ;
+    owl:sameAs fiunju:cantidadMinimaRequerida .
 
-fiunju:TopicoAprobacionTI a fiunju:TopicoDeConsejo ;
-    rdfs:label "Aprobación de Trabajos Integrador"@es ;
-    owl:sameAs fiunju:TopicoAprobacionTI .
-
-fiunju:TopicoExamenOral a fiunju:TopicoDeConsejo ;
-    rdfs:label "Preparación para Examen Oral"@es ;
-    owl:sameAs fiunju:TopicoExamenOral .
-
-fiunju:comentarioExperto a owl:DatatypeProperty ;
-    rdfs:subPropertyOf fiunju:comentarioExperto ;
-    owl:equivalentProperty fiunju:comentarioExperto ;
-    owl:sameAs fiunju:comentarioExperto .
+fiunju:descripcionPlan a owl:DatatypeProperty ;
+    rdfs:subPropertyOf fiunju:descripcionPlan ;
+    owl:equivalentProperty fiunju:descripcionPlan ;
+    owl:sameAs fiunju:descripcionPlan .
 
 fiunju:esMasDificilQue a owl:ObjectProperty,
         owl:TransitiveProperty ;
@@ -566,51 +993,77 @@ fiunju:esMasDificilQue a owl:ObjectProperty,
     owl:equivalentProperty fiunju:esMasDificilQue ;
     owl:sameAs fiunju:esMasDificilQue .
 
-fiunju:otorgaCreditos a owl:DatatypeProperty ;
-    rdfs:domain fiunju:Materia ;
+fiunju:ordenPrioridad a owl:DatatypeProperty ;
     rdfs:range xsd:integer ;
+    rdfs:subPropertyOf fiunju:ordenPrioridad ;
+    owl:equivalentProperty fiunju:ordenPrioridad ;
+    owl:sameAs fiunju:ordenPrioridad .
+
+fiunju:otorgaCreditos a owl:DatatypeProperty ;
     rdfs:subPropertyOf fiunju:otorgaCreditos ;
     owl:equivalentProperty fiunju:otorgaCreditos ;
     owl:sameAs fiunju:otorgaCreditos .
 
-fiunju:perteneceAlAño a owl:DatatypeProperty,
-        owl:FunctionalProperty ;
-    rdfs:domain fiunju:Materia,
-        fiunju:Obligatoria ;
+fiunju:perteneceAlAño a owl:DatatypeProperty ;
     rdfs:subPropertyOf fiunju:perteneceAlAño ;
     owl:equivalentProperty fiunju:perteneceAlAño ;
     owl:sameAs fiunju:perteneceAlAño .
 
 fiunju:requiereCreditos a owl:DatatypeProperty ;
-    rdfs:domain fiunju:Materia ;
-    rdfs:range xsd:integer ;
     rdfs:subPropertyOf fiunju:requiereCreditos ;
     owl:equivalentProperty fiunju:requiereCreditos ;
     owl:sameAs fiunju:requiereCreditos .
 
 fiunju:requiereCuartoAnoAprobado a owl:DatatypeProperty ;
-    rdfs:domain fiunju:Materia ;
-    rdfs:range xsd:boolean ;
     rdfs:subPropertyOf fiunju:requiereCuartoAnoAprobado ;
     owl:equivalentProperty fiunju:requiereCuartoAnoAprobado ;
     owl:sameAs fiunju:requiereCuartoAnoAprobado .
 
+fiunju:requiereNivel a owl:ObjectProperty ;
+    rdfs:domain fiunju:CondicionDisponibilidad ;
+    rdfs:range fiunju:NivelDificultadCursada ;
+    rdfs:subPropertyOf fiunju:requiereNivel ;
+    owl:equivalentProperty fiunju:requiereNivel ;
+    owl:sameAs fiunju:requiereNivel .
+
+fiunju:sugerirCantidad a owl:DatatypeProperty ;
+    rdfs:range xsd:integer ;
+    rdfs:subPropertyOf fiunju:sugerirCantidad ;
+    owl:equivalentProperty fiunju:sugerirCantidad ;
+    owl:sameAs fiunju:sugerirCantidad .
+
+fiunju:sugerirNivel a owl:ObjectProperty ;
+    rdfs:domain fiunju:ComponentePlan ;
+    rdfs:range fiunju:NivelDificultadCursada ;
+    rdfs:subPropertyOf fiunju:sugerirNivel ;
+    owl:equivalentProperty fiunju:sugerirNivel ;
+    owl:sameAs fiunju:sugerirNivel .
+
 fiunju:tieneColorIdentificativo a owl:DatatypeProperty ;
-    rdfs:domain fiunju:ArquetipoEstudiante ;
-    rdfs:range xsd:string ;
     rdfs:subPropertyOf fiunju:tieneColorIdentificativo ;
     owl:equivalentProperty fiunju:tieneColorIdentificativo ;
     owl:sameAs fiunju:tieneColorIdentificativo .
 
+fiunju:tieneComponente a owl:ObjectProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range fiunju:ComponentePlan ;
+    rdfs:subPropertyOf fiunju:tieneComponente ;
+    owl:equivalentProperty fiunju:tieneComponente ;
+    owl:sameAs fiunju:tieneComponente .
+
+fiunju:tieneCondicion a owl:ObjectProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range fiunju:CondicionDisponibilidad ;
+    rdfs:subPropertyOf fiunju:tieneCondicion ;
+    owl:equivalentProperty fiunju:tieneCondicion ;
+    owl:sameAs fiunju:tieneCondicion .
+
 fiunju:tieneConsejoBase a owl:DatatypeProperty ;
-    rdfs:domain fiunju:ArquetipoEstudiante ;
-    rdfs:range xsd:string ;
     rdfs:subPropertyOf fiunju:tieneConsejoBase ;
     owl:equivalentProperty fiunju:tieneConsejoBase ;
     owl:sameAs fiunju:tieneConsejoBase .
 
-fiunju:tieneDificultadCursada a owl:FunctionalProperty,
-        owl:ObjectProperty ;
+fiunju:tieneDificultadCursada a owl:ObjectProperty ;
     rdfs:subPropertyOf fiunju:tieneDificultadCursada ;
     owl:equivalentProperty fiunju:tieneDificultadCursada ;
     owl:sameAs fiunju:tieneDificultadCursada .
@@ -620,14 +1073,19 @@ fiunju:tieneDificultadExamen a owl:ObjectProperty ;
     owl:equivalentProperty fiunju:tieneDificultadExamen ;
     owl:sameAs fiunju:tieneDificultadExamen .
 
+fiunju:tieneEstrategiaPosible a owl:ObjectProperty ;
+    rdfs:domain fiunju:ArquetipoEstudiante ;
+    rdfs:range fiunju:EstrategiaRecomendacion ;
+    rdfs:subPropertyOf fiunju:tieneEstrategiaPosible ;
+    owl:equivalentProperty fiunju:tieneEstrategiaPosible ;
+    owl:sameAs fiunju:tieneEstrategiaPosible .
+
 fiunju:tieneModalidadExamen a owl:ObjectProperty ;
     rdfs:subPropertyOf fiunju:tieneModalidadExamen ;
     owl:equivalentProperty fiunju:tieneModalidadExamen ;
     owl:sameAs fiunju:tieneModalidadExamen .
 
 fiunju:tieneNombreArquetipo a owl:DatatypeProperty ;
-    rdfs:domain fiunju:ArquetipoEstudiante ;
-    rdfs:range xsd:string ;
     rdfs:subPropertyOf fiunju:tieneNombreArquetipo ;
     owl:equivalentProperty fiunju:tieneNombreArquetipo ;
     owl:sameAs fiunju:tieneNombreArquetipo .
@@ -639,8 +1097,6 @@ fiunju:tieneRequisito a owl:ObjectProperty ;
     owl:sameAs fiunju:tieneRequisito .
 
 fiunju:tieneTopicoRelevante a owl:ObjectProperty ;
-    rdfs:domain fiunju:Materia ;
-    rdfs:range fiunju:TopicoDeConsejo ;
     rdfs:subPropertyOf fiunju:tieneTopicoRelevante ;
     owl:equivalentProperty fiunju:tieneTopicoRelevante ;
     owl:sameAs fiunju:tieneTopicoRelevante .
@@ -650,14 +1106,7 @@ fiunju:tieneValor a owl:DatatypeProperty ;
     owl:equivalentProperty fiunju:tieneValor ;
     owl:sameAs fiunju:tieneValor .
 
-xsd:boolean a rdfs:Datatype ;
-    owl:disjointWith xsd:decimal,
-        xsd:string ;
-    owl:sameAs xsd:boolean .
-
 owl:Class owl:sameAs owl:Class .
-
-owl:FunctionalProperty owl:sameAs owl:FunctionalProperty .
 
 owl:Nothing a owl:Class ;
     rdfs:subClassOf owl:Nothing,
@@ -667,69 +1116,30 @@ owl:Nothing a owl:Class ;
 
 owl:TransitiveProperty owl:sameAs owl:TransitiveProperty .
 
-"Difícil"@es owl:sameAs "Difícil"@es .
+0 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 0 .
 
-"Fácil"@es owl:sameAs "Fácil"@es .
-
-"Normal"@es owl:sameAs "Normal"@es .
-
-fiunju:DesSistProg a fiunju:Materia,
+fiunju:LegEticaProf a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Desarrollo Sistemático de Programas"@es ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice,
-        fiunju:ExamenTeoricoEscrito ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    owl:sameAs fiunju:DesSistProg .
-
-fiunju:ElecMag a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Electricidad y Magnetismo"@es ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal,
-        fiunju:AnalMatemI,
-        fiunju:FisicaMec ;
-    owl:sameAs fiunju:ElecMag .
-
-fiunju:FEPIED a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es ;
-    fiunju:perteneceAlAño 4 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    owl:sameAs fiunju:FEPIED .
-
-fiunju:FisicaMec a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Fisica Mecanica"@es ;
-    fiunju:esRequisitoPara fiunju:ElecMag ;
-    fiunju:perteneceAlAño 1 ;
+    rdfs:label "Legislación, Etica y Ejercicio Profesional"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 5 ;
+    fiunju:requiereCreditos 180 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal,
-        fiunju:AnalMatemI ;
-    owl:sameAs fiunju:FisicaMec .
+    fiunju:tieneRequisito fiunju:NivAptIng,
+        fiunju:NivSufIng ;
+    owl:sameAs fiunju:LegEticaProf .
 
-fiunju:OEMN a fiunju:Materia,
+fiunju:MatDisc a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Organización Empresarial y Modelos de Negocios"@es ;
-    fiunju:perteneceAlAño 3 ;
+    rdfs:label "Matemática Discreta"@es ;
+    fiunju:esRequisitoPara fiunju:PPS,
+        fiunju:SistInt ;
+    fiunju:perteneceAlAño 2 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    owl:sameAs fiunju:OEMN .
+    fiunju:tieneRequisito fiunju:AlgebraLineal ;
+    owl:sameAs fiunju:MatDisc .
 
 fiunju:esRequisitoPara a owl:ObjectProperty,
         owl:TransitiveProperty ;
@@ -755,7 +1165,6 @@ fiunju:ABDI a fiunju:Materia,
     rdfs:label "Aplicaciones de Base de Datos I"@es ;
     fiunju:otorgaCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:BaseDatos,
         fiunju:EstDatos,
         fiunju:IntroProg,
@@ -767,36 +1176,11 @@ fiunju:ABDII a fiunju:Materia,
     rdfs:label "Aplicaciones de Base de Datos II"@es ;
     fiunju:otorgaCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:BaseDatos,
         fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg ;
     owl:sameAs fiunju:ABDII .
-
-fiunju:CalSoftTest a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Calidad de Software y Testing"@es ;
-    fiunju:perteneceAlAño 4 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg,
-        fiunju:ModOrientObjetos ;
-    owl:sameAs fiunju:CalSoftTest .
-
-fiunju:CalcNum a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Cálculo Numérico"@es ;
-    fiunju:esRequisitoPara fiunju:MetSim,
-        fiunju:SistInt ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AnalMatemI,
-        fiunju:AnalMatemII ;
-    owl:sameAs fiunju:CalcNum .
 
 fiunju:Compiladores a fiunju:Materia,
         fiunju:Optativa ;
@@ -820,6 +1204,50 @@ fiunju:DesArqAvanSoft a fiunju:Materia,
         fiunju:ModOrientObjetos ;
     owl:sameAs fiunju:DesArqAvanSoft .
 
+fiunju:DesSistProg a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Desarrollo Sistemático de Programas"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:DesSistProg .
+
+fiunju:ElecMag a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Electricidad y Magnetismo"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI,
+        fiunju:FisicaMec ;
+    owl:sameAs fiunju:ElecMag .
+
+fiunju:FEPIED a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:FEPIED .
+
+fiunju:FisicaMec a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Fisica Mecanica"@es ;
+    fiunju:esRequisitoPara fiunju:ElecMag,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 1 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI ;
+    owl:sameAs fiunju:FisicaMec .
+
 fiunju:GestAmbiental a fiunju:Materia,
         fiunju:Optativa ;
     rdfs:label "Gestión Ambiental"@es ;
@@ -842,24 +1270,22 @@ fiunju:IPDI a fiunju:Materia,
         fiunju:ProgCon ;
     owl:sameAs fiunju:IPDI .
 
-fiunju:LogComp a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Lógica Computacional"@es ;
-    fiunju:esRequisitoPara fiunju:IngCon,
-        fiunju:IntArt,
-        fiunju:TeoAutoLengComp ;
-    fiunju:perteneceAlAño 3 ;
+fiunju:ModProNeg a fiunju:Materia,
+        fiunju:Optativa ;
+    rdfs:label "Modelado y Proceso de Negocios"@es ;
+    fiunju:otorgaCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal ;
-    owl:sameAs fiunju:LogComp .
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:OEMN ;
+    owl:sameAs fiunju:ModProNeg .
 
 fiunju:RaIn a fiunju:Materia,
         fiunju:Optativa ;
     rdfs:label "Recuperación Avanzada de la Información"@es ;
     fiunju:otorgaCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg,
@@ -888,27 +1314,35 @@ fiunju:TallerMetInvCient a fiunju:Materia,
         fiunju:ProbEstad ;
     owl:sameAs fiunju:TallerMetInvCient .
 
-fiunju:BaseDatos a fiunju:Materia,
+fiunju:CalSoftTest a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Bases de Datos"@es ;
-    fiunju:esRequisitoPara fiunju:ABDI,
-        fiunju:ABDII ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    rdfs:label "Calidad de Software y Testing"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
-        fiunju:MetProg ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoExamenOral,
-        fiunju:TopicoMaterialEstudio ;
-    owl:sameAs fiunju:BaseDatos .
+        fiunju:MetProg,
+        fiunju:ModOrientObjetos ;
+    owl:sameAs fiunju:CalSoftTest .
+
+fiunju:CalcNum a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Cálculo Numérico"@es ;
+    fiunju:esRequisitoPara fiunju:MetSim,
+        fiunju:PPS,
+        fiunju:SistInt ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneRequisito fiunju:AnalMatemI,
+        fiunju:AnalMatemII ;
+    owl:sameAs fiunju:CalcNum .
 
 fiunju:IntArt a fiunju:Materia,
         fiunju:Optativa ;
     rdfs:label "Inteligencia Artificial"@es ;
     fiunju:otorgaCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:AlgebraLineal,
         fiunju:EstDatos,
         fiunju:IntroProg,
@@ -916,12 +1350,49 @@ fiunju:IntArt a fiunju:Materia,
         fiunju:TeoAutoLengComp ;
     owl:sameAs fiunju:IntArt .
 
+fiunju:LogComp a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Lógica Computacional"@es ;
+    fiunju:esRequisitoPara fiunju:IngCon,
+        fiunju:IntArt,
+        fiunju:PPS,
+        fiunju:TeoAutoLengComp ;
+    fiunju:perteneceAlAño 3 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal ;
+    owl:sameAs fiunju:LogComp .
+
+fiunju:OEMN a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Organización Empresarial y Modelos de Negocios"@es ;
+    fiunju:esRequisitoPara fiunju:ModProNeg,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 3 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:OEMN .
+
+fiunju:BaseDatos a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Bases de Datos"@es ;
+    fiunju:esRequisitoPara fiunju:ABDI,
+        fiunju:ABDII,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:BaseDatos .
+
 fiunju:MetSim a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Metodos de Simulacion"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
     fiunju:tieneRequisito fiunju:AlgebraLineal,
         fiunju:AnalMatemI,
         fiunju:AnalMatemII,
@@ -935,36 +1406,20 @@ fiunju:NivAptIng a fiunju:Materia,
     fiunju:esRequisitoPara fiunju:IngSoftI,
         fiunju:IngSoftII,
         fiunju:LegEticaProf,
+        fiunju:PPS,
         fiunju:SistInt ;
+    fiunju:perteneceAlAño 0 ;
     fiunju:tieneRequisito fiunju:NivSufIng ;
     owl:sameAs fiunju:NivAptIng .
-
-fiunju:Nivel_3 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Difícil"@es ;
-    fiunju:tieneValor 3 ;
-    owl:sameAs fiunju:Nivel_3 .
-
-fiunju:OrgComp a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Organización de Computadoras"@es ;
-    fiunju:esRequisitoPara fiunju:ArqParalelas,
-        fiunju:ArqRedes,
-        fiunju:SegAudInf,
-        fiunju:SistOpI,
-        fiunju:SistOpII ;
-    fiunju:perteneceAlAño 1 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
-    owl:sameAs fiunju:OrgComp .
 
 fiunju:ProgCon a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Programación Concurrente"@es ;
     fiunju:esRequisitoPara fiunju:Compiladores,
-        fiunju:IPDI ;
+        fiunju:IPDI,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 2 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg ;
@@ -973,11 +1428,10 @@ fiunju:ProgCon a fiunju:Materia,
 fiunju:TeoAutoLengComp a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Teoria de Automatas, lenguajes y Computación"@es ;
-    fiunju:esRequisitoPara fiunju:IntArt ;
+    fiunju:esRequisitoPara fiunju:IntArt,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:AlgebraLineal,
         fiunju:EstDatos,
         fiunju:IntroProg,
@@ -989,13 +1443,12 @@ fiunju:TeoAutoLengComp a fiunju:Materia,
     owl:sameAs 5 .
 
 fiunju:ArqRedes a fiunju:Materia,
-        fiunju:MateriaDeAltoEsfuerzo,
         fiunju:Obligatoria ;
     rdfs:label "Arquitectura de Redes"@es ;
-    fiunju:esRequisitoPara fiunju:ArqParalelas ;
+    fiunju:esRequisitoPara fiunju:ArqParalelas,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg,
@@ -1003,13 +1456,28 @@ fiunju:ArqRedes a fiunju:Materia,
         fiunju:SistOpI ;
     owl:sameAs fiunju:ArqRedes .
 
+fiunju:OrgComp a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Organización de Computadoras"@es ;
+    fiunju:esRequisitoPara fiunju:ArqParalelas,
+        fiunju:ArqRedes,
+        fiunju:PPS,
+        fiunju:SegAudInf,
+        fiunju:SistOpI,
+        fiunju:SistOpII,
+        fiunju:TIC ;
+    fiunju:perteneceAlAño 1 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
+    owl:sameAs fiunju:OrgComp .
+
 fiunju:IngCon a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Ingeniería del Conocimiento"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:requiereCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:AlgebraLineal,
         fiunju:EstDatos,
         fiunju:IntroProg,
@@ -1022,10 +1490,10 @@ fiunju:IngCon a fiunju:Materia,
 fiunju:SegAudInf a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Seguridad y Auditoria informatica"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:requiereCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg,
@@ -1039,11 +1507,11 @@ fiunju:SistInf a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Sistemas de información"@es ;
     fiunju:esRequisitoPara fiunju:IngSoftI,
-        fiunju:IngSoftII ;
+        fiunju:IngSoftII,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:requiereCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg,
@@ -1055,6 +1523,7 @@ fiunju:SistOpII a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Sistemas Operativos II"@es ;
     fiunju:esRequisitoPara fiunju:ArqParalelas,
+        fiunju:PPS,
         fiunju:SegAudInf ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
@@ -1065,32 +1534,29 @@ fiunju:SistOpII a fiunju:Materia,
         fiunju:SistOpI ;
     owl:sameAs fiunju:SistOpII .
 
-owl:ObjectProperty owl:sameAs owl:ObjectProperty .
-
 fiunju:AnalMatemII a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Análisis Matemático II"@es ;
     fiunju:esRequisitoPara fiunju:CalcNum,
         fiunju:GestAmbiental,
         fiunju:MetSim,
+        fiunju:PPS,
         fiunju:ProbEstad,
         fiunju:SistInt,
         fiunju:TallerFormProf,
         fiunju:TallerMetInvCient ;
     fiunju:perteneceAlAño 1 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
     fiunju:tieneRequisito fiunju:AnalMatemI ;
     owl:sameAs fiunju:AnalMatemII .
 
 fiunju:ArqParalelas a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Arquitectura de Computadoras Paralelas"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:requiereCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:ArqRedes,
         fiunju:EstDatos,
         fiunju:IntroProg,
@@ -1104,7 +1570,8 @@ fiunju:ArqParalelas a fiunju:Materia,
 fiunju:IngSoftI a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Ingeniería de Software I"@es ;
-    fiunju:esRequisitoPara fiunju:IngSoftII ;
+    fiunju:esRequisitoPara fiunju:IngSoftII,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 5 ;
     fiunju:requiereCreditos 180 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
@@ -1120,6 +1587,7 @@ fiunju:IngSoftI a fiunju:Materia,
 fiunju:IngSoftII a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Ingeniería de Software II"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 5 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
     fiunju:tieneRequisito fiunju:EstDatos,
@@ -1132,22 +1600,17 @@ fiunju:IngSoftII a fiunju:Materia,
         fiunju:SistInf ;
     owl:sameAs fiunju:IngSoftII .
 
-fiunju:Nivel_2 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Normal"@es ;
-    fiunju:tieneValor 2 ;
-    owl:sameAs fiunju:Nivel_2 .
-
 fiunju:ProbEstad a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Probabilidad y Estadística"@es ;
     fiunju:esRequisitoPara fiunju:GestAmbiental,
         fiunju:MetSim,
+        fiunju:PPS,
         fiunju:SistInt,
         fiunju:TallerFormProf,
         fiunju:TallerMetInvCient ;
     fiunju:perteneceAlAño 2 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:AlgebraLineal,
         fiunju:AnalMatemI,
         fiunju:AnalMatemII ;
@@ -1156,10 +1619,10 @@ fiunju:ProbEstad a fiunju:Materia,
 fiunju:SistInt a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Sistemas Inteligentes"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 5 ;
     fiunju:requiereCreditos 180 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:AlgebraLineal,
         fiunju:AnalMatemI,
         fiunju:AnalMatemII,
@@ -1171,24 +1634,24 @@ fiunju:SistInt a fiunju:Materia,
     owl:sameAs fiunju:SistInt .
 
 fiunju:SistOpI a fiunju:Materia,
-        fiunju:MateriaDeAltoEsfuerzo,
         fiunju:Obligatoria ;
     rdfs:label "Sistemas Operativos I"@es ;
     fiunju:esRequisitoPara fiunju:ArqParalelas,
         fiunju:ArqRedes,
+        fiunju:PPS,
         fiunju:SegAudInf,
         fiunju:SistOpII ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice,
-        fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg,
         fiunju:OrgComp ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoExamenOral,
-        fiunju:TopicoGestionTiempo ;
     owl:sameAs fiunju:SistOpI .
+
+rdfs:Class owl:sameAs rdfs:Class .
+
+owl:AnnotationProperty owl:sameAs owl:AnnotationProperty .
 
 fiunju:NivSufIng a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1199,14 +1662,12 @@ fiunju:NivSufIng a fiunju:Materia,
         fiunju:IngSoftII,
         fiunju:LegEticaProf,
         fiunju:NivAptIng,
+        fiunju:PPS,
         fiunju:SegAudInf,
         fiunju:SistInf,
         fiunju:SistInt ;
+    fiunju:perteneceAlAño 0 ;
     owl:sameAs fiunju:NivSufIng .
-
-owl:AnnotationProperty owl:sameAs owl:AnnotationProperty .
-
-owl:DatatypeProperty owl:sameAs owl:DatatypeProperty .
 
 fiunju:AnalMatemI a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1217,13 +1678,13 @@ fiunju:AnalMatemI a fiunju:Materia,
         fiunju:FisicaMec,
         fiunju:GestAmbiental,
         fiunju:MetSim,
+        fiunju:PPS,
         fiunju:ProbEstad,
         fiunju:SistInt,
         fiunju:TallerFormProf,
         fiunju:TallerMetInvCient ;
     fiunju:perteneceAlAño 1 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
     owl:sameAs fiunju:AnalMatemI .
 
 fiunju:ModOrientObjetos a fiunju:Materia,
@@ -1234,43 +1695,32 @@ fiunju:ModOrientObjetos a fiunju:Materia,
         fiunju:IngCon,
         fiunju:IngSoftI,
         fiunju:IngSoftII,
+        fiunju:PPS,
         fiunju:RaIn,
         fiunju:SistInf ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg ;
     owl:sameAs fiunju:ModOrientObjetos .
 
-fiunju:Nivel_4 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Muy difícil"@es ;
-    fiunju:tieneValor 4 ;
-    owl:sameAs fiunju:Nivel_4 .
+fiunju:Optativa rdfs:subClassOf fiunju:Materia ;
+    owl:sameAs fiunju:Optativa .
 
 xsd:decimal a rdfs:Datatype ;
-    owl:disjointWith xsd:string ;
     owl:sameAs xsd:decimal .
 
-4 a xsd:decimal,
+owl:DatatypeProperty owl:sameAs owl:DatatypeProperty .
+
+owl:ObjectProperty owl:sameAs owl:ObjectProperty .
+
+90 a xsd:decimal,
         xsd:integer ;
-    owl:sameAs 4 .
+    owl:sameAs 90 .
 
 xsd:integer a rdfs:Datatype ;
     owl:sameAs xsd:integer .
-
-3 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 3 .
-
-1 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 1 .
-
-2 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 2 .
 
 fiunju:AlgebraLineal a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1283,6 +1733,7 @@ fiunju:AlgebraLineal a fiunju:Materia,
         fiunju:LogComp,
         fiunju:MatDisc,
         fiunju:MetSim,
+        fiunju:PPS,
         fiunju:ProbEstad,
         fiunju:SistInt,
         fiunju:TallerFormProf,
@@ -1293,17 +1744,23 @@ fiunju:AlgebraLineal a fiunju:Materia,
     fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
     owl:sameAs fiunju:AlgebraLineal .
 
-fiunju:Optativa rdfs:subClassOf fiunju:Materia ;
-    owl:sameAs fiunju:Optativa .
-
-rdfs:Class owl:sameAs rdfs:Class .
-
-90 a xsd:decimal,
+4 a xsd:decimal,
         xsd:integer ;
-    owl:sameAs 90 .
+    owl:sameAs 4 .
 
-xsd:string a rdfs:Datatype ;
-    owl:sameAs xsd:string .
+fiunju:Nivel_2 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Normal"@es ;
+    fiunju:tieneValor 2 ;
+    owl:sameAs fiunju:Nivel_2 .
+
+fiunju:Nivel_3 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Difícil"@es ;
+    fiunju:tieneValor 3 ;
+    owl:sameAs fiunju:Nivel_3 .
+
+3 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 3 .
 
 fiunju:MetProg a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1323,7 +1780,9 @@ fiunju:MetProg a fiunju:Materia,
         fiunju:IngSoftI,
         fiunju:IngSoftII,
         fiunju:ModOrientObjetos,
+        fiunju:ModProNeg,
         fiunju:OEMN,
+        fiunju:PPS,
         fiunju:ProgCon,
         fiunju:RaIn,
         fiunju:SegAudInf,
@@ -1333,13 +1792,7 @@ fiunju:MetProg a fiunju:Materia,
     fiunju:perteneceAlAño 1 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
     fiunju:tieneRequisito fiunju:IntroProg ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoAprobacionTI ;
     owl:sameAs fiunju:MetProg .
-
-fiunju:Nivel_1 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Fácil"@es ;
-    fiunju:tieneValor 1 ;
-    owl:sameAs fiunju:Nivel_1 .
 
 fiunju:EstDatos a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1360,7 +1813,9 @@ fiunju:EstDatos a fiunju:Materia,
         fiunju:IngSoftII,
         fiunju:IntArt,
         fiunju:ModOrientObjetos,
+        fiunju:ModProNeg,
         fiunju:OEMN,
+        fiunju:PPS,
         fiunju:ProgCon,
         fiunju:RaIn,
         fiunju:SegAudInf,
@@ -1370,8 +1825,6 @@ fiunju:EstDatos a fiunju:Materia,
         fiunju:TeoAutoLengComp ;
     fiunju:perteneceAlAño 1 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:IntroProg ;
     owl:sameAs fiunju:EstDatos .
 
@@ -1396,7 +1849,9 @@ fiunju:IntroProg a fiunju:Materia,
         fiunju:IntArt,
         fiunju:MetProg,
         fiunju:ModOrientObjetos,
+        fiunju:ModProNeg,
         fiunju:OEMN,
+        fiunju:PPS,
         fiunju:ProgCon,
         fiunju:RaIn,
         fiunju:SegAudInf,
@@ -1406,11 +1861,73 @@ fiunju:IntroProg a fiunju:Materia,
         fiunju:TeoAutoLengComp ;
     fiunju:perteneceAlAño 1 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoAprobacionTI ;
     owl:sameAs fiunju:IntroProg .
+
+fiunju:Nivel_4 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Muy difícil"@es ;
+    fiunju:tieneValor 4 ;
+    owl:sameAs fiunju:Nivel_4 .
+
+fiunju:Nivel_1 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Fácil"@es ;
+    fiunju:tieneValor 1 ;
+    owl:sameAs fiunju:Nivel_1 .
 
 rdfs:Datatype owl:sameAs rdfs:Datatype .
 
 fiunju:Obligatoria rdfs:subClassOf fiunju:Materia ;
-    owl:disjointWith fiunju:Optativa ;
     owl:sameAs fiunju:Obligatoria .
+
+fiunju:PPS a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Practica Profesional Supervisada"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 5 ;
+    fiunju:requiereCreditos 270 ;
+    fiunju:requiereCuartoAnoAprobado true ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI,
+        fiunju:AnalMatemII,
+        fiunju:ArqParalelas,
+        fiunju:ArqRedes,
+        fiunju:BaseDatos,
+        fiunju:CalSoftTest,
+        fiunju:CalcNum,
+        fiunju:DesSistProg,
+        fiunju:ElecMag,
+        fiunju:EstDatos,
+        fiunju:FEPIED,
+        fiunju:FisicaMec,
+        fiunju:IngCon,
+        fiunju:IngSoftI,
+        fiunju:IngSoftII,
+        fiunju:IntroProg,
+        fiunju:LegEticaProf,
+        fiunju:LogComp,
+        fiunju:MatDisc,
+        fiunju:MetProg,
+        fiunju:MetSim,
+        fiunju:ModOrientObjetos,
+        fiunju:NivAptIng,
+        fiunju:NivSufIng,
+        fiunju:OEMN,
+        fiunju:OrgComp,
+        fiunju:PPS,
+        fiunju:ProbEstad,
+        fiunju:ProgCon,
+        fiunju:SegAudInf,
+        fiunju:SistInf,
+        fiunju:SistInt,
+        fiunju:SistOpI,
+        fiunju:SistOpII,
+        fiunju:TIC,
+        fiunju:TeoAutoLengComp ;
+    owl:sameAs fiunju:PPS .
+
+2 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 2 .
+
+1 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 1 .
