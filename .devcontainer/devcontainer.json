@@ -8,7 +8,7 @@
 
 	// El servicio al que VS Code se "conectará"
 	// Nos conectamos al backend para desarrollar la API y el SBC
-	"service": "frontend",
+	"service": "backend",
 
 	// El workspace (debe coincidir con el WORKDIR de backend/Dockerfile)
 	"workspaceFolder": "/app",

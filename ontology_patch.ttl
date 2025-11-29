@@ -1,0 +1,269 @@
+
+### PATCH START ###
+
+### Classes and Properties
+fiunju:EstrategiaRecomendacion a owl:Class ;
+    rdfs:label "Estrategia de Recomendación"@es .
+
+fiunju:ordenPrioridad a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:integer .
+
+fiunju:descripcionPlan a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:string .
+
+fiunju:cantidadMaterias a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:integer .
+
+fiunju:cantidadMinimaRequerida a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:integer .
+
+fiunju:requiereDisponibilidadDe a owl:ObjectProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range fiunju:NivelDificultadCursada .
+
+fiunju:tieneEstrategiaPosible a owl:ObjectProperty ;
+    rdfs:domain fiunju:ArquetipoEstudiante ;
+    rdfs:range fiunju:EstrategiaRecomendacion .
+
+### 1. Perfil Crítico
+fiunju:ArquetipoCritico a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Crítico"@es ;
+    fiunju:tieneColorIdentificativo "red" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Critico_A, fiunju:Estrategia_Critico_B, fiunju:Estrategia_Critico_C, fiunju:Estrategia_Critico_D .
+
+fiunju:Estrategia_Critico_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 2 Fáciles (Prioridad Alta)"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_Critico_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 1 Normal"@es ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Critico_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: 1 Difícil"@es ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Critico_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil (No recomendado, pero única opción)"@es ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+### 2. Perfil Bajo
+fiunju:ArquetipoBajo a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Bajo"@es ;
+    fiunju:tieneColorIdentificativo "orange" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Bajo_A, fiunju:Estrategia_Bajo_B, fiunju:Estrategia_Bajo_C, fiunju:Estrategia_Bajo_D .
+
+fiunju:Estrategia_Bajo_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 2 Fáciles (Ideal)"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_Bajo_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Normales"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_Bajo_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: 1 Difícil"@es ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Bajo_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil"@es ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+### 3. Perfil Medio-Bajo
+fiunju:ArquetipoMedioBajo a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Medio-Bajo"@es ;
+    fiunju:tieneColorIdentificativo "yellow" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_MedioBajo_A, fiunju:Estrategia_MedioBajo_B, fiunju:Estrategia_MedioBajo_C, fiunju:Estrategia_MedioBajo_D .
+
+fiunju:Estrategia_MedioBajo_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Difícil + 2 Normales"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_MedioBajo_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 3 Normales"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    fiunju:cantidadMinimaRequerida 3 .
+
+fiunju:Estrategia_MedioBajo_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: 2 Difíciles"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_MedioBajo_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil + 1 Fácil"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+### 4. Perfil Equilibrado
+fiunju:ArquetipoEquilibrado a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Equilibrado"@es ;
+    fiunju:tieneColorIdentificativo "green" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Equilibrado_A, fiunju:Estrategia_Equilibrado_B, fiunju:Estrategia_Equilibrado_C, fiunju:Estrategia_Equilibrado_D .
+
+fiunju:Estrategia_Equilibrado_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Equilibrado_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Equilibrado_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: 3 Normales"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    fiunju:cantidadMinimaRequerida 3 .
+
+fiunju:Estrategia_Equilibrado_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+### 5. Perfil Medio-Alto
+fiunju:ArquetipoMedioAlto a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Medio-Alto"@es ;
+    fiunju:tieneColorIdentificativo "blue" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_MedioAlto_A, fiunju:Estrategia_MedioAlto_B, fiunju:Estrategia_MedioAlto_C, fiunju:Estrategia_MedioAlto_D .
+
+fiunju:Estrategia_MedioAlto_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 2 Muy Difíciles + 2 Fáciles"@es ;
+    fiunju:cantidadMaterias 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_MedioAlto_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 2 Difíciles"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_MedioAlto_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: 2 Normales + 2 Fáciles"@es ;
+    fiunju:cantidadMaterias 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_MedioAlto_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 3 Difíciles"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    fiunju:cantidadMinimaRequerida 3 .
+
+### 6. Perfil Super Alto
+fiunju:ArquetipoSuperAlto a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Super Alto"@es ;
+    fiunju:tieneColorIdentificativo "violet" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_SuperAlto_A, fiunju:Estrategia_SuperAlto_B, fiunju:Estrategia_SuperAlto_C, fiunju:Estrategia_SuperAlto_D .
+
+fiunju:Estrategia_SuperAlto_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 3 Muy Difíciles + 1 Difícil"@es ;
+    fiunju:cantidadMaterias 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 3 .
+
+fiunju:Estrategia_SuperAlto_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 5 Variadas (Mix)"@es ;
+    fiunju:cantidadMaterias 5 ;
+    fiunju:cantidadMinimaRequerida 0 .
+
+fiunju:Estrategia_SuperAlto_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: Solo Fáciles (Max)"@es ;
+    fiunju:cantidadMaterias 5 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_SuperAlto_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 3 Muy Difíciles"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 3 .
+
+### 7. Perfil Atípico
+fiunju:ArquetipoAtipico a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneNombreArquetipo "Perfil Atípico"@es ;
+    fiunju:tieneColorIdentificativo "brown" ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Atipico_A, fiunju:Estrategia_Atipico_B, fiunju:Estrategia_Atipico_C, fiunju:Estrategia_Atipico_D .
+
+fiunju:Estrategia_Atipico_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Atipico_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil"@es ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 1 .
+
+fiunju:Estrategia_Atipico_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:descripcionPlan "Plan C: 2 Difíciles"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+fiunju:Estrategia_Atipico_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles"@es ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    fiunju:cantidadMinimaRequerida 2 .
+
+### PATCH END ###

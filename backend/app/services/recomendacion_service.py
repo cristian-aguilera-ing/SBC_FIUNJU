@@ -43,455 +43,235 @@ def _enriquecer_materias_usuario(materias_usuario, kg: Graph):
 
 def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
     """
-    Retorna las materias que el usuario puede cursar (prerrequisitos cumplidos)
-    y calcula cuántas materias futuras desbloquea cada una.
+    Retorna las materias que el usuario puede cursar mediante una query SPARQL optimizada.
+    Filtra por:
+    - Prerrequisitos (FILTER NOT EXISTS de requisitos no aprobados)
+    - Créditos requeridos
+    - Requisito de 4to año aprobado
+    - Excluye materias ya aprobadas/regularizadas/cursando
     """
-    # 1. Obtener todas las materias del grafo
-    query_materias = """
-    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?materia ?label WHERE {
-        ?materia a fiunju:Materia ;
-                 rdfs:label ?label .
-    }
-    """
-    all_materias = kg.query(query_materias)
     
-    # 2. Identificar estado del usuario
-    # Consideramos "aprobado" para correlativas si está Regular o Aprobada
-    materias_aprobadas_uris = {
-        m.materia_uri for m in user.materias_cursadas 
+    # 1. Preparar datos del usuario para la query
+    # Materias Aprobadas/Regularizadas (cumplen requisitos)
+    materias_aprobadas_uris = [
+        f"<{m.materia_uri}>" for m in user.materias_cursadas 
         if m.estado in ["Regular", "Aprobada", "PreparandoFinal"]
-    }
+    ]
+    str_aprobadas = ", ".join(materias_aprobadas_uris)
     
-    # Materias que ya está cursando o aprobó (no se las sugerimos de nuevo como "habilitadas" para cursar)
-    materias_no_disponibles = {
-        m.materia_uri for m in user.materias_cursadas
-    }
+    # Materias que NO se deben sugerir (ya las tiene o las está cursando)
+    # Incluimos Cursando, Regular, Aprobada, PreparandoFinal
+    materias_no_sugeribles = [
+        f"<{m.materia_uri}>" for m in user.materias_cursadas
+        if m.estado in ["Cursando", "Regular", "Aprobada", "PreparandoFinal"]
+    ]
+    str_no_sugeribles = ", ".join(materias_no_sugeribles)
 
-    habilitadas = []
-
-    for row in all_materias:
-        m_uri = str(row.materia)
-        m_label = str(row.label)
-
-        if m_uri in materias_no_disponibles:
-            continue
-
-        # 3. Verificar Prerrequisitos
-        # Obtenemos los requisitos directos de esta materia
-        query_reqs = f"""
+    # Datos numéricos/booleanos
+    # Calcular créditos del usuario consultando la ontología
+    creditos_usuario = 0
+    if materias_aprobadas_uris:
+        uris_for_query = " ".join(materias_aprobadas_uris)
+        query_creditos = f"""
         PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-        SELECT ?req WHERE {{
-            <{m_uri}> fiunju:tieneRequisito ?req .
+        SELECT (SUM(?creditos) as ?total) WHERE {{
+            VALUES ?materia {{ {uris_for_query} }}
+            ?materia fiunju:otorgaCreditos ?creditos .
         }}
         """
-        reqs = kg.query(query_reqs)
-        cumple_requisitos = True
-        for r in reqs:
-            if str(r.req) not in materias_aprobadas_uris:
-                cumple_requisitos = False
-                break
-        
-        if cumple_requisitos:
-            # 4. Calcular Impacto (Desbloquea Count)
-            # Cuántas materias futuras tienen a esta como requisito (transitivo)
-            # Usamos property path + para transitividad
-            query_impacto = f"""
-            PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
-            SELECT (COUNT(?future) as ?count) WHERE {{
-                ?future fiunju:tieneRequisito+ <{m_uri}> .
-            }}
-            """
-            res_impacto = kg.query(query_impacto)
-            impacto = 0
-            for r_imp in res_impacto:
-                impacto = int(r_imp["count"])
+        try:
+            res_cred = kg.query(query_creditos)
+            for row in res_cred:
+                if row.total:
+                    creditos_usuario = int(row.total)
+        except Exception:
+            creditos_usuario = 0
 
-            habilitadas.append({
-                "uri": m_uri,
-                "label": m_label,
-                "desbloquea_count": impacto
-            })
+    # Determinar si tiene 4to año aprobado (Simplificado: False por defecto o lógica futura)
+    # Por ahora asumimos False para evitar errores si no está calculado
+    tiene_cuarto = "false" 
+    # Si quisieramos calcularlo real, deberíamos chequear todas las de 4to.
+
+
+    # 2. Query SPARQL Definitiva
+    query = f"""
+    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+    SELECT ?materia ?label ?dificultad ?creditos (COUNT(?future) as ?impacto)
+    WHERE {{
+        ?materia a fiunju:Materia ;
+                 rdfs:label ?label .
+        
+        # Excluir materias que el usuario ya tiene/cursa
+        FILTER (?materia NOT IN ({str_no_sugeribles}))
+
+        # Filtro de Prerrequisitos: 
+        # No debe existir un requisito R tal que R NO esté en la lista de aprobadas
+        FILTER NOT EXISTS {{
+            ?materia fiunju:tieneRequisito ?req .
+            FILTER (?req NOT IN ({str_aprobadas}))
+        }}
+
+        # Filtro de Créditos
+        OPTIONAL {{ ?materia fiunju:requiereCreditos ?reqCred . }}
+        FILTER (!BOUND(?reqCred) || ?reqCred <= {creditos_usuario})
+
+        # Filtro de 4to Año
+        OPTIONAL {{ ?materia fiunju:requiereCuartoAnoAprobado ?reqCuarto . }}
+        FILTER (!BOUND(?reqCuarto) || ?reqCuarto = {tiene_cuarto} || {tiene_cuarto} = true)
+
+        # Datos extra
+        OPTIONAL {{ 
+            ?materia fiunju:tieneDificultadCursada ?difNode .
+            ?difNode fiunju:tieneValor ?dificultad .
+        }}
+        OPTIONAL {{ ?materia fiunju:otorgaCreditos ?creditos . }}
+
+        # Cálculo de Impacto (Subquery implícita con group by)
+        OPTIONAL {{ ?future fiunju:tieneRequisito+ ?materia . }}
+    }}
+    GROUP BY ?materia ?label ?dificultad ?creditos
+    """
+    
+    results = kg.query(query)
+    
+    habilitadas = []
+    for row in results:
+        habilitadas.append({
+            "uri": str(row.materia),
+            "label": str(row.label),
+            "dificultad": int(row.dificultad) if row.dificultad else 2, # Default Normal
+            "creditos": int(row.creditos) if row.creditos else 0,
+            "desbloquea_count": int(row.impacto)
+        })
             
     return habilitadas
 
 
 def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
-    # 1. Identificar Perfil
+    # 1. Identificar Perfil y obtener sus datos básicos
     pid = obtener_perfil_id(user)
     perfil_data = PERFILES_DATA[pid]
-    reglas = perfil_data["cursada"]["reglas"]
     
-    # 2. Obtener materias que el usuario marcó como "Cursando"
-    seleccion_usuario = [m for m in user.materias_cursadas if m.estado == "Cursando"]
-    materias_data = _enriquecer_materias_usuario(seleccion_usuario, kg)
+    # 2. Obtener Materias Habilitadas (Query SPARQL optimizada)
+    materias_habilitadas = _get_materias_habilitadas(user, kg)
     
-    # 3. Aplicar Lógica de Selección (Filtro)
-    plan_sugerido = []
+    # Ordenar pool inicial por impacto (desbloquea_count) descendente y luego dificultad ascendente
+    # Esto ayuda al fallback
+    materias_habilitadas.sort(key=lambda x: (-x["desbloquea_count"], x["dificultad"]))
+
+    # 3. Obtener Estrategias del Arquetipo desde la Ontología
+    # Mapeo de ID de perfil a URI de arquetipo (Hardcodeo mínimo necesario o query inversa)
+    # Asumimos que podemos construir la URI del arquetipo o buscarla por nombre
+    # Para simplificar, usaremos una query que busque por nombre del arquetipo o ID si lo tuviéramos en la ontología
+    # Como no guardamos el ID numérico en la ontología, usaremos el nombre del perfil_data
+    nombre_arquetipo = perfil_data["nombre_corto"] # Ej "Perfil Crítico"
+    
+    query_estrategias = f"""
+    PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+    SELECT ?orden ?desc ?cant ?minReq ?difValor
+    WHERE {{
+        ?arquetipo a fiunju:ArquetipoEstudiante ;
+                   fiunju:tieneNombreArquetipo ?nombre ;
+                   fiunju:tieneEstrategiaPosible ?est .
+        
+        FILTER (STR(?nombre) = "{nombre_arquetipo}")
+        
+        ?est fiunju:ordenPrioridad ?orden ;
+             fiunju:descripcionPlan ?desc ;
+             fiunju:cantidadMaterias ?cant ;
+             fiunju:cantidadMinimaRequerida ?minReq .
+             
+        OPTIONAL {{ 
+            ?est fiunju:requiereDisponibilidadDe ?difNode .
+            ?difNode fiunju:tieneValor ?difValor .
+        }}
+    }}
+    ORDER BY ?orden
+    """
+    estrategias_res = kg.query(query_estrategias)
+    
+    plan_seleccionado = []
     omitidas = []
+    texto_recomendacion = "No se encontró una estrategia específica, mostrando mejores opciones disponibles."
     
-    # Ordenar por dificultad (ascendente por defecto para perfiles saturados)
-    # Si el perfil prioriza dificiles, invertimos luego.
-    materias_data.sort(key=lambda x: x["dificultad"])
+    estrategia_encontrada = False
     
-    max_qty = reglas.get("max_qty", 5)
-    
-    # Lógica específica por perfil para filtrar la selección del usuario
-    if pid == 1: # Perfil Crítico (Antes Superviviente)
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = ""
-        texto_plan = ""
-
-        # Prioridad de Selección de Plan
-        if len(faciles) >= 2:
-            plan_seleccionado = "A"
-            # Plan A: 2 Fáciles
-            plan_sugerido.extend(faciles[:2])
-            omitidas.extend(faciles[2:] + normales + dificiles + muy_dificiles)
-        elif len(normales) >= 1:
-            plan_seleccionado = "B"
-            # Plan B: 1 Normal (y rellenar con 1 fácil si hubiera, aunque la regla dice "Solo hay normales")
-            # La regla estricta dice "1 materia Normal".
-            plan_sugerido.append(normales[0])
-            omitidas.extend(faciles + normales[1:] + dificiles + muy_dificiles)
-        elif len(dificiles) >= 1:
-            plan_seleccionado = "C"
-            # Plan C: 1 Difícil
-            plan_sugerido.append(dificiles[0])
-            omitidas.extend(faciles + normales + dificiles[1:] + muy_dificiles)
-        elif len(muy_dificiles) >= 1:
-            plan_seleccionado = "D"
-            # Plan D: 1 Muy Difícil (o nada, pero sugerimos 1 con advertencia)
-            plan_sugerido.append(muy_dificiles[0])
-            omitidas.extend(faciles + normales + dificiles + muy_dificiles[1:])
+    # 4. Evaluar Estrategias en orden
+    for row in estrategias_res:
+        if estrategia_encontrada: break
+        
+        desc = str(row.desc)
+        cant_a_sugerir = int(row.cant)
+        min_req = int(row.minReq)
+        dificultad_req = int(row.difValor) if row.difValor else None
+        
+        # Filtrar materias que cumplen con el requisito de dificultad de la estrategia
+        candidatas = []
+        if dificultad_req is not None:
+            candidatas = [m for m in materias_habilitadas if m["dificultad"] == dificultad_req]
         else:
-            # Caso borde: No hay materias o algo raro
-            plan_seleccionado = "A" # Default
-        
-        # Inyectar el texto del plan específico
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-        perfil_data["cursada"]["recomendacion_texto"] = texto_plan # Pisamos el texto genérico para este request
-                
-    elif pid == 3: # Perfil Medio-Bajo
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
+            # Si no pide dificultad específica (ej. "Variadas"), usamos todas
+            candidatas = materias_habilitadas
+            
+        # Verificar si cumplimos la cantidad mínima requerida para activar este plan
+        if len(candidatas) >= min_req:
+            estrategia_encontrada = True
+            texto_recomendacion = desc
+            
+            # Seleccionar las materias para el plan
+            # Si la estrategia pide X materias de dificultad Y, tomamos esas.
+            # Si sobran slots (cant_a_sugerir > len(candidatas)), rellenamos con otras?
+            # Por simplicidad del modelo actual: Tomamos las candidatas hasta llenar el cupo.
+            # Si la estrategia es "2 Faciles" y cant=2, tomamos 2 faciles.
+            # Si la estrategia es "1 Dificil + 2 Normales", esto requiere estrategias compuestas que simplificamos en la ontología.
+            # En la ontología simplificada, definimos el requisito "Principal". 
+            # El motor genérico tomará las candidatas principales y rellenará con el resto de habilitadas (ordenadas por impacto).
+            
+            seleccion = candidatas[:cant_a_sugerir]
+            plan_seleccionado.extend(seleccion)
+            
+            # Relleno si falta para llegar a cant_a_sugerir
+            if len(plan_seleccionado) < cant_a_sugerir:
+                faltantes = cant_a_sugerir - len(plan_seleccionado)
+                # Buscar en el resto de habilitadas que no estén ya seleccionadas
+                uris_sel = {m["uri"] for m in plan_seleccionado}
+                resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
+                plan_seleccionado.extend(resto[:faltantes])
+            
+            # Identificar omitidas
+            uris_sel = {m["uri"] for m in plan_seleccionado}
+            omitidas = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
 
-        plan_seleccionado = ""
-        
-        # Plan A: 1 Difícil + 2 Normal
-        if len(dificiles) >= 1 and len(normales) >= 2:
-            plan_seleccionado = "A"
-            plan_sugerido.append(dificiles[0])
-            plan_sugerido.extend(normales[:2])
-            omitidas.extend(faciles + normales[2:] + dificiles[1:] + muy_dificiles)
-        
-        # Plan B: 3 Normales (No hay dificiles)
-        elif len(normales) >= 3:
-            plan_seleccionado = "B"
-            plan_sugerido.extend(normales[:3])
-            omitidas.extend(faciles + normales[3:] + dificiles + muy_dificiles)
-            
-        # Plan C: 2 Difíciles (Solo hay dificiles)
-        elif len(dificiles) >= 2:
-            plan_seleccionado = "C"
-            plan_sugerido.extend(dificiles[:2])
-            omitidas.extend(faciles + normales + dificiles[2:] + muy_dificiles)
-            
-        # Plan D: 1 Muy Difícil + 1 Fácil
-        elif len(muy_dificiles) >= 1 and len(faciles) >= 1:
-            plan_seleccionado = "D"
-            plan_sugerido.append(muy_dificiles[0])
-            plan_sugerido.append(faciles[0])
-            omitidas.extend(faciles[1:] + normales + dificiles + muy_dificiles[1:])
-            
-        else:
-            # Fallback
-            plan_seleccionado = "A"
-            if dificiles: plan_sugerido.append(dificiles[0])
-            if normales: plan_sugerido.extend(normales[:2])
-            
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
+    # 5. Fallback si ninguna estrategia coincide
+    if not estrategia_encontrada:
+        # Tomar las top N por impacto/dificultad (ya ordenadas)
+        default_qty = 3
+        plan_seleccionado = materias_habilitadas[:default_qty]
+        omitidas = materias_habilitadas[default_qty:]
+        texto_recomendacion = "Plan Genérico: Basado en las materias que desbloquean más correlativas."
 
-    elif pid == 4: # Perfil Equilibrado
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = ""
-        
-        # Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal
-        if len(muy_dificiles) >= 1 and len(dificiles) >= 1 and len(normales) >= 1:
-            plan_seleccionado = "A"
-            plan_sugerido.append(muy_dificiles[0])
-            plan_sugerido.append(dificiles[0])
-            plan_sugerido.append(normales[0])
-            omitidas.extend(faciles + normales[1:] + dificiles[1:] + muy_dificiles[1:])
-        
-        # Plan B: 1 Muy Difícil + 1 Difícil (No hay Normales)
-        elif len(muy_dificiles) >= 1 and len(dificiles) >= 1:
-            plan_seleccionado = "B"
-            plan_sugerido.append(muy_dificiles[0])
-            plan_sugerido.append(dificiles[0])
-            omitidas.extend(faciles + normales + dificiles[1:] + muy_dificiles[1:])
-            
-        # Plan C: 3 Normales (Solo hay Normales)
-        elif len(normales) >= 3:
-            plan_seleccionado = "C"
-            plan_sugerido.extend(normales[:3])
-            omitidas.extend(faciles + normales[3:] + dificiles + muy_dificiles)
-            
-        # Plan D: 2 Muy Difíciles (Solo hay Muy Difíciles)
-        elif len(muy_dificiles) >= 2:
-            plan_seleccionado = "D"
-            plan_sugerido.extend(muy_dificiles[:2])
-            omitidas.extend(faciles + normales + dificiles + muy_dificiles[2:])
-            
-        else:
-            # Fallback
-            plan_seleccionado = "A"
-            if muy_dificiles: plan_sugerido.append(muy_dificiles[0])
-            if dificiles: plan_sugerido.append(dificiles[0])
-            if normales: plan_sugerido.append(normales[0])
-            
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 5: # Perfil Medio-Alto
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = ""
-        
-        # Plan A: 2 Muy Difícil + 2 Faciles
-        if len(muy_dificiles) >= 2 and len(faciles) >= 2:
-            plan_seleccionado = "A"
-            plan_sugerido.extend(muy_dificiles[:2])
-            plan_sugerido.extend(faciles[:2])
-            omitidas.extend(faciles[2:] + normales + dificiles + muy_dificiles[2:])
-        
-        # Plan B: 1 Muy Difícil + 2 Difíciles (No hay Normales - interpretado como fallback si no hay A)
-        elif len(muy_dificiles) >= 1 and len(dificiles) >= 2:
-            plan_seleccionado = "B"
-            plan_sugerido.append(muy_dificiles[0])
-            plan_sugerido.extend(dificiles[:2])
-            omitidas.extend(faciles + normales + dificiles[2:] + muy_dificiles[1:])
-            
-        # Plan C: 2 Normales + 2 Faciles
-        elif len(normales) >= 2 and len(faciles) >= 2:
-            plan_seleccionado = "C"
-            plan_sugerido.extend(normales[:2])
-            plan_sugerido.extend(faciles[:2])
-            omitidas.extend(faciles[2:] + normales[2:] + dificiles + muy_dificiles)
-            
-        # Plan D: 3 Difíciles
-        elif len(dificiles) >= 3:
-            plan_seleccionado = "D"
-            plan_sugerido.extend(dificiles[:3])
-            omitidas.extend(faciles + normales + dificiles[3:] + muy_dificiles)
-            
-        else:
-            # Fallback
-            plan_seleccionado = "A"
-            if muy_dificiles: plan_sugerido.extend(muy_dificiles[:min(2, len(muy_dificiles))])
-            if faciles: plan_sugerido.extend(faciles[:min(2, len(faciles))])
-            
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 6: # Perfil Super Alto
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = ""
-        
-        # Plan A: 3 Muy Difíciles + 1 Difícil
-        if len(muy_dificiles) >= 3 and len(dificiles) >= 1:
-            plan_seleccionado = "A"
-            plan_sugerido.extend(muy_dificiles[:3])
-            plan_sugerido.append(dificiles[0])
-            omitidas.extend(faciles + normales + dificiles[1:] + muy_dificiles[3:])
-        
-        # Plan B: 4-5 Variadas (Mix)
-        elif len(materias_data) >= 4:
-            plan_seleccionado = "B"
-            # Priorizamos correlativas (ya vienen ordenadas por dificultad, pero podemos asumir que el orden natural es bueno o mezclar)
-            # Vamos a tomar un mix: 1 Muy Dificil, 1 Dificil, 1 Normal, 1 Facil si es posible, sino rellenar
-            # O simplemente las primeras 5 disponibles
-            plan_sugerido.extend(materias_data[:min(5, len(materias_data))])
-            omitidas.extend(materias_data[5:])
-            
-        # Plan C: Solo Fáciles (Max permitido)
-        elif len(faciles) >= 1:
-            plan_seleccionado = "C"
-            plan_sugerido.extend(faciles[:min(max_qty, len(faciles))])
-            omitidas.extend(faciles[max_qty:] + normales + dificiles + muy_dificiles)
-            
-        # Plan D: 3 Muy Difíciles
-        elif len(muy_dificiles) >= 3:
-            plan_seleccionado = "D"
-            plan_sugerido.extend(muy_dificiles[:3])
-            omitidas.extend(faciles + normales + dificiles + muy_dificiles[3:])
-            
-        else:
-            # Fallback
-            plan_seleccionado = "A"
-            plan_sugerido.extend(materias_data[:min(4, len(materias_data))])
-            
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 7: # Perfil Atípico
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = ""
-        
-        # Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal
-        if len(muy_dificiles) >= 1 and len(dificiles) >= 1 and len(normales) >= 1:
-            plan_seleccionado = "A"
-            plan_sugerido.append(muy_dificiles[0])
-            plan_sugerido.append(dificiles[0])
-            plan_sugerido.append(normales[0])
-            omitidas.extend(faciles + normales[1:] + dificiles[1:] + muy_dificiles[1:])
-        
-        # Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil
-        elif len(muy_dificiles) >= 1 and len(dificiles) >= 1 and len(faciles) >= 1:
-            plan_seleccionado = "B"
-            plan_sugerido.append(muy_dificiles[0])
-            plan_sugerido.append(dificiles[0])
-            plan_sugerido.append(faciles[0])
-            omitidas.extend(faciles[1:] + normales + dificiles[1:] + muy_dificiles[1:])
-            
-        # Plan C: 2 Difíciles (Solo hay Difíciles)
-        elif len(dificiles) >= 2:
-            plan_seleccionado = "C"
-            plan_sugerido.extend(dificiles[:2])
-            omitidas.extend(faciles + normales + dificiles[2:] + muy_dificiles)
-            
-        # Plan D: 2 Muy Difíciles
-        elif len(muy_dificiles) >= 2:
-            plan_seleccionado = "D"
-            plan_sugerido.extend(muy_dificiles[:2])
-            omitidas.extend(faciles + normales + dificiles + muy_dificiles[2:])
-            
-        else:
-            # Fallback
-            plan_seleccionado = "A"
-            if muy_dificiles: plan_sugerido.append(muy_dificiles[0])
-            if dificiles: plan_sugerido.append(dificiles[0])
-            if normales: plan_sugerido.append(normales[0])
-            
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-
-    elif pid == 2: # Perfil Bajo
-        # Lógica Dinámica de Planes (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-
-        plan_seleccionado = ""
-        texto_plan = ""
-
-        # Prioridad de Selección de Plan
-        # Plan A: 2 Fáciles (Ideal)
-        if len(faciles) >= 2:
-            plan_seleccionado = "A"
-            plan_sugerido.extend(faciles[:2])
-            omitidas.extend(faciles[2:] + normales + dificiles + muy_dificiles)
-        
-        # Plan B: 2 Normales (Si no hay fáciles)
-        elif len(normales) >= 2:
-            plan_seleccionado = "B"
-            plan_sugerido.extend(normales[:2])
-            omitidas.extend(faciles + normales[2:] + dificiles + muy_dificiles)
-            
-        # Plan C: 1 Difícil (Si solo hay difíciles)
-        elif len(dificiles) >= 1:
-            plan_seleccionado = "C"
-            plan_sugerido.append(dificiles[0])
-            omitidas.extend(faciles + normales + dificiles[1:] + muy_dificiles)
-            
-        # Plan D: 1 Muy Difícil (Si solo hay muy difíciles)
-        elif len(muy_dificiles) >= 1:
-            plan_seleccionado = "D"
-            plan_sugerido.append(muy_dificiles[0])
-            omitidas.extend(faciles + normales + dificiles + muy_dificiles[1:])
-            
-        else:
-            # Fallback si no encaja en ninguno (ej: 1 normal y 1 facil pero no 2 faciles)
-            # El usuario pide 2 Faciles para Plan A. Si hay 1 normal y 1 facil, no encaja en A ni B.
-            # Asumimos Plan A "relajado" o lo que mejor encaje.
-            plan_seleccionado = "A"
-            if faciles: plan_sugerido.append(faciles[0])
-            if normales: plan_sugerido.append(normales[0])
-            
-        texto_plan = perfil_data["cursada"].get("planes", {}).get(plan_seleccionado, "Plan no determinado.")
-        # perfil_data["cursada"]["recomendacion_texto"] = texto_plan # Avoid modifying global state
-
-    else: # Fallback general si hubiera más perfiles (A, B, C, D)
-        faciles = [m for m in materias_data if m["dificultad"] == 1]
-        normales = [m for m in materias_data if m["dificultad"] == 2]
-        dificiles = [m for m in materias_data if m["dificultad"] == 3]
-        muy_dificiles = [m for m in materias_data if m["dificultad"] >= 4]
-        
-        # Llenar slots
-        current_count = 0
-        
-        # Prioridad perfil 2: Normal + Facil
-        if normales and current_count < max_qty: 
-            plan_sugerido.append(normales.pop(0)); current_count+=1
-        if faciles and current_count < max_qty: 
-            plan_sugerido.append(faciles.pop(0)); current_count+=1
-            
-        # Relleno (si el usuario seleccionó otras cosas y sobra espacio)
-        restantes = faciles + normales + dificiles
-        for m in restantes:
-            if current_count < max_qty:
-                plan_sugerido.append(m)
-                current_count += 1
-            else:
-                omitidas.append(m)
-        
-        # Default text if not Profile 1 or 2
-        texto_plan = perfil_data["cursada"]["recomendacion_texto"]
-
-    # Estructura de respuesta para el Frontend
+    # 6. Formatear respuesta
     return {
         "plan_recomendado": [{
             "uri": m["uri"], "label": m["label"], "score": 1.0, "año": 0, 
-            "dificultad": m["dificultad"], "desbloquea_count": 0, "creditos_otorgados": m["creditos"]
-        } for m in plan_sugerido],
+            "dificultad": m["dificultad"], "desbloquea_count": m["desbloquea_count"], "creditos_otorgados": m["creditos"]
+        } for m in plan_seleccionado],
         
         "materias_omitidas": [{
             "uri": m["uri"], "label": m["label"], "score": 0.0, "año": 0, 
-            "dificultad": m["dificultad"], "desbloquea_count": 0
+            "dificultad": m["dificultad"], "desbloquea_count": m["desbloquea_count"]
         } for m in omitidas],
         
         "arquetipo": {
-            "nombre": perfil_data["nombre_corto"], # Ej: "El Guerrero Solitario"
-            "color": perfil_data["color"],         # Ej: "#eab308"
+            "nombre": perfil_data["nombre_corto"],
+            "color": perfil_data["color"],
             "consejos": [perfil_data["cursada"]["comentario"]]
         },
-        # Enviamos el texto de recomendación crudo, el frontend lo formateará
-        "consejos_adicionales": [texto_plan]
+        "consejos_adicionales": [texto_recomendacion]
     }
 
 def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
