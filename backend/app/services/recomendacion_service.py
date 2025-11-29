@@ -60,12 +60,19 @@ def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
     str_aprobadas = ", ".join(materias_aprobadas_uris)
     
     # Materias que NO se deben sugerir (ya las tiene o las está cursando)
-    # Incluimos Cursando, Regular, Aprobada, PreparandoFinal
+    # IMPORTANTE: Si el usuario marca "Cursando", queremos que el sistema las considere como "Candidatas Preferidas"
+    # para el plan, NO que las oculte. El Plan Cursada es para el cuatrimestre actual.
+    # Por lo tanto, solo excluimos Aprobada, Regular, PreparandoFinal.
+    # "Cursando" se deja pasar para ser priorizada.
+    
     materias_no_sugeribles = [
         f"<{m.materia_uri}>" for m in user.materias_cursadas
-        if m.estado in ["Cursando", "Regular", "Aprobada", "PreparandoFinal"]
+        if m.estado in ["Regular", "Aprobada", "PreparandoFinal"]
     ]
     str_no_sugeribles = ", ".join(materias_no_sugeribles)
+
+    # Identificar URIs que el usuario YA eligió ("Cursando") para priorizarlas
+    uris_cursando = {m.materia_uri for m in user.materias_cursadas if m.estado == "Cursando"}
 
     # Datos numéricos/booleanos
     # Calcular créditos del usuario consultando la ontología
@@ -88,10 +95,7 @@ def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
             creditos_usuario = 0
 
     # Determinar si tiene 4to año aprobado (Simplificado: False por defecto o lógica futura)
-    # Por ahora asumimos False para evitar errores si no está calculado
     tiene_cuarto = "false" 
-    # Si quisieramos calcularlo real, deberíamos chequear todas las de 4to.
-
 
     # 2. Query SPARQL Definitiva
     query = f"""
@@ -99,12 +103,12 @@ def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-    SELECT ?materia ?label ?dificultad ?creditos (COUNT(?future) as ?impacto)
+    SELECT ?materia ?label ?dificultad ?creditos ?anio ?caracter (COUNT(?future) as ?impacto)
     WHERE {{
         ?materia a fiunju:Materia ;
                  rdfs:label ?label .
         
-        # Excluir materias que el usuario ya tiene/cursa
+        # Excluir materias que el usuario ya tiene aprobadas/regularizadas
         FILTER (?materia NOT IN ({str_no_sugeribles}))
 
         # Filtro de Prerrequisitos: 
@@ -128,23 +132,32 @@ def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
             ?difNode fiunju:tieneValor ?dificultad .
         }}
         OPTIONAL {{ ?materia fiunju:otorgaCreditos ?creditos . }}
+        OPTIONAL {{ ?materia fiunju:anioPlan ?anio . }}
+        OPTIONAL {{ ?materia fiunju:caracter ?caracter . }}
 
         # Cálculo de Impacto (Subquery implícita con group by)
         OPTIONAL {{ ?future fiunju:tieneRequisito+ ?materia . }}
     }}
-    GROUP BY ?materia ?label ?dificultad ?creditos
+    GROUP BY ?materia ?label ?dificultad ?creditos ?anio ?caracter
     """
     
     results = kg.query(query)
     
     habilitadas = []
     for row in results:
+        uri = str(row.materia)
+        es_cursando = uri in uris_cursando
+        es_obligatoria = str(row.caracter) == "Obligatoria" if row.caracter else True # Default True
+        
         habilitadas.append({
-            "uri": str(row.materia),
+            "uri": uri,
             "label": str(row.label),
             "dificultad": int(row.dificultad) if row.dificultad else 2, # Default Normal
             "creditos": int(row.creditos) if row.creditos else 0,
-            "desbloquea_count": int(row.impacto)
+            "desbloquea_count": int(row.impacto),
+            "anio": int(row.anio) if row.anio else 0,
+            "es_obligatoria": es_obligatoria,
+            "es_cursando": es_cursando # Flag de preferencia de usuario
         })
             
     return habilitadas
@@ -157,28 +170,42 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     
     # 2. Obtener Materias Habilitadas (Query SPARQL optimizada)
     materias_habilitadas = _get_materias_habilitadas(user, kg)
+
+    # Identificar URIs que el usuario YA eligió ("Cursando") para priorizarlas y usarlas en la estrategia
+    uris_cursando = {m.materia_uri for m in user.materias_cursadas if m.estado == "Cursando"}
     
-    # Ordenar pool inicial por impacto (desbloquea_count) descendente y luego dificultad ascendente
-    # Esto ayuda al fallback
-    materias_habilitadas.sort(key=lambda x: (-x["desbloquea_count"], x["dificultad"]))
+    # Ordenar pool inicial
+    # Prioridad:
+    # 1. User Preference (es_cursando=True)
+    # 2. Obligatoria (True)
+    # 3. Impacto (desbloquea_count DESC)
+    # 4. Dificultad (ASC) - Preferimos fáciles primero si todo lo demás es igual
+    materias_habilitadas.sort(key=lambda x: (
+        not x["es_cursando"], # False < True, so True comes first
+        not x["es_obligatoria"], 
+        -x["desbloquea_count"], 
+        x["dificultad"]
+    ))
 
     # 3. Obtener Estrategias del Arquetipo desde la Ontología
-    # Mapeo de ID de perfil a URI de arquetipo (Hardcodeo mínimo necesario o query inversa)
-    # Asumimos que podemos construir la URI del arquetipo o buscarla por nombre
-    # Para simplificar, usaremos una query que busque por nombre del arquetipo o ID si lo tuviéramos en la ontología
-    # Como no guardamos el ID numérico en la ontología, usaremos el nombre del perfil_data
-    nombre_arquetipo = perfil_data["nombre_corto"] # Ej "Perfil Crítico"
+    # Usamos mapeo directo de ID a URI para mayor robustez
+    ARQUETIPO_URIS = {
+        1: "ArquetipoCritico",
+        2: "ArquetipoBajo",
+        3: "ArquetipoMedioBajo",
+        4: "ArquetipoEquilibrado",
+        5: "ArquetipoMedioAlto",
+        6: "ArquetipoSuperAlto",
+        7: "ArquetipoAtipico"
+    }
+    arquetipo_uri = ARQUETIPO_URIS.get(pid, "ArquetipoEquilibrado")
     
     query_estrategias = f"""
     PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     SELECT ?orden ?desc ?cant ?minReq ?difValor
     WHERE {{
-        ?arquetipo a fiunju:ArquetipoEstudiante ;
-                   fiunju:tieneNombreArquetipo ?nombre ;
-                   fiunju:tieneEstrategiaPosible ?est .
-        
-        FILTER (STR(?nombre) = "{nombre_arquetipo}")
+        fiunju:{arquetipo_uri} fiunju:tieneEstrategiaPosible ?est .
         
         ?est fiunju:ordenPrioridad ?orden ;
              fiunju:descripcionPlan ?desc ;
@@ -200,10 +227,23 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     
     estrategia_encontrada = False
     
-    # 4. Evaluar Estrategias en orden
+    # 4. Evaluar Estrategias
+    # Si el usuario ya seleccionó materias ("Cursando"), buscamos la estrategia que MEJOR se ajuste a su selección.
+    # Si no, usamos el orden de prioridad por defecto.
+    
+    # Analizar selección del usuario
+    user_selection_counts = {4: 0, 3: 0, 2: 0, 1: 0}
+    if uris_cursando:
+        for m in materias_habilitadas:
+            if m["uri"] in uris_cursando:
+                d = m["dificultad"]
+                if d in user_selection_counts:
+                    user_selection_counts[d] += 1
+                elif d >= 4:
+                    user_selection_counts[4] += 1
+
+    estrategias_validas = []
     for row in estrategias_res:
-        if estrategia_encontrada: break
-        
         desc = str(row.desc)
         cant_a_sugerir = int(row.cant)
         min_req = int(row.minReq)
@@ -214,56 +254,117 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         if dificultad_req is not None:
             candidatas = [m for m in materias_habilitadas if m["dificultad"] == dificultad_req]
         else:
-            # Si no pide dificultad específica (ej. "Variadas"), usamos todas
             candidatas = materias_habilitadas
             
-        # Verificar si cumplimos la cantidad mínima requerida para activar este plan
+        # Verificar si es válida
         if len(candidatas) >= min_req:
-            estrategia_encontrada = True
-            texto_recomendacion = desc
+            # Calcular Score de Ajuste si hay selección de usuario
+            score = 0
+            if uris_cursando:
+                # Priorizamos coincidencia en la dificultad requerida
+                if dificultad_req:
+                    user_count = user_selection_counts.get(dificultad_req, 0)
+                    # Score base alto para dificultades altas
+                    weight = dificultad_req * 100 
+                    # Penalizamos la diferencia entre lo que pide el plan y lo que tiene el usuario
+                    diff = abs(min_req - user_count)
+                    score = weight - (diff * 10)
+                    
+                    # Bonus si el usuario tiene EXACTAMENTE o MÁS de lo requerido en esa dificultad
+                    if user_count >= min_req:
+                        score += 50
+                else:
+                    # Estrategia sin requisito de dificultad (ej: "Variadas")
+                    score = 10 # Prioridad baja frente a matches específicos
             
-            # Seleccionar las materias para el plan
-            # Si la estrategia pide X materias de dificultad Y, tomamos esas.
-            # Si sobran slots (cant_a_sugerir > len(candidatas)), rellenamos con otras?
-            # Por simplicidad del modelo actual: Tomamos las candidatas hasta llenar el cupo.
-            # Si la estrategia es "2 Faciles" y cant=2, tomamos 2 faciles.
-            # Si la estrategia es "1 Dificil + 2 Normales", esto requiere estrategias compuestas que simplificamos en la ontología.
-            # En la ontología simplificada, definimos el requisito "Principal". 
-            # El motor genérico tomará las candidatas principales y rellenará con el resto de habilitadas (ordenadas por impacto).
-            
-            seleccion = candidatas[:cant_a_sugerir]
-            plan_seleccionado.extend(seleccion)
-            
-            # Relleno si falta para llegar a cant_a_sugerir
-            if len(plan_seleccionado) < cant_a_sugerir:
-                faltantes = cant_a_sugerir - len(plan_seleccionado)
-                # Buscar en el resto de habilitadas que no estén ya seleccionadas
-                uris_sel = {m["uri"] for m in plan_seleccionado}
-                resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
-                plan_seleccionado.extend(resto[:faltantes])
-            
-            # Identificar omitidas
+            estrategias_validas.append({
+                "row": row,
+                "candidatas": candidatas,
+                "score": score,
+                "orden": int(row.orden)
+            })
+
+    # Ordenar estrategias válidas
+    if uris_cursando:
+        # Mayor score primero, luego menor orden de prioridad (original)
+        estrategias_validas.sort(key=lambda x: (-x["score"], x["orden"]))
+    else:
+        # Solo orden original
+        estrategias_validas.sort(key=lambda x: x["orden"])
+
+    # Seleccionar la mejor
+    if estrategias_validas:
+        best = estrategias_validas[0]
+        row = best["row"]
+        candidatas = best["candidatas"]
+        
+        estrategia_encontrada = True
+        texto_recomendacion = str(row.desc)
+        cant_a_sugerir = int(row.cant)
+        
+        # Construir plan
+        seleccion = candidatas[:cant_a_sugerir]
+        plan_seleccionado.extend(seleccion)
+        
+        if len(plan_seleccionado) < cant_a_sugerir:
+            faltantes = cant_a_sugerir - len(plan_seleccionado)
             uris_sel = {m["uri"] for m in plan_seleccionado}
+            resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
+            plan_seleccionado.extend(resto[:faltantes])
+            
+        # Identificar omitidas
+        uris_sel = {m["uri"] for m in plan_seleccionado}
+        
+        if uris_cursando:
+            # Si el usuario seleccionó materias, "Omitidas" (Postergar) son SOLO las que él eligió
+            # pero que no entraron en el plan.
+            omitidas = [m for m in materias_habilitadas 
+                        if m["uri"] not in uris_sel and m["uri"] in uris_cursando]
+        else:
+            # Comportamiento default: Todo lo que sobra
             omitidas = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
 
     # 5. Fallback si ninguna estrategia coincide
+
+    # 5. Fallback si ninguna estrategia coincide
     if not estrategia_encontrada:
-        # Tomar las top N por impacto/dificultad (ya ordenadas)
+        # Tomar las top N por prioridad (ya ordenadas)
         default_qty = 3
         plan_seleccionado = materias_habilitadas[:default_qty]
         omitidas = materias_habilitadas[default_qty:]
         texto_recomendacion = "Plan Genérico: Basado en las materias que desbloquean más correlativas."
 
+    # Helper para formatear dificultad
+    def get_dificultad_label(val):
+        if val == 1: return "Fácil"
+        if val == 2: return "Normal"
+        if val == 3: return "Difícil"
+        if val >= 4: return "Muy Difícil"
+        return "Normal"
+
     # 6. Formatear respuesta
     return {
         "plan_recomendado": [{
-            "uri": m["uri"], "label": m["label"], "score": 1.0, "año": 0, 
-            "dificultad": m["dificultad"], "desbloquea_count": m["desbloquea_count"], "creditos_otorgados": m["creditos"]
+            "uri": m["uri"], 
+            "label": m["label"], 
+            "score": 1.0, 
+            "año": m["anio"], 
+            "dificultad": m["dificultad"],
+            "dificultad_label": get_dificultad_label(m["dificultad"]),
+            "desbloquea_count": m["desbloquea_count"], 
+            "creditos_otorgados": m["creditos"],
+            "es_cursando": m["es_cursando"],
+            "es_obligatoria": m["es_obligatoria"]
         } for m in plan_seleccionado],
         
         "materias_omitidas": [{
-            "uri": m["uri"], "label": m["label"], "score": 0.0, "año": 0, 
-            "dificultad": m["dificultad"], "desbloquea_count": m["desbloquea_count"]
+            "uri": m["uri"], 
+            "label": m["label"], 
+            "score": 0.0, 
+            "año": m["anio"], 
+            "dificultad": m["dificultad"],
+            "dificultad_label": get_dificultad_label(m["dificultad"]),
+            "desbloquea_count": m["desbloquea_count"]
         } for m in omitidas],
         
         "arquetipo": {
@@ -335,12 +436,21 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
     texto_plan_final = "Plan Personalizado"
     
     # Obtener estrategias del arquetipo desde la ontología
-    nombre_arquetipo = perfil_data["nombre_corto"]
+    ARQUETIPO_URIS = {
+        1: "ArquetipoCritico",
+        2: "ArquetipoBajo",
+        3: "ArquetipoMedioBajo",
+        4: "ArquetipoEquilibrado",
+        5: "ArquetipoMedioAlto",
+        6: "ArquetipoSuperAlto",
+        7: "ArquetipoAtipico"
+    }
+    arquetipo_uri = ARQUETIPO_URIS.get(pid, "ArquetipoEquilibrado")
+
     query_estrategias = f"""
     PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
     SELECT ?estrategia ?orden ?descripcion ?cant ?min_req ?dificultad_req_valor WHERE {{
-        ?arquetipo fiunju:tieneNombreArquetipo "{nombre_arquetipo}"@es .
-        ?arquetipo fiunju:tieneEstrategiaExamen ?estrategia .
+        fiunju:{arquetipo_uri} fiunju:tieneEstrategiaExamen ?estrategia .
         ?estrategia fiunju:ordenPrioridad ?orden .
         ?estrategia fiunju:descripcionPlan ?descripcion .
         ?estrategia fiunju:cantidadMaterias ?cant .
