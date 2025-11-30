@@ -7,6 +7,12 @@
 fiunju:ArquetipoEstudiante a rdfs:Class ;
     owl:sameAs fiunju:ArquetipoEstudiante .
 
+fiunju:EstrategiaExamen a rdfs:Class ;
+    owl:sameAs fiunju:EstrategiaExamen .
+
+fiunju:EstrategiaRecomendacion a rdfs:Class ;
+    owl:sameAs fiunju:EstrategiaRecomendacion .
+
 fiunju:ExamenMultipleChoice a rdfs:Class ;
     rdfs:label "Examen Multiple Choice"@es ;
     fiunju:tieneDificultadExamen fiunju:ExamenNormal ;
@@ -52,65 +58,209 @@ fiunju:NivelDificultadCursada a rdfs:Class ;
 fiunju:NivelDificultadExamen a rdfs:Class ;
     owl:sameAs fiunju:NivelDificultadExamen .
 
+fiunju:TopicoAplicacionProf a rdfs:Class ;
+    rdfs:label "Aplicación Profesional"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoAplicacionProf .
+
+fiunju:TopicoAprobacionTI a fiunju:TopicoDeConsejo,
+        rdfs:Class ;
+    rdfs:label "Trabajo Integrador"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoAprobacionTI .
+
+fiunju:TopicoCriterioCorreccion a rdfs:Class ;
+    rdfs:label "Criterio de Corrección"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoCriterioCorreccion .
+
 fiunju:TopicoDeConsejo a rdfs:Class ;
     owl:sameAs fiunju:TopicoDeConsejo .
 
+fiunju:TopicoDinamicaSocial a rdfs:Class ;
+    rdfs:label "Dinámica de Grupo"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoDinamicaSocial .
+
+fiunju:TopicoErroresComunes a rdfs:Class ;
+    rdfs:label "Errores Clásicos"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoErroresComunes .
+
+fiunju:TopicoExamenEscrito a rdfs:Class ;
+    rdfs:label "Examen Escrito"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoExamenEscrito .
+
+fiunju:TopicoExamenOral a rdfs:Class ;
+    rdfs:label "Examen Oral"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoExamenOral .
+
+fiunju:TopicoFrustracion a rdfs:Class ;
+    rdfs:label "Resistencia y Mentalidad"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoFrustracion .
+
+fiunju:TopicoFuentesInfo a rdfs:Class ;
+    rdfs:label "Bibliografía vs Apuntes"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoFuentesInfo .
+
+fiunju:TopicoGestionTiempo a rdfs:Class ;
+    rdfs:label "Gestión del Tiempo"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoGestionTiempo .
+
+fiunju:TopicoImpactoEstrategico a rdfs:Class ;
+    rdfs:label "Impacto Estratégico"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoImpactoEstrategico .
+
+fiunju:TopicoMochilaTecnica a rdfs:Class ;
+    rdfs:label "Conocimiento Previo"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoMochilaTecnica .
+
+fiunju:TopicoMultipleChoice a rdfs:Class ;
+    rdfs:label "Multiple Choice"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoMultipleChoice .
+
+fiunju:TopicoRequisitoHardware a rdfs:Class ;
+    rdfs:label "Requisito de Hardware"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoRequisitoHardware .
+
+fiunju:TopicoValorClase a rdfs:Class ;
+    rdfs:label "Valor de la Clase"@es ;
+    rdfs:subClassOf fiunju:TopicoDeConsejo ;
+    owl:sameAs fiunju:TopicoValorClase .
+
+fiunju:ArquetipoAtipico a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneColorIdentificativo "brown"^^xsd:string ;
+    fiunju:tieneConsejoClave "Cuidá tus tiempos, tomá buenas notas y mantente constante para no perder promoción. Practica con materiales de otros años. Prioriza materias troncales."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_Atipico_A,
+        fiunju:EstrategiaExamen_Atipico_B ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Atipico_A,
+        fiunju:Estrategia_Atipico_B,
+        fiunju:Estrategia_Atipico_C,
+        fiunju:Estrategia_Atipico_D ;
+    fiunju:tieneNombreArquetipo "Perfil Atípico"@es ;
+    fiunju:tieneTarjetaDiagnostico """Tiempo libre de trabajo, pero los hijos interrumpen el "flujo" de estudio constante.
+* No trabajas
+* Vivis en Capital
+* No vivis solo
+* Tenes hijo/s"""@es ;
+    owl:sameAs fiunju:ArquetipoAtipico .
+
+fiunju:ArquetipoBajo a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneColorIdentificativo "orange"^^xsd:string ;
+    fiunju:tieneConsejoClave "Balancea tus prioridades a las materias que querés cursar, procura que sea una materia con menor carga horaria y con parciales accesibles. Aprovecha tus tiempos libres, para estudiar en lugares tranquilos como la facultad."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_Bajo_A,
+        fiunju:EstrategiaExamen_Bajo_B,
+        fiunju:EstrategiaExamen_Bajo_C ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Bajo_A,
+        fiunju:Estrategia_Bajo_B,
+        fiunju:Estrategia_Bajo_C,
+        fiunju:Estrategia_Bajo_D ;
+    fiunju:tieneNombreArquetipo "Perfil Bajo"@es ;
+    fiunju:tieneTarjetaDiagnostico """Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.
+* trabajas tiempo completo
+* Vivis en Capital
+* No vives solo
+* tenes hijo/s"""@es ;
+    owl:sameAs fiunju:ArquetipoBajo .
+
+fiunju:ArquetipoCritico a fiunju:ArquetipoEstudiante ;
+    fiunju:tieneColorIdentificativo "red"^^xsd:string ;
+    fiunju:tieneConsejoClave "Necesitas cursar muy pocas materias y priorizar las más fáciles. La perseverancia es clave."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_Critico_A,
+        fiunju:EstrategiaExamen_Critico_B,
+        fiunju:EstrategiaExamen_Critico_C ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Critico_A,
+        fiunju:Estrategia_Critico_B,
+        fiunju:Estrategia_Critico_C,
+        fiunju:Estrategia_Critico_D ;
+    fiunju:tieneNombreArquetipo "Perfil Crítico"@es ;
+    fiunju:tieneTarjetaDiagnostico """Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.
+* trabajas tiempo completo
+* Vivis lejos
+* vivis solo
+* tenes hijo/s"""@es ;
+    owl:sameAs fiunju:ArquetipoCritico .
+
 fiunju:ArquetipoEquilibrado a fiunju:ArquetipoEstudiante ;
     fiunju:tieneColorIdentificativo "green"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Equilibrado"@es ;
+    fiunju:tieneConsejoClave "Prioriza las materias troncales, y organízate bien para no perder la promoción. Si no entiendes un tema, asiste a consultas. Estudiar en la facultad te ayuda a concentrarte más. Resuelve parciales de años anteriores."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_Equilibrado_A,
+        fiunju:EstrategiaExamen_Equilibrado_B,
+        fiunju:EstrategiaExamen_Equilibrado_C,
+        fiunju:EstrategiaExamen_Equilibrado_D ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Equilibrado_A,
+        fiunju:Estrategia_Equilibrado_B,
+        fiunju:Estrategia_Equilibrado_C,
+        fiunju:Estrategia_Equilibrado_D ;
+    fiunju:tieneNombreArquetipo "Perfil Equilibrado"@es ;
+    fiunju:tieneTarjetaDiagnostico """Es el balance perfecto. Puede asumir carga, pero no extrema.
+* trabajas medio tiempo
+* Vivis en Capital
+* No vivis solo
+* No tenes hijo/s"""@es ;
     owl:sameAs fiunju:ArquetipoEquilibrado .
 
-fiunju:ArquetipoErmitano a fiunju:ArquetipoEstudiante ;
+fiunju:ArquetipoMedioAlto a fiunju:ArquetipoEstudiante ;
     fiunju:tieneColorIdentificativo "blue"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Ermitaño del Interior"@es ;
-    owl:sameAs fiunju:ArquetipoErmitano .
+    fiunju:tieneConsejoClave "Prioriza todas las materias, y organízate bien para no perder la promoción. No descuides tus tiempos libres, aprovéchalos para estudiar. Tenés mucho tiempo de estudio, pero vivir solo y lejos igual consume horas. Organízate, práctica parciales y usá apuntes de compañeros."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_MedioAlto_A,
+        fiunju:EstrategiaExamen_MedioAlto_B ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_MedioAlto_A,
+        fiunju:Estrategia_MedioAlto_B,
+        fiunju:Estrategia_MedioAlto_C,
+        fiunju:Estrategia_MedioAlto_D ;
+    fiunju:tieneNombreArquetipo "Perfil Medio-Alto"@es ;
+    fiunju:tieneTarjetaDiagnostico """Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la "energía mental".
+* No trabajas
+* Vivis en el Interior
+* Vivis solo
+* No tenes hijo/s"""@es ;
+    owl:sameAs fiunju:ArquetipoMedioAlto .
 
-fiunju:ArquetipoGuerrero a fiunju:ArquetipoEstudiante ;
+fiunju:ArquetipoMedioBajo a fiunju:ArquetipoEstudiante ;
     fiunju:tieneColorIdentificativo "yellow"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Guerrero Solitario"@es ;
-    owl:sameAs fiunju:ArquetipoGuerrero .
+    fiunju:tieneConsejoClave "Prioriza las materias troncales, y organízate bien para no perder la promoción. Usá parciales de años anteriores y apuntes de compañeros."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_MedioBajo_A,
+        fiunju:EstrategiaExamen_MedioBajo_B,
+        fiunju:EstrategiaExamen_MedioBajo_C ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_MedioBajo_A,
+        fiunju:Estrategia_MedioBajo_B,
+        fiunju:Estrategia_MedioBajo_C,
+        fiunju:Estrategia_MedioBajo_D ;
+    fiunju:tieneNombreArquetipo "Perfil Medio-Bajo"@es ;
+    fiunju:tieneTarjetaDiagnostico """Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.
+* trabajas medio tiempo
+* Vivis en el Interior
+* Vivis solo
+* No tenes hijo/s"""@es ;
+    owl:sameAs fiunju:ArquetipoMedioBajo .
 
-fiunju:ArquetipoHeredero a fiunju:ArquetipoEstudiante ;
+fiunju:ArquetipoSuperAlto a fiunju:ArquetipoEstudiante ;
     fiunju:tieneColorIdentificativo "violet"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Heredero del Trono"@es ;
-    owl:sameAs fiunju:ArquetipoHeredero .
-
-fiunju:ArquetipoMalabarista a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "orange"^^xsd:string ;
-    fiunju:tieneNombreArquetipo "El Malabarista Urbano"@es ;
-    owl:sameAs fiunju:ArquetipoMalabarista .
-
-fiunju:ArquetipoPadreFullTime a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "brown"^^xsd:string ;
-    fiunju:tieneConsejoBase "Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."@es ;
-    fiunju:tieneNombreArquetipo "El Padre/Madre Full-Time"@es ;
-    owl:sameAs fiunju:ArquetipoPadreFullTime .
-
-fiunju:ArquetipoSuperviviente a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneColorIdentificativo "red"^^xsd:string ;
-    fiunju:tieneConsejoBase "Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."@es ;
-    fiunju:tieneNombreArquetipo "El Superviviente"@es ;
-    owl:sameAs fiunju:ArquetipoSuperviviente .
-
-fiunju:ExamenFacil a fiunju:NivelDificultadExamen ;
-    rdfs:label "Fácil"@es ;
-    fiunju:tieneValor 1 ;
-    owl:sameAs fiunju:ExamenFacil .
-
-fiunju:FA_ColegioSecundario a fiunju:FactorAcademico ;
-    rdfs:label "Colegio Secundario (Técnica vs. Bachiller)"@es ;
-    fiunju:tienePrioridad 3 ;
-    owl:sameAs fiunju:FA_ColegioSecundario .
-
-fiunju:FA_HabitoEstudio a fiunju:FactorAcademico ;
-    rdfs:label "Hábito de Estudio (constante vs. último momento)"@es ;
-    fiunju:tienePrioridad 1 ;
-    owl:sameAs fiunju:FA_HabitoEstudio .
-
-fiunju:FA_MetodoEstudio a fiunju:FactorAcademico ;
-    rdfs:label "Método de Estudio (solo vs. grupo, leer vs. escuchar)"@es ;
-    fiunju:tienePrioridad 2 ;
-    owl:sameAs fiunju:FA_MetodoEstudio .
+    fiunju:tieneConsejoClave "Tenés el perfil con más disponibilidad. Prioriza todas las materias, y organízate bien para no perder la promoción. No te quedes libre. No descuides tus tiempos libres, aprovechalos para estudiar hace apuntes de cada tema, para estar al día."@es ;
+    fiunju:tieneEstrategiaExamen fiunju:EstrategiaExamen_SuperAlto_A,
+        fiunju:EstrategiaExamen_SuperAlto_B,
+        fiunju:EstrategiaExamen_SuperAlto_C ;
+    fiunju:tieneEstrategiaPosible fiunju:Estrategia_SuperAlto_A,
+        fiunju:Estrategia_SuperAlto_B,
+        fiunju:Estrategia_SuperAlto_C,
+        fiunju:Estrategia_SuperAlto_D ;
+    fiunju:tieneNombreArquetipo "Perfil Super Alto"@es ;
+    fiunju:tieneTarjetaDiagnostico """Disponibilidad total. Su única restricción es su propia capacidad de concentración.
+* No trabajas
+* Vivis en Capital
+* No vivis solo
+* No tenes hijo/s"""@es ;
+    owl:sameAs fiunju:ArquetipoSuperAlto .
 
 fiunju:FP_LugarResidencia a fiunju:FactorPersonal ;
     rdfs:label "Lugar de Residencia (Interior vs. Capital)"@es ;
@@ -132,43 +282,17 @@ fiunju:FP_Trabaja a fiunju:FactorPersonal ;
     fiunju:tienePrioridad 1 ;
     owl:sameAs fiunju:FP_Trabaja .
 
-fiunju:IntInnEntrep a fiunju:Materia,
-        fiunju:Optativa ;
-    rdfs:label "Introducción a la Innovación y Entrepreneurship"@es ;
-    fiunju:otorgaCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    owl:sameAs fiunju:IntInnEntrep .
+fiunju:InstanciaGeneral_Escrito a fiunju:TopicoDeConsejo,
+        fiunju:TopicoExamenEscrito ;
+    rdfs:label "Estrategia Final Escrito"@es ;
+    fiunju:descripcion "Dedica 5 minutos a leer todo antes de empezar. Sé prolijo y justifica siempre tus respuestas teóricas."@es ;
+    owl:sameAs fiunju:InstanciaGeneral_Escrito .
 
-fiunju:ModProNeg a fiunju:Materia,
-        fiunju:Optativa ;
-    rdfs:label "Modelado y Proceso de Negocios"@es ;
-    fiunju:otorgaCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    owl:sameAs fiunju:ModProNeg .
-
-fiunju:PPS a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Practica Profesional Supervisada"@es ;
-    fiunju:perteneceAlAño 5 ;
-    fiunju:requiereCreditos 270 ;
-    fiunju:requiereCuartoAnoAprobado true ;
-    owl:sameAs fiunju:PPS .
-
-fiunju:TIC a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Teoría de la Información y la Comunicación"@es ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    owl:sameAs fiunju:TIC .
-
-fiunju:TopicoExamenEscrito a fiunju:TopicoDeConsejo ;
-    rdfs:label "Preparación para Examen Escrito"@es ;
-    owl:sameAs fiunju:TopicoExamenEscrito .
-
-fiunju:tienePrioridad owl:sameAs fiunju:tienePrioridad .
+fiunju:InstanciaGeneral_Tiempo a fiunju:TopicoDeConsejo,
+        fiunju:TopicoGestionTiempo ;
+    rdfs:label "Administración Inteligente"@es ;
+    fiunju:descripcion "Asignatura de alta carga horaria. Prioriza la práctica sobre la teoría pura si estás corto de tiempo. Intenta bloques de estudio de 40min con descansos."@es ;
+    owl:sameAs fiunju:InstanciaGeneral_Tiempo .
 
 rdf:HTML a rdfs:Datatype ;
     owl:sameAs rdf:HTML .
@@ -313,27 +437,503 @@ owl:sameAs owl:sameAs owl:sameAs .
 owl:versionInfo a owl:AnnotationProperty ;
     owl:sameAs owl:versionInfo .
 
-fiunju:ExamenDificil a fiunju:NivelDificultadExamen ;
-    rdfs:label "Difícil"@es ;
-    fiunju:tieneValor 3 ;
-    owl:sameAs fiunju:ExamenDificil .
+fiunju:Consejo_BD_Cartesiano a fiunju:TopicoDeConsejo,
+        fiunju:TopicoErroresComunes ;
+    rdfs:label "Cuidado con el Producto Cartesiano"@es ;
+    fiunju:descripcion "Si olvidas el JOIN/WHERE, combinas todas las filas. Error grave que anula el ejercicio."@es ;
+    owl:sameAs fiunju:Consejo_BD_Cartesiano .
 
-fiunju:ExamenMuyDificil a fiunju:NivelDificultadExamen ;
-    rdfs:label "Muy Difícil"@es ;
-    fiunju:tieneValor 4 ;
-    owl:sameAs fiunju:ExamenMuyDificil .
+fiunju:Consejo_BD_Profesional a fiunju:TopicoAplicacionProf,
+        fiunju:TopicoDeConsejo ;
+    rdfs:label "Valor en el Mercado"@es ;
+    fiunju:descripcion "Normalización y SQL Avanzado son habilidades críticas para tu primer empleo IT."@es ;
+    owl:sameAs fiunju:Consejo_BD_Profesional .
 
-fiunju:ExamenNormal a fiunju:NivelDificultadExamen ;
-    rdfs:label "Normal"@es ;
-    fiunju:tieneValor 2 ;
-    owl:sameAs fiunju:ExamenNormal .
+fiunju:Consejo_Fisica_Resiliencia a fiunju:TopicoDeConsejo,
+        fiunju:TopicoFrustracion ;
+    rdfs:label "Resistencia al 1er Parcial"@es ;
+    fiunju:descripcion "Es normal desaprobar el primero. La mayoría regulariza en recuperatorio."@es ;
+    owl:sameAs fiunju:Consejo_Fisica_Resiliencia .
 
-fiunju:TopicoGestionTiempo a fiunju:TopicoDeConsejo ;
-    rdfs:label "Gestión del Tiempo"@es ;
-    owl:sameAs fiunju:TopicoGestionTiempo .
+fiunju:Consejo_Fisica_Unidades a fiunju:TopicoDeConsejo,
+        fiunju:TopicoErroresComunes ;
+    rdfs:label "Trampa de Unidades"@es ;
+    fiunju:descripcion "El error #1 es mezclar sistemas. Pasa siempre todo al Sistema Internacional."@es ;
+    owl:sameAs fiunju:Consejo_Fisica_Unidades .
+
+fiunju:Consejo_Intro_Logica a fiunju:TopicoDeConsejo,
+        fiunju:TopicoMochilaTecnica ;
+    rdfs:label "Lógica antes de Código"@es ;
+    fiunju:descripcion "Valoran más el pseudocódigo bien planteado que un programa que 'corre de casualidad'."@es ;
+    owl:sameAs fiunju:Consejo_Intro_Logica .
+
+fiunju:Consejo_MetProg_Grupo a fiunju:TopicoDeConsejo,
+        fiunju:TopicoDinamicaSocial ;
+    rdfs:label "El Equipo es Todo"@es ;
+    fiunju:descripcion "Busca compañeros responsables YA. Cambiar de grupo a mitad de cuatrimestre es fatal."@es ;
+    owl:sameAs fiunju:Consejo_MetProg_Grupo .
+
+fiunju:Consejo_ProgCon_Error a fiunju:TopicoDeConsejo,
+        fiunju:TopicoErroresComunes ;
+    rdfs:label "La Trampa de los Hilos"@es ;
+    fiunju:descripcion "Que corra bien una vez no significa que esté bien. Prueba múltiples ejecuciones."@es ;
+    owl:sameAs fiunju:Consejo_ProgCon_Error .
+
+fiunju:Consejo_ProgCon_HW a fiunju:TopicoDeConsejo,
+        fiunju:TopicoRequisitoHardware ;
+    rdfs:label "Entorno Java"@es ;
+    fiunju:descripcion "Lleva notebook con Java+IDE a las prácticas para probar hilos en tiempo real."@es ;
+    owl:sameAs fiunju:Consejo_ProgCon_HW .
+
+fiunju:Consejo_ProgCon_Impacto a fiunju:TopicoDeConsejo,
+        fiunju:TopicoImpactoEstrategico ;
+    rdfs:label "Prioridad Absoluta"@es ;
+    fiunju:descripcion "Es el 'tapón' de la carrera. Bloquea materias de 3ro y 4to."@es ;
+    owl:sameAs fiunju:Consejo_ProgCon_Impacto .
+
+fiunju:Consejo_SistOp_Capilla a fiunju:TopicoDeConsejo,
+        fiunju:TopicoExamenOral ;
+    rdfs:label "Estrategia de Unidad Específica"@es ;
+    fiunju:descripcion "Si rinden pocos, es Oral. Prepara un tema 'blindado' para iniciar."@es ;
+    owl:sameAs fiunju:Consejo_SistOp_Capilla .
+
+fiunju:Consejo_SistOp_Integral a fiunju:TopicoCriterioCorreccion,
+        fiunju:TopicoDeConsejo ;
+    rdfs:label "El 'Integral' Salvavidas"@es ;
+    fiunju:descripcion "Existe una última instancia: un Examen Integral Teórico-Práctico al final."@es ;
+    owl:sameAs fiunju:Consejo_SistOp_Integral .
+
+fiunju:Consejo_SistOp_Libros a fiunju:TopicoDeConsejo,
+        fiunju:TopicoFuentesInfo ;
+    rdfs:label "Libros Obligatorios"@es ;
+    fiunju:descripcion "Los apuntes no alcanzan. Apóyate en Stallings o Tanenbaum."@es ;
+    owl:sameAs fiunju:Consejo_SistOp_Libros .
+
+fiunju:Consejo_SistOp_Vidas a fiunju:TopicoDeConsejo,
+        fiunju:TopicoValorClase ;
+    rdfs:label "El Sistema de las '3 Vidas'"@es ;
+    fiunju:descripcion "Toman cuestionarios con penalización al inicio de cada teórica. Si desapruebas 3, quedas LIBRE."@es ;
+    owl:sameAs fiunju:Consejo_SistOp_Vidas .
+
+fiunju:EstrategiaExamen_Atipico_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Normal. (Condición obligatoria: busca un lugar tranquilo para estudiar y dedicate a estudiar todo el tiempo que puedas)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenMuyDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Atipico_A .
+
+fiunju:EstrategiaExamen_Atipico_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Finales Difíciles. (No recomendado salvo que tengas el apoyo total por varios días en casa)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Atipico_B .
+
+fiunju:EstrategiaExamen_Bajo_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenNormal ;
+    owl:sameAs fiunju:EstrategiaExamen_Bajo_A .
+
+fiunju:EstrategiaExamen_Bajo_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Difíciles (Solo si los exámenes están separados por 2 semanas)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Bajo_B .
+
+fiunju:EstrategiaExamen_Bajo_C a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenMuyDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Bajo_C .
+
+fiunju:EstrategiaExamen_Critico_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenNormal ;
+    owl:sameAs fiunju:EstrategiaExamen_Critico_A .
+
+fiunju:EstrategiaExamen_Critico_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Critico_B .
+
+fiunju:EstrategiaExamen_Critico_C a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenMuyDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Critico_C .
+
+fiunju:EstrategiaExamen_Equilibrado_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Normal + 1 Difícil. (Tenés las condiciones óptimas para concentrarte en temas complejos y aprovecha que tenes multiple choice en una)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Equilibrado_A .
+
+fiunju:EstrategiaExamen_Equilibrado_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Difíciles. (Solo si hay al menos 10 días de separación entre mesas de examen)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Equilibrado_B .
+
+fiunju:EstrategiaExamen_Equilibrado_C a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: 1 Difícil. (Solo tenes esta materia para rendir, tenes tiempo para estudiar.)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Equilibrado_C .
+
+fiunju:EstrategiaExamen_Equilibrado_D a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenMuyDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_Equilibrado_D .
+
+fiunju:EstrategiaExamen_MedioAlto_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 0 ;
+    fiunju:descripcionPlan "Plan A: 2 Finales (Cualquier tipo). (Al tener disponibilidad total, podés permitirte preparar dos temas en simultáneo)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    owl:sameAs fiunju:EstrategiaExamen_MedioAlto_A .
+
+fiunju:EstrategiaExamen_MedioAlto_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 0 ;
+    fiunju:descripcionPlan "Plan B: 1 Final (cualquier tipo). (Al tener disponibilidad total, podés permitirte prepararte para sacar buenas notas)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    owl:sameAs fiunju:EstrategiaExamen_MedioAlto_B .
+
+fiunju:EstrategiaExamen_MedioBajo_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Final Difícil. (Podés apuntar a nota alta si te organizas bien en tus otras tareas y dedicas tu tiempo a estudiar)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_MedioBajo_A .
+
+fiunju:EstrategiaExamen_MedioBajo_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Finales Normales. (Averigua si las fechas de ambas están en la primera y segunda semana de la mesa de examen para tener margen de estudio)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenNormal ;
+    owl:sameAs fiunju:EstrategiaExamen_MedioBajo_B .
+
+fiunju:EstrategiaExamen_MedioBajo_C a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: 1 Muy Difícil (Debes prepararte muy bien y en lo posible con un grupo de estudio)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenMuyDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_MedioBajo_C .
+
+fiunju:EstrategiaExamen_SuperAlto_A a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 0 ;
+    fiunju:descripcionPlan "Plan A: 2 Finales. (Tenes el tiempo y la capacidad para preparar dos finales de cualquier tipo)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    owl:sameAs fiunju:EstrategiaExamen_SuperAlto_A .
+
+fiunju:EstrategiaExamen_SuperAlto_B a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Difíciles + 1 Normal. (Podés prepararte para desarrollar temas extensos sin problemas de tiempo ni logística)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenDificil ;
+    owl:sameAs fiunju:EstrategiaExamen_SuperAlto_B .
+
+fiunju:EstrategiaExamen_SuperAlto_C a fiunju:EstrategiaExamen,
+        fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:descripcionPlan "Plan C: 3 materias Normales. (Busca que las fechas sean en forma escalonada para rendir una por semana y aprobarlas)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDificultadExamen fiunju:ExamenNormal ;
+    owl:sameAs fiunju:EstrategiaExamen_SuperAlto_C .
+
+fiunju:Estrategia_Atipico_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Tus tiempos libres úsalos correctamente para estudiar al 100%)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Atipico_A .
+
+fiunju:Estrategia_Atipico_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil. (Tus tiempos libres úsalos correctamente para estudiar al 100%)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Atipico_B .
+
+fiunju:Estrategia_Atipico_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan C: 2 Difíciles. (Solo es viable si tenés soporte externo o grupo de estudio virtual para no viajar tanto)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Estrategia_Atipico_C .
+
+fiunju:Estrategia_Atipico_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles. (Advertencia: Concentra todo el esfuerzo acá para asegurar el éxito sin riesgos)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Atipico_D .
+
+fiunju:Estrategia_Bajo_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan A: 2 Fáciles. (Combinación segura gracias a que tenés buen soporte en casa)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Estrategia_Bajo_A .
+
+fiunju:Estrategia_Bajo_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan B: 2 Normales. (Riesgoso: Solo recomendable si las fechas de parciales no caen en la misma semana)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Estrategia_Bajo_B .
+
+fiunju:Estrategia_Bajo_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: 1 Difícil. (Advertencia: Estudiar en lugares tranquilos como la facultad, para evitar las distracciones del entorno)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Estrategia_Bajo_C .
+
+fiunju:Estrategia_Bajo_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil. (Solo si no hay otra opción y podes concentrar toda tu atención durante toda la cursada)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Bajo_D .
+
+fiunju:Estrategia_Critico_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan A: 2 Fáciles. (Es el límite real de tu energía diaria; no te sobreexijas). "@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Estrategia_Critico_A .
+
+fiunju:Estrategia_Critico_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan B: 1 Normal. (No se recomienda cursar 2 normales, el riesgo de abandono es altísimo). "@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Estrategia_Critico_B .
+
+fiunju:Estrategia_Critico_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: 1 Difícil. (Advertencia: Solo si es la única actividad académica). "@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Estrategia_Critico_C .
+
+fiunju:Estrategia_Critico_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 1 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil. No cursar este cuatrimestre o cursar 1 Muy Difícil sabiendo que requerirá sacrificar fines de semana. "@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Critico_D .
+
+fiunju:Estrategia_Equilibrado_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Carga balanceada para no atrasarse y mantener buen ritmo)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Equilibrado_A .
+
+fiunju:Estrategia_Equilibrado_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Equilibrado_B .
+
+fiunju:Estrategia_Equilibrado_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:descripcionPlan "Plan C: 3 Normales. (Ideal para limpiar materias pendientes, pero cuidado con subestimarlas y relajarte)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Estrategia_Equilibrado_C .
+
+fiunju:Estrategia_Equilibrado_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_Equilibrado_D .
+
+fiunju:Estrategia_MedioAlto_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 4 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan A: 2 Muy Difíciles + 2 Fáciles. (Tu prioridad absoluta es estudiar, tenes tiempo, pero también lee durante tu viajes)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_MedioAlto_A .
+
+fiunju:Estrategia_MedioAlto_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 2 Difíciles. (Advertencia: Alto riesgo de saturación, aprovecha todos tus tiempos libres para estudiar)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_MedioAlto_B .
+
+fiunju:Estrategia_MedioAlto_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 4 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan C: 2 Normales + 2 Fáciles. (Aprovechá para adelantar, pero ojo con coordinar grupos viviendo lejos)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Estrategia_MedioAlto_C .
+
+fiunju:Estrategia_MedioAlto_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:descripcionPlan "Plan D: 3 Difíciles. (Límite extremo: requiere una disciplina estricta de estudio diario)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Estrategia_MedioAlto_D .
+
+fiunju:Estrategia_MedioBajo_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan A: 1 Difícil + 2 Normales. (Tenés horas libres, pero el viaje largo consume mucha energía mental)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Estrategia_MedioBajo_A .
+
+fiunju:Estrategia_MedioBajo_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:descripcionPlan "Plan B: 3 Normales. (Debes dedicarle más tiempo al estudio sin perder el ritmo)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
+    owl:sameAs fiunju:Estrategia_MedioBajo_B .
+
+fiunju:Estrategia_MedioBajo_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 2 ;
+    fiunju:descripcionPlan "Plan C: 2 Difíciles. (Riesgoso, requiere mucha disciplina y usar tus horas de viaje para leer)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
+    owl:sameAs fiunju:Estrategia_MedioBajo_C .
+
+fiunju:Estrategia_MedioBajo_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 2 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan D: 1 Muy Difícil + 1 Fácil. (Es el tope máximo de carga cognitiva para tu rutina)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_MedioBajo_D .
+
+fiunju:Estrategia_SuperAlto_A a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 4 ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:descripcionPlan "Plan A: 3 Muy Difíciles + 1 Difícil. (Tenés capacidad total, el único límite son los horarios de cursada)."@es ;
+    fiunju:ordenPrioridad 1 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_SuperAlto_A .
+
+fiunju:Estrategia_SuperAlto_B a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 5 ;
+    fiunju:cantidadMinimaRequerida 0 ;
+    fiunju:descripcionPlan "Plan B: 5 Variadas. (Priorizá correlativas; no curses por cursar si no te traban la carrera)."@es ;
+    fiunju:ordenPrioridad 2 ;
+    owl:sameAs fiunju:Estrategia_SuperAlto_B .
+
+fiunju:Estrategia_SuperAlto_C a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 5 ;
+    fiunju:cantidadMinimaRequerida 1 ;
+    fiunju:descripcionPlan "Plan C: Solo Fáciles: Máximo permitido. (Usalo para subir promedio, pero no pierdas el hábito de estudio fuerte)."@es ;
+    fiunju:ordenPrioridad 3 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
+    owl:sameAs fiunju:Estrategia_SuperAlto_C .
+
+fiunju:Estrategia_SuperAlto_D a fiunju:EstrategiaRecomendacion ;
+    fiunju:cantidadMaterias 3 ;
+    fiunju:cantidadMinimaRequerida 3 ;
+    fiunju:descripcionPlan "Plan D: 3 Muy Difíciles. (Advertencia: Si procrastinas, perdés el cuatrimestre entero; requiere constancia)."@es ;
+    fiunju:ordenPrioridad 4 ;
+    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
+    owl:sameAs fiunju:Estrategia_SuperAlto_D .
+
+fiunju:InstanciaGeneral_Choice a fiunju:TopicoDeConsejo,
+        fiunju:TopicoMultipleChoice ;
+    rdfs:label "Tips Multiple Choice"@es ;
+    fiunju:descripcion "Estudia definiciones exactas, no 'guitarrees'. Ante la duda, usa la técnica de descarte para aumentar tus probabilidades."@es ;
+    owl:sameAs fiunju:InstanciaGeneral_Choice .
+
+fiunju:InstanciaGeneral_Oral a fiunju:TopicoDeConsejo,
+        fiunju:TopicoExamenOral ;
+    rdfs:label "Claves para el Final Oral"@es ;
+    fiunju:descripcion "Prepara un 'tema de capilla' sólido para iniciar con confianza. Practica oratoria frente al espejo; evalúan tanto lo técnico como tu expresión."@es ;
+    owl:sameAs fiunju:InstanciaGeneral_Oral .
+
+fiunju:InstanciaGeneral_TI a fiunju:TopicoAprobacionTI,
+        fiunju:TopicoDeConsejo ;
+    rdfs:label "Estrategia para Trabajo Integrador"@es ;
+    fiunju:descripcion "Esta materia requiere la aprobación de un Trabajo Integrador obligatorio. No dejes la codificación para el final; la defensa es individual y debes explicar la lógica de tu código."@es ;
+    owl:sameAs fiunju:InstanciaGeneral_TI .
 
 fiunju:TopicoMaterialEstudio a fiunju:TopicoDeConsejo ;
-    rdfs:label "Material de Estudio"@es ;
     owl:sameAs fiunju:TopicoMaterialEstudio .
 
 true a xsd:boolean ;
@@ -364,6 +964,8 @@ true a xsd:boolean ;
 "yellow"^^xsd:string a xsd:string ;
     owl:sameAs "yellow"^^xsd:string .
 
+"Administración Inteligente"@es owl:sameAs "Administración Inteligente"@es .
+
 "Algebra Lineal"@es owl:sameAs "Algebra Lineal"@es .
 
 "Análisis Matemático I"@es owl:sameAs "Análisis Matemático I"@es .
@@ -374,74 +976,130 @@ true a xsd:boolean ;
 
 "Aplicaciones de Base de Datos II"@es owl:sameAs "Aplicaciones de Base de Datos II"@es .
 
-"Aprobación de Trabajos Integrador"@es owl:sameAs "Aprobación de Trabajos Integrador"@es .
+"Aplicación Profesional"@es owl:sameAs "Aplicación Profesional"@es .
 
 "Arquitectura de Computadoras Paralelas"@es owl:sameAs "Arquitectura de Computadoras Paralelas"@es .
 
 "Arquitectura de Redes"@es owl:sameAs "Arquitectura de Redes"@es .
 
+"Asignatura de alta carga horaria. Prioriza la práctica sobre la teoría pura si estás corto de tiempo. Intenta bloques de estudio de 40min con descansos."@es a xsd:string ;
+    owl:sameAs "Asignatura de alta carga horaria. Prioriza la práctica sobre la teoría pura si estás corto de tiempo. Intenta bloques de estudio de 40min con descansos."@es .
+
+"Balancea tus prioridades a las materias que querés cursar, procura que sea una materia con menor carga horaria y con parciales accesibles. Aprovecha tus tiempos libres, para estudiar en lugares tranquilos como la facultad."@es owl:sameAs "Balancea tus prioridades a las materias que querés cursar, procura que sea una materia con menor carga horaria y con parciales accesibles. Aprovecha tus tiempos libres, para estudiar en lugares tranquilos como la facultad."@es .
+
 "Bases de Datos"@es owl:sameAs "Bases de Datos"@es .
+
+"Bibliografía vs Apuntes"@es owl:sameAs "Bibliografía vs Apuntes"@es .
+
+"Busca compañeros responsables YA. Cambiar de grupo a mitad de cuatrimestre es fatal."@es a xsd:string ;
+    owl:sameAs "Busca compañeros responsables YA. Cambiar de grupo a mitad de cuatrimestre es fatal."@es .
 
 "Calidad de Software y Testing"@es owl:sameAs "Calidad de Software y Testing"@es .
 
-"Colegio Secundario (Técnica vs. Bachiller)"@es owl:sameAs "Colegio Secundario (Técnica vs. Bachiller)"@es .
+"Claves para el Final Oral"@es owl:sameAs "Claves para el Final Oral"@es .
 
 "Compiladores"@es owl:sameAs "Compiladores"@es .
 
-"Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."@es a xsd:string ;
-    owl:sameAs "Cursa en el turno opuesto al colegio de tus hijos. Es tu ventana de oro de productividad."@es .
+"Conocimiento Previo"@es owl:sameAs "Conocimiento Previo"@es .
+
+"Criterio de Corrección"@es owl:sameAs "Criterio de Corrección"@es .
+
+"Cuidado con el Producto Cartesiano"@es owl:sameAs "Cuidado con el Producto Cartesiano"@es .
+
+"Cuidá tus tiempos, tomá buenas notas y mantente constante para no perder promoción. Practica con materiales de otros años. Prioriza materias troncales."@es owl:sameAs "Cuidá tus tiempos, tomá buenas notas y mantente constante para no perder promoción. Practica con materiales de otros años. Prioriza materias troncales."@es .
 
 "Cálculo Numérico"@es owl:sameAs "Cálculo Numérico"@es .
 
-"Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."@es a xsd:string ;
-    owl:sameAs "Debido a tus tiempos, usa el Método Pomodoro Corto (sesiones de 25 min) ya que no tendrás bloques largos libres."@es .
+"Dedica 5 minutos a leer todo antes de empezar. Sé prolijo y justifica siempre tus respuestas teóricas."@es a xsd:string ;
+    owl:sameAs "Dedica 5 minutos a leer todo antes de empezar. Sé prolijo y justifica siempre tus respuestas teóricas."@es .
 
 "Desarrollo Sistemático de Programas"@es owl:sameAs "Desarrollo Sistemático de Programas"@es .
 
 "Desarrollo y Arquitecturas Avanzadas de Software"@es owl:sameAs "Desarrollo y Arquitecturas Avanzadas de Software"@es .
 
-"El Equilibrado"@es a xsd:string ;
-    owl:sameAs "El Equilibrado"@es .
+"Dinámica de Grupo"@es owl:sameAs "Dinámica de Grupo"@es .
 
-"El Ermitaño del Interior"@es a xsd:string ;
-    owl:sameAs "El Ermitaño del Interior"@es .
+"""Disponibilidad total. Su única restricción es su propia capacidad de concentración.
+* No trabajas
+* Vivis en Capital
+* No vivis solo
+* No tenes hijo/s"""@es owl:sameAs """Disponibilidad total. Su única restricción es su propia capacidad de concentración.
+* No trabajas
+* Vivis en Capital
+* No vivis solo
+* No tenes hijo/s"""@es .
 
-"El Guerrero Solitario"@es a xsd:string ;
-    owl:sameAs "El Guerrero Solitario"@es .
+"El 'Integral' Salvavidas"@es owl:sameAs "El 'Integral' Salvavidas"@es .
 
-"El Heredero del Trono"@es a xsd:string ;
-    owl:sameAs "El Heredero del Trono"@es .
+"El Equipo es Todo"@es owl:sameAs "El Equipo es Todo"@es .
 
-"El Malabarista Urbano"@es a xsd:string ;
-    owl:sameAs "El Malabarista Urbano"@es .
+"El Sistema de las '3 Vidas'"@es owl:sameAs "El Sistema de las '3 Vidas'"@es .
 
-"El Padre/Madre Full-Time"@es a xsd:string ;
-    owl:sameAs "El Padre/Madre Full-Time"@es .
-
-"El Superviviente"@es a xsd:string ;
-    owl:sameAs "El Superviviente"@es .
+"El error #1 es mezclar sistemas. Pasa siempre todo al Sistema Internacional."@es a xsd:string ;
+    owl:sameAs "El error #1 es mezclar sistemas. Pasa siempre todo al Sistema Internacional."@es .
 
 "El trabajo está relacionado con la informática"@es owl:sameAs "El trabajo está relacionado con la informática"@es .
 
 "Electricidad y Magnetismo"@es owl:sameAs "Electricidad y Magnetismo"@es .
 
+"Entorno Java"@es owl:sameAs "Entorno Java"@es .
+
+"Errores Clásicos"@es owl:sameAs "Errores Clásicos"@es .
+
+"Es el 'tapón' de la carrera. Bloquea materias de 3ro y 4to."@es a xsd:string ;
+    owl:sameAs "Es el 'tapón' de la carrera. Bloquea materias de 3ro y 4to."@es .
+
+"""Es el balance perfecto. Puede asumir carga, pero no extrema.
+* trabajas medio tiempo
+* Vivis en Capital
+* No vivis solo
+* No tenes hijo/s"""@es owl:sameAs """Es el balance perfecto. Puede asumir carga, pero no extrema.
+* trabajas medio tiempo
+* Vivis en Capital
+* No vivis solo
+* No tenes hijo/s"""@es .
+
+"Es normal desaprobar el primero. La mayoría regulariza en recuperatorio."@es a xsd:string ;
+    owl:sameAs "Es normal desaprobar el primero. La mayoría regulariza en recuperatorio."@es .
+
+"Esta materia requiere la aprobación de un Trabajo Integrador obligatorio. No dejes la codificación para el final; la defensa es individual y debes explicar la lógica de tu código."@es a xsd:string ;
+    owl:sameAs "Esta materia requiere la aprobación de un Trabajo Integrador obligatorio. No dejes la codificación para el final; la defensa es individual y debes explicar la lógica de tu código."@es .
+
+"Estrategia Final Escrito"@es owl:sameAs "Estrategia Final Escrito"@es .
+
+"Estrategia de Unidad Específica"@es owl:sameAs "Estrategia de Unidad Específica"@es .
+
+"Estrategia para Trabajo Integrador"@es owl:sameAs "Estrategia para Trabajo Integrador"@es .
+
 "Estructura de Datos"@es owl:sameAs "Estructura de Datos"@es .
 
+"Estudia definiciones exactas, no 'guitarrees'. Ante la duda, usa la técnica de descarte para aumentar tus probabilidades."@es a xsd:string ;
+    owl:sameAs "Estudia definiciones exactas, no 'guitarrees'. Ante la duda, usa la técnica de descarte para aumentar tus probabilidades."@es .
+
+"Examen Escrito"@es owl:sameAs "Examen Escrito"@es .
+
 "Examen Multiple Choice"@es owl:sameAs "Examen Multiple Choice"@es .
+
+"Examen Oral"@es owl:sameAs "Examen Oral"@es .
 
 "Examen Teórico Escrito"@es owl:sameAs "Examen Teórico Escrito"@es .
 
 "Examen Teórico Oral"@es owl:sameAs "Examen Teórico Oral"@es .
 
+"Existe una última instancia: un Examen Integral Teórico-Práctico al final."@es a xsd:string ;
+    owl:sameAs "Existe una última instancia: un Examen Integral Teórico-Práctico al final."@es .
+
 "Fisica Mecanica"@es owl:sameAs "Fisica Mecanica"@es .
 
 "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es owl:sameAs "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es .
+
+"Fácil"@es owl:sameAs "Fácil"@es .
 
 "Gestión Ambiental"@es owl:sameAs "Gestión Ambiental"@es .
 
 "Gestión del Tiempo"@es owl:sameAs "Gestión del Tiempo"@es .
 
-"Hábito de Estudio (constante vs. último momento)"@es owl:sameAs "Hábito de Estudio (constante vs. último momento)"@es .
+"Impacto Estratégico"@es owl:sameAs "Impacto Estratégico"@es .
 
 "Ingeniería de Software I"@es owl:sameAs "Ingeniería de Software I"@es .
 
@@ -451,21 +1109,29 @@ true a xsd:boolean ;
 
 "Inteligencia Artificial"@es owl:sameAs "Inteligencia Artificial"@es .
 
-"Introducción a la Innovación y Entrepreneurship"@es owl:sameAs "Introducción a la Innovación y Entrepreneurship"@es .
-
 "Introducción a la Programación"@es owl:sameAs "Introducción a la Programación"@es .
 
 "Introducción al Procesamiento Digital de Imágenes"@es owl:sameAs "Introducción al Procesamiento Digital de Imágenes"@es .
 
+"La Trampa de los Hilos"@es owl:sameAs "La Trampa de los Hilos"@es .
+
 "Legislación, Etica y Ejercicio Profesional"@es owl:sameAs "Legislación, Etica y Ejercicio Profesional"@es .
+
+"Libros Obligatorios"@es owl:sameAs "Libros Obligatorios"@es .
+
+"Lleva notebook con Java+IDE a las prácticas para probar hilos en tiempo real."@es a xsd:string ;
+    owl:sameAs "Lleva notebook con Java+IDE a las prácticas para probar hilos en tiempo real."@es .
+
+"Los apuntes no alcanzan. Apóyate en Stallings o Tanenbaum."@es a xsd:string ;
+    owl:sameAs "Los apuntes no alcanzan. Apóyate en Stallings o Tanenbaum."@es .
 
 "Lugar de Residencia (Interior vs. Capital)"@es owl:sameAs "Lugar de Residencia (Interior vs. Capital)"@es .
 
 "Lógica Computacional"@es owl:sameAs "Lógica Computacional"@es .
 
-"Matemática Discreta"@es owl:sameAs "Matemática Discreta"@es .
+"Lógica antes de Código"@es owl:sameAs "Lógica antes de Código"@es .
 
-"Material de Estudio"@es owl:sameAs "Material de Estudio"@es .
+"Matemática Discreta"@es owl:sameAs "Matemática Discreta"@es .
 
 "Metodología de la Programación"@es owl:sameAs "Metodología de la Programación"@es .
 
@@ -475,33 +1141,225 @@ true a xsd:boolean ;
 
 "Modelado y Proceso de Negocios"@es owl:sameAs "Modelado y Proceso de Negocios"@es .
 
+"Multiple Choice"@es owl:sameAs "Multiple Choice"@es .
+
 "Muy Difícil"@es owl:sameAs "Muy Difícil"@es .
 
 "Muy difícil"@es owl:sameAs "Muy difícil"@es .
 
-"Método de Estudio (solo vs. grupo, leer vs. escuchar)"@es owl:sameAs "Método de Estudio (solo vs. grupo, leer vs. escuchar)"@es .
+"Necesitas cursar muy pocas materias y priorizar las más fáciles. La perseverancia es clave."@es owl:sameAs "Necesitas cursar muy pocas materias y priorizar las más fáciles. La perseverancia es clave."@es .
 
 "Nivel de Aptitud de Ingles"@es owl:sameAs "Nivel de Aptitud de Ingles"@es .
 
 "Nivel de Suficiencia de Ingles"@es owl:sameAs "Nivel de Suficiencia de Ingles"@es .
 
+"Normalización y SQL Avanzado son habilidades críticas para tu primer empleo IT."@es a xsd:string ;
+    owl:sameAs "Normalización y SQL Avanzado son habilidades críticas para tu primer empleo IT."@es .
+
 "Organización Empresarial y Modelos de Negocios"@es owl:sameAs "Organización Empresarial y Modelos de Negocios"@es .
 
 "Organización de Computadoras"@es owl:sameAs "Organización de Computadoras"@es .
 
+"Perfil Atípico"@es a xsd:string ;
+    owl:sameAs "Perfil Atípico"@es .
+
+"Perfil Bajo"@es a xsd:string ;
+    owl:sameAs "Perfil Bajo"@es .
+
+"Perfil Crítico"@es a xsd:string ;
+    owl:sameAs "Perfil Crítico"@es .
+
+"Perfil Equilibrado"@es a xsd:string ;
+    owl:sameAs "Perfil Equilibrado"@es .
+
+"Perfil Medio-Alto"@es a xsd:string ;
+    owl:sameAs "Perfil Medio-Alto"@es .
+
+"Perfil Medio-Bajo"@es a xsd:string ;
+    owl:sameAs "Perfil Medio-Bajo"@es .
+
+"Perfil Super Alto"@es a xsd:string ;
+    owl:sameAs "Perfil Super Alto"@es .
+
+"Plan A: 1 Difícil + 2 Normales. (Tenés horas libres, pero el viaje largo consume mucha energía mental)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Difícil + 2 Normales. (Tenés horas libres, pero el viaje largo consume mucha energía mental)."@es .
+
+"Plan A: 1 Final Difícil. (Podés apuntar a nota alta si te organizas bien en tus otras tareas y dedicas tu tiempo a estudiar)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Final Difícil. (Podés apuntar a nota alta si te organizas bien en tus otras tareas y dedicas tu tiempo a estudiar)."@es .
+
+"Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Final Normal. (Ideal para mantener la constancia sin saturarte)."@es .
+
+"Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Carga balanceada para no atrasarse y mantener buen ritmo)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Carga balanceada para no atrasarse y mantener buen ritmo)."@es .
+
+"Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Tus tiempos libres úsalos correctamente para estudiar al 100%)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Tus tiempos libres úsalos correctamente para estudiar al 100%)."@es .
+
+"Plan A: 1 Muy Difícil + 1 Normal. (Condición obligatoria: busca un lugar tranquilo para estudiar y dedicate a estudiar todo el tiempo que puedas)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Muy Difícil + 1 Normal. (Condición obligatoria: busca un lugar tranquilo para estudiar y dedicate a estudiar todo el tiempo que puedas)."@es .
+
+"Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Normal + 1 Difícil. (Aprovechá que una es múltiple choice y ve a consulta para ganar tiempo)."@es .
+
+"Plan A: 1 Normal + 1 Difícil. (Tenés las condiciones óptimas para concentrarte en temas complejos y aprovecha que tenes multiple choice en una)."@es a xsd:string ;
+    owl:sameAs "Plan A: 1 Normal + 1 Difícil. (Tenés las condiciones óptimas para concentrarte en temas complejos y aprovecha que tenes multiple choice en una)."@es .
+
+"Plan A: 2 Finales (Cualquier tipo). (Al tener disponibilidad total, podés permitirte preparar dos temas en simultáneo)."@es a xsd:string ;
+    owl:sameAs "Plan A: 2 Finales (Cualquier tipo). (Al tener disponibilidad total, podés permitirte preparar dos temas en simultáneo)."@es .
+
+"Plan A: 2 Finales. (Tenes el tiempo y la capacidad para preparar dos finales de cualquier tipo)."@es a xsd:string ;
+    owl:sameAs "Plan A: 2 Finales. (Tenes el tiempo y la capacidad para preparar dos finales de cualquier tipo)."@es .
+
+"Plan A: 2 Fáciles. (Combinación segura gracias a que tenés buen soporte en casa)."@es a xsd:string ;
+    owl:sameAs "Plan A: 2 Fáciles. (Combinación segura gracias a que tenés buen soporte en casa)."@es .
+
+"Plan A: 2 Fáciles. (Es el límite real de tu energía diaria; no te sobreexijas). "@es a xsd:string ;
+    owl:sameAs "Plan A: 2 Fáciles. (Es el límite real de tu energía diaria; no te sobreexijas). "@es .
+
+"Plan A: 2 Muy Difíciles + 2 Fáciles. (Tu prioridad absoluta es estudiar, tenes tiempo, pero también lee durante tu viajes)."@es a xsd:string ;
+    owl:sameAs "Plan A: 2 Muy Difíciles + 2 Fáciles. (Tu prioridad absoluta es estudiar, tenes tiempo, pero también lee durante tu viajes)."@es .
+
+"Plan A: 3 Muy Difíciles + 1 Difícil. (Tenés capacidad total, el único límite son los horarios de cursada)."@es a xsd:string ;
+    owl:sameAs "Plan A: 3 Muy Difíciles + 1 Difícil. (Tenés capacidad total, el único límite son los horarios de cursada)."@es .
+
+"Plan B: 1 Final (cualquier tipo). (Al tener disponibilidad total, podés permitirte prepararte para sacar buenas notas)."@es a xsd:string ;
+    owl:sameAs "Plan B: 1 Final (cualquier tipo). (Al tener disponibilidad total, podés permitirte prepararte para sacar buenas notas)."@es .
+
+"Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados)."@es a xsd:string ;
+    owl:sameAs "Plan B: 1 Final Difícil. (Advertencia: Preparalo con tiempo, tus bloques de estudio son cortos y fragmentados)."@es .
+
+"Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil. (Tus tiempos libres úsalos correctamente para estudiar al 100%)."@es a xsd:string ;
+    owl:sameAs "Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil. (Tus tiempos libres úsalos correctamente para estudiar al 100%)."@es .
+
+"Plan B: 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas)."@es a xsd:string ;
+    owl:sameAs "Plan B: 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas)."@es .
+
+"Plan B: 1 Muy Difícil + 2 Difíciles. (Advertencia: Alto riesgo de saturación, aprovecha todos tus tiempos libres para estudiar)."@es a xsd:string ;
+    owl:sameAs "Plan B: 1 Muy Difícil + 2 Difíciles. (Advertencia: Alto riesgo de saturación, aprovecha todos tus tiempos libres para estudiar)."@es .
+
+"Plan B: 1 Normal. (No se recomienda cursar 2 normales, el riesgo de abandono es altísimo). "@es a xsd:string ;
+    owl:sameAs "Plan B: 1 Normal. (No se recomienda cursar 2 normales, el riesgo de abandono es altísimo). "@es .
+
+"Plan B: 2 Difíciles (Solo si los exámenes están separados por 2 semanas)."@es a xsd:string ;
+    owl:sameAs "Plan B: 2 Difíciles (Solo si los exámenes están separados por 2 semanas)."@es .
+
+"Plan B: 2 Difíciles + 1 Normal. (Podés prepararte para desarrollar temas extensos sin problemas de tiempo ni logística)."@es a xsd:string ;
+    owl:sameAs "Plan B: 2 Difíciles + 1 Normal. (Podés prepararte para desarrollar temas extensos sin problemas de tiempo ni logística)."@es .
+
+"Plan B: 2 Difíciles. (Solo si hay al menos 10 días de separación entre mesas de examen)."@es a xsd:string ;
+    owl:sameAs "Plan B: 2 Difíciles. (Solo si hay al menos 10 días de separación entre mesas de examen)."@es .
+
+"Plan B: 2 Finales Difíciles. (No recomendado salvo que tengas el apoyo total por varios días en casa)."@es a xsd:string ;
+    owl:sameAs "Plan B: 2 Finales Difíciles. (No recomendado salvo que tengas el apoyo total por varios días en casa)."@es .
+
+"Plan B: 2 Finales Normales. (Averigua si las fechas de ambas están en la primera y segunda semana de la mesa de examen para tener margen de estudio)."@es a xsd:string ;
+    owl:sameAs "Plan B: 2 Finales Normales. (Averigua si las fechas de ambas están en la primera y segunda semana de la mesa de examen para tener margen de estudio)."@es .
+
+"Plan B: 2 Normales. (Riesgoso: Solo recomendable si las fechas de parciales no caen en la misma semana)."@es a xsd:string ;
+    owl:sameAs "Plan B: 2 Normales. (Riesgoso: Solo recomendable si las fechas de parciales no caen en la misma semana)."@es .
+
+"Plan B: 3 Normales. (Debes dedicarle más tiempo al estudio sin perder el ritmo)."@es a xsd:string ;
+    owl:sameAs "Plan B: 3 Normales. (Debes dedicarle más tiempo al estudio sin perder el ritmo)."@es .
+
+"Plan B: 5 Variadas. (Priorizá correlativas; no curses por cursar si no te traban la carrera)."@es a xsd:string ;
+    owl:sameAs "Plan B: 5 Variadas. (Priorizá correlativas; no curses por cursar si no te traban la carrera)."@es .
+
+"Plan C: 1 Difícil. (Advertencia: Estudiar en lugares tranquilos como la facultad, para evitar las distracciones del entorno)."@es a xsd:string ;
+    owl:sameAs "Plan C: 1 Difícil. (Advertencia: Estudiar en lugares tranquilos como la facultad, para evitar las distracciones del entorno)."@es .
+
+"Plan C: 1 Difícil. (Advertencia: Solo si es la única actividad académica). "@es a xsd:string ;
+    owl:sameAs "Plan C: 1 Difícil. (Advertencia: Solo si es la única actividad académica). "@es .
+
+"Plan C: 1 Difícil. (Solo tenes esta materia para rendir, tenes tiempo para estudiar.)."@es a xsd:string ;
+    owl:sameAs "Plan C: 1 Difícil. (Solo tenes esta materia para rendir, tenes tiempo para estudiar.)."@es .
+
+"Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."@es a xsd:string ;
+    owl:sameAs "Plan C: 1 Final Muy Difícil. No rendir finales complejos mientras se cursa. Postergar para fechas sin cursada."@es .
+
+"Plan C: 1 Muy Difícil (Debes prepararte muy bien y en lo posible con un grupo de estudio)."@es a xsd:string ;
+    owl:sameAs "Plan C: 1 Muy Difícil (Debes prepararte muy bien y en lo posible con un grupo de estudio)."@es .
+
+"Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."@es a xsd:string ;
+    owl:sameAs "Plan C: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."@es .
+
+"Plan C: 2 Difíciles. (Riesgoso, requiere mucha disciplina y usar tus horas de viaje para leer)."@es a xsd:string ;
+    owl:sameAs "Plan C: 2 Difíciles. (Riesgoso, requiere mucha disciplina y usar tus horas de viaje para leer)."@es .
+
+"Plan C: 2 Difíciles. (Solo es viable si tenés soporte externo o grupo de estudio virtual para no viajar tanto)."@es a xsd:string ;
+    owl:sameAs "Plan C: 2 Difíciles. (Solo es viable si tenés soporte externo o grupo de estudio virtual para no viajar tanto)."@es .
+
+"Plan C: 2 Normales + 2 Fáciles. (Aprovechá para adelantar, pero ojo con coordinar grupos viviendo lejos)."@es a xsd:string ;
+    owl:sameAs "Plan C: 2 Normales + 2 Fáciles. (Aprovechá para adelantar, pero ojo con coordinar grupos viviendo lejos)."@es .
+
+"Plan C: 3 Normales. (Ideal para limpiar materias pendientes, pero cuidado con subestimarlas y relajarte)."@es a xsd:string ;
+    owl:sameAs "Plan C: 3 Normales. (Ideal para limpiar materias pendientes, pero cuidado con subestimarlas y relajarte)."@es .
+
+"Plan C: 3 materias Normales. (Busca que las fechas sean en forma escalonada para rendir una por semana y aprobarlas)."@es a xsd:string ;
+    owl:sameAs "Plan C: 3 materias Normales. (Busca que las fechas sean en forma escalonada para rendir una por semana y aprobarlas)."@es .
+
+"Plan C: Solo Fáciles: Máximo permitido. (Usalo para subir promedio, pero no pierdas el hábito de estudio fuerte)."@es a xsd:string ;
+    owl:sameAs "Plan C: Solo Fáciles: Máximo permitido. (Usalo para subir promedio, pero no pierdas el hábito de estudio fuerte)."@es .
+
+"Plan D: 1 Muy Difícil + 1 Fácil. (Es el tope máximo de carga cognitiva para tu rutina)."@es a xsd:string ;
+    owl:sameAs "Plan D: 1 Muy Difícil + 1 Fácil. (Es el tope máximo de carga cognitiva para tu rutina)."@es .
+
+"Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."@es a xsd:string ;
+    owl:sameAs "Plan D: 1 Muy Difícil. (No se recomiendan 2 muy difíciles; el cansancio diario te va a jugar en contra)."@es .
+
+"Plan D: 1 Muy Difícil. (Solo si no hay otra opción y podes concentrar toda tu atención durante toda la cursada)."@es a xsd:string ;
+    owl:sameAs "Plan D: 1 Muy Difícil. (Solo si no hay otra opción y podes concentrar toda tu atención durante toda la cursada)."@es .
+
+"Plan D: 1 Muy Difícil. No cursar este cuatrimestre o cursar 1 Muy Difícil sabiendo que requerirá sacrificar fines de semana. "@es a xsd:string ;
+    owl:sameAs "Plan D: 1 Muy Difícil. No cursar este cuatrimestre o cursar 1 Muy Difícil sabiendo que requerirá sacrificar fines de semana. "@es .
+
+"Plan D: 2 Muy Difíciles. (Advertencia: Concentra todo el esfuerzo acá para asegurar el éxito sin riesgos)."@es a xsd:string ;
+    owl:sameAs "Plan D: 2 Muy Difíciles. (Advertencia: Concentra todo el esfuerzo acá para asegurar el éxito sin riesgos)."@es .
+
+"Plan D: 2 Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas)."@es a xsd:string ;
+    owl:sameAs "Plan D: 2 Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas)."@es .
+
+"Plan D: 3 Difíciles. (Límite extremo: requiere una disciplina estricta de estudio diario)."@es a xsd:string ;
+    owl:sameAs "Plan D: 3 Difíciles. (Límite extremo: requiere una disciplina estricta de estudio diario)."@es .
+
+"Plan D: 3 Muy Difíciles. (Advertencia: Si procrastinas, perdés el cuatrimestre entero; requiere constancia)."@es a xsd:string ;
+    owl:sameAs "Plan D: 3 Muy Difíciles. (Advertencia: Si procrastinas, perdés el cuatrimestre entero; requiere constancia)."@es .
+
 "Practica Profesional Supervisada"@es owl:sameAs "Practica Profesional Supervisada"@es .
 
-"Preparación para Examen Escrito"@es owl:sameAs "Preparación para Examen Escrito"@es .
+"Prepara un 'tema de capilla' sólido para iniciar con confianza. Practica oratoria frente al espejo; evalúan tanto lo técnico como tu expresión."@es a xsd:string ;
+    owl:sameAs "Prepara un 'tema de capilla' sólido para iniciar con confianza. Practica oratoria frente al espejo; evalúan tanto lo técnico como tu expresión."@es .
 
-"Preparación para Examen Oral"@es owl:sameAs "Preparación para Examen Oral"@es .
+"Prioridad Absoluta"@es owl:sameAs "Prioridad Absoluta"@es .
+
+"Prioriza las materias troncales, y organízate bien para no perder la promoción. Si no entiendes un tema, asiste a consultas. Estudiar en la facultad te ayuda a concentrarte más. Resuelve parciales de años anteriores."@es owl:sameAs "Prioriza las materias troncales, y organízate bien para no perder la promoción. Si no entiendes un tema, asiste a consultas. Estudiar en la facultad te ayuda a concentrarte más. Resuelve parciales de años anteriores."@es .
+
+"Prioriza las materias troncales, y organízate bien para no perder la promoción. Usá parciales de años anteriores y apuntes de compañeros."@es owl:sameAs "Prioriza las materias troncales, y organízate bien para no perder la promoción. Usá parciales de años anteriores y apuntes de compañeros."@es .
+
+"Prioriza todas las materias, y organízate bien para no perder la promoción. No descuides tus tiempos libres, aprovéchalos para estudiar. Tenés mucho tiempo de estudio, pero vivir solo y lejos igual consume horas. Organízate, práctica parciales y usá apuntes de compañeros."@es owl:sameAs "Prioriza todas las materias, y organízate bien para no perder la promoción. No descuides tus tiempos libres, aprovéchalos para estudiar. Tenés mucho tiempo de estudio, pero vivir solo y lejos igual consume horas. Organízate, práctica parciales y usá apuntes de compañeros."@es .
 
 "Probabilidad y Estadística"@es owl:sameAs "Probabilidad y Estadística"@es .
 
 "Programación Concurrente"@es owl:sameAs "Programación Concurrente"@es .
 
+"Que corra bien una vez no significa que esté bien. Prueba múltiples ejecuciones."@es a xsd:string ;
+    owl:sameAs "Que corra bien una vez no significa que esté bien. Prueba múltiples ejecuciones."@es .
+
 "Recuperación Avanzada de la Información"@es owl:sameAs "Recuperación Avanzada de la Información"@es .
 
+"Requisito de Hardware"@es owl:sameAs "Requisito de Hardware"@es .
+
+"Resistencia al 1er Parcial"@es owl:sameAs "Resistencia al 1er Parcial"@es .
+
+"Resistencia y Mentalidad"@es owl:sameAs "Resistencia y Mentalidad"@es .
+
 "Seguridad y Auditoria informatica"@es owl:sameAs "Seguridad y Auditoria informatica"@es .
+
+"Si olvidas el JOIN/WHERE, combinas todas las filas. Error grave que anula el ejercicio."@es a xsd:string ;
+    owl:sameAs "Si olvidas el JOIN/WHERE, combinas todas las filas. Error grave que anula el ejercicio."@es .
+
+"Si rinden pocos, es Oral. Prepara un tema 'blindado' para iniciar."@es a xsd:string ;
+    owl:sameAs "Si rinden pocos, es Oral. Prepara un tema 'blindado' para iniciar."@es .
 
 "Sistemas Inteligentes"@es owl:sameAs "Sistemas Inteligentes"@es .
 
@@ -517,11 +1375,79 @@ true a xsd:boolean ;
 
 "Taller de Metodología de la Investigación Científica"@es owl:sameAs "Taller de Metodología de la Investigación Científica"@es .
 
+"Tenés el perfil con más disponibilidad. Prioriza todas las materias, y organízate bien para no perder la promoción. No te quedes libre. No descuides tus tiempos libres, aprovechalos para estudiar hace apuntes de cada tema, para estar al día."@es owl:sameAs "Tenés el perfil con más disponibilidad. Prioriza todas las materias, y organízate bien para no perder la promoción. No te quedes libre. No descuides tus tiempos libres, aprovechalos para estudiar hace apuntes de cada tema, para estar al día."@es .
+
 "Teoria de Automatas, lenguajes y Computación"@es owl:sameAs "Teoria de Automatas, lenguajes y Computación"@es .
 
 "Teoría de la Información y la Comunicación"@es owl:sameAs "Teoría de la Información y la Comunicación"@es .
 
+"""Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la "energía mental".
+* No trabajas
+* Vivis en el Interior
+* Vivis solo
+* No tenes hijo/s"""@es owl:sameAs """Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la "energía mental".
+* No trabajas
+* Vivis en el Interior
+* Vivis solo
+* No tenes hijo/s"""@es .
+
+"""Tiempo libre de trabajo, pero los hijos interrumpen el "flujo" de estudio constante.
+* No trabajas
+* Vivis en Capital
+* No vivis solo
+* Tenes hijo/s"""@es owl:sameAs """Tiempo libre de trabajo, pero los hijos interrumpen el "flujo" de estudio constante.
+* No trabajas
+* Vivis en Capital
+* No vivis solo
+* Tenes hijo/s"""@es .
+
+"""Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.
+* trabajas medio tiempo
+* Vivis en el Interior
+* Vivis solo
+* No tenes hijo/s"""@es owl:sameAs """Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.
+* trabajas medio tiempo
+* Vivis en el Interior
+* Vivis solo
+* No tenes hijo/s"""@es .
+
+"""Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.
+* trabajas tiempo completo
+* Vivis en Capital
+* No vives solo
+* tenes hijo/s"""@es owl:sameAs """Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.
+* trabajas tiempo completo
+* Vivis en Capital
+* No vives solo
+* tenes hijo/s"""@es .
+
+"Tips Multiple Choice"@es owl:sameAs "Tips Multiple Choice"@es .
+
+"Toman cuestionarios con penalización al inicio de cada teórica. Si desapruebas 3, quedas LIBRE."@es a xsd:string ;
+    owl:sameAs "Toman cuestionarios con penalización al inicio de cada teórica. Si desapruebas 3, quedas LIBRE."@es .
+
 "Trabaja"@es owl:sameAs "Trabaja"@es .
+
+"Trabajo Integrador"@es owl:sameAs "Trabajo Integrador"@es .
+
+"Trampa de Unidades"@es owl:sameAs "Trampa de Unidades"@es .
+
+"""Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.
+* trabajas tiempo completo
+* Vivis lejos
+* vivis solo
+* tenes hijo/s"""@es owl:sameAs """Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.
+* trabajas tiempo completo
+* Vivis lejos
+* vivis solo
+* tenes hijo/s"""@es .
+
+"Valor de la Clase"@es owl:sameAs "Valor de la Clase"@es .
+
+"Valor en el Mercado"@es owl:sameAs "Valor en el Mercado"@es .
+
+"Valoran más el pseudocódigo bien planteado que un programa que 'corre de casualidad'."@es a xsd:string ;
+    owl:sameAs "Valoran más el pseudocódigo bien planteado que un programa que 'corre de casualidad'."@es .
 
 fiunju:LegEticaProf a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -534,37 +1460,63 @@ fiunju:LegEticaProf a fiunju:Materia,
         fiunju:NivSufIng ;
     owl:sameAs fiunju:LegEticaProf .
 
-fiunju:MatDisc a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Matemática Discreta"@es ;
-    fiunju:esRequisitoPara fiunju:SistInt ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal ;
-    owl:sameAs fiunju:MatDisc .
-
 fiunju:MateriaDeAltoEsfuerzo rdfs:subClassOf fiunju:Materia ;
     owl:sameAs fiunju:MateriaDeAltoEsfuerzo .
 
-fiunju:TopicoAprobacionTI a fiunju:TopicoDeConsejo ;
-    rdfs:label "Aprobación de Trabajos Integrador"@es ;
-    owl:sameAs fiunju:TopicoAprobacionTI .
+fiunju:TIC a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Teoría de la Información y la Comunicación"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:OrgComp ;
+    owl:sameAs fiunju:TIC .
 
-fiunju:TopicoExamenOral a fiunju:TopicoDeConsejo ;
-    rdfs:label "Preparación para Examen Oral"@es ;
-    owl:sameAs fiunju:TopicoExamenOral .
+fiunju:cantidadMaterias a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:integer ;
+    rdfs:subPropertyOf fiunju:cantidadMaterias ;
+    owl:equivalentProperty fiunju:cantidadMaterias ;
+    owl:sameAs fiunju:cantidadMaterias .
+
+fiunju:cantidadMinimaRequerida a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:integer ;
+    rdfs:subPropertyOf fiunju:cantidadMinimaRequerida ;
+    owl:equivalentProperty fiunju:cantidadMinimaRequerida ;
+    owl:sameAs fiunju:cantidadMinimaRequerida .
 
 fiunju:comentarioExperto a owl:DatatypeProperty ;
     rdfs:subPropertyOf fiunju:comentarioExperto ;
     owl:equivalentProperty fiunju:comentarioExperto ;
     owl:sameAs fiunju:comentarioExperto .
 
+fiunju:descripcion a owl:DatatypeProperty ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf fiunju:descripcion ;
+    owl:equivalentProperty fiunju:descripcion ;
+    owl:sameAs fiunju:descripcion .
+
+fiunju:descripcionPlan a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:string ;
+    rdfs:subPropertyOf fiunju:descripcionPlan ;
+    owl:equivalentProperty fiunju:descripcionPlan ;
+    owl:sameAs fiunju:descripcionPlan .
+
 fiunju:esMasDificilQue a owl:ObjectProperty,
         owl:TransitiveProperty ;
     rdfs:subPropertyOf fiunju:esMasDificilQue ;
     owl:equivalentProperty fiunju:esMasDificilQue ;
     owl:sameAs fiunju:esMasDificilQue .
+
+fiunju:ordenPrioridad a owl:DatatypeProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range xsd:integer ;
+    rdfs:subPropertyOf fiunju:ordenPrioridad ;
+    owl:equivalentProperty fiunju:ordenPrioridad ;
+    owl:sameAs fiunju:ordenPrioridad .
 
 fiunju:otorgaCreditos a owl:DatatypeProperty ;
     rdfs:domain fiunju:Materia ;
@@ -595,6 +1547,20 @@ fiunju:requiereCuartoAnoAprobado a owl:DatatypeProperty ;
     owl:equivalentProperty fiunju:requiereCuartoAnoAprobado ;
     owl:sameAs fiunju:requiereCuartoAnoAprobado .
 
+fiunju:requiereDificultadExamen a owl:ObjectProperty ;
+    rdfs:domain fiunju:EstrategiaExamen ;
+    rdfs:range fiunju:NivelDificultadExamen ;
+    rdfs:subPropertyOf fiunju:requiereDificultadExamen ;
+    owl:equivalentProperty fiunju:requiereDificultadExamen ;
+    owl:sameAs fiunju:requiereDificultadExamen .
+
+fiunju:requiereDisponibilidadDe a owl:ObjectProperty ;
+    rdfs:domain fiunju:EstrategiaRecomendacion ;
+    rdfs:range fiunju:NivelDificultadCursada ;
+    rdfs:subPropertyOf fiunju:requiereDisponibilidadDe ;
+    owl:equivalentProperty fiunju:requiereDisponibilidadDe ;
+    owl:sameAs fiunju:requiereDisponibilidadDe .
+
 fiunju:tieneColorIdentificativo a owl:DatatypeProperty ;
     rdfs:domain fiunju:ArquetipoEstudiante ;
     rdfs:range xsd:string ;
@@ -609,6 +1575,11 @@ fiunju:tieneConsejoBase a owl:DatatypeProperty ;
     owl:equivalentProperty fiunju:tieneConsejoBase ;
     owl:sameAs fiunju:tieneConsejoBase .
 
+fiunju:tieneConsejoClave a owl:DatatypeProperty ;
+    rdfs:subPropertyOf fiunju:tieneConsejoClave ;
+    owl:equivalentProperty fiunju:tieneConsejoClave ;
+    owl:sameAs fiunju:tieneConsejoClave .
+
 fiunju:tieneDificultadCursada a owl:FunctionalProperty,
         owl:ObjectProperty ;
     rdfs:subPropertyOf fiunju:tieneDificultadCursada ;
@@ -619,6 +1590,20 @@ fiunju:tieneDificultadExamen a owl:ObjectProperty ;
     rdfs:subPropertyOf fiunju:tieneDificultadExamen ;
     owl:equivalentProperty fiunju:tieneDificultadExamen ;
     owl:sameAs fiunju:tieneDificultadExamen .
+
+fiunju:tieneEstrategiaExamen a owl:ObjectProperty ;
+    rdfs:domain fiunju:ArquetipoEstudiante ;
+    rdfs:range fiunju:EstrategiaExamen ;
+    rdfs:subPropertyOf fiunju:tieneEstrategiaExamen ;
+    owl:equivalentProperty fiunju:tieneEstrategiaExamen ;
+    owl:sameAs fiunju:tieneEstrategiaExamen .
+
+fiunju:tieneEstrategiaPosible a owl:ObjectProperty ;
+    rdfs:domain fiunju:ArquetipoEstudiante ;
+    rdfs:range fiunju:EstrategiaRecomendacion ;
+    rdfs:subPropertyOf fiunju:tieneEstrategiaPosible ;
+    owl:equivalentProperty fiunju:tieneEstrategiaPosible ;
+    owl:sameAs fiunju:tieneEstrategiaPosible .
 
 fiunju:tieneModalidadExamen a owl:ObjectProperty ;
     rdfs:subPropertyOf fiunju:tieneModalidadExamen ;
@@ -632,11 +1617,21 @@ fiunju:tieneNombreArquetipo a owl:DatatypeProperty ;
     owl:equivalentProperty fiunju:tieneNombreArquetipo ;
     owl:sameAs fiunju:tieneNombreArquetipo .
 
+fiunju:tienePrioridad a owl:DatatypeProperty ;
+    rdfs:subPropertyOf fiunju:tienePrioridad ;
+    owl:equivalentProperty fiunju:tienePrioridad ;
+    owl:sameAs fiunju:tienePrioridad .
+
 fiunju:tieneRequisito a owl:ObjectProperty ;
     rdfs:subPropertyOf fiunju:tieneRequisito ;
     owl:equivalentProperty fiunju:tieneRequisito ;
     owl:inverseOf fiunju:esRequisitoPara ;
     owl:sameAs fiunju:tieneRequisito .
+
+fiunju:tieneTarjetaDiagnostico a owl:DatatypeProperty ;
+    rdfs:subPropertyOf fiunju:tieneTarjetaDiagnostico ;
+    owl:equivalentProperty fiunju:tieneTarjetaDiagnostico ;
+    owl:sameAs fiunju:tieneTarjetaDiagnostico .
 
 fiunju:tieneTopicoRelevante a owl:ObjectProperty ;
     rdfs:domain fiunju:Materia ;
@@ -669,67 +1664,18 @@ owl:TransitiveProperty owl:sameAs owl:TransitiveProperty .
 
 "Difícil"@es owl:sameAs "Difícil"@es .
 
-"Fácil"@es owl:sameAs "Fácil"@es .
-
 "Normal"@es owl:sameAs "Normal"@es .
 
-fiunju:DesSistProg a fiunju:Materia,
+fiunju:MatDisc a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Desarrollo Sistemático de Programas"@es ;
+    rdfs:label "Matemática Discreta"@es ;
+    fiunju:esRequisitoPara fiunju:PPS,
+        fiunju:SistInt ;
     fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice,
-        fiunju:ExamenTeoricoEscrito ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    owl:sameAs fiunju:DesSistProg .
-
-fiunju:ElecMag a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Electricidad y Magnetismo"@es ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal,
-        fiunju:AnalMatemI,
-        fiunju:FisicaMec ;
-    owl:sameAs fiunju:ElecMag .
-
-fiunju:FEPIED a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es ;
-    fiunju:perteneceAlAño 4 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    owl:sameAs fiunju:FEPIED .
-
-fiunju:FisicaMec a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Fisica Mecanica"@es ;
-    fiunju:esRequisitoPara fiunju:ElecMag ;
-    fiunju:perteneceAlAño 1 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal,
-        fiunju:AnalMatemI ;
-    owl:sameAs fiunju:FisicaMec .
-
-fiunju:OEMN a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Organización Empresarial y Modelos de Negocios"@es ;
-    fiunju:perteneceAlAño 3 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    owl:sameAs fiunju:OEMN .
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal ;
+    owl:sameAs fiunju:MatDisc .
 
 fiunju:esRequisitoPara a owl:ObjectProperty,
         owl:TransitiveProperty ;
@@ -774,30 +1720,6 @@ fiunju:ABDII a fiunju:Materia,
         fiunju:MetProg ;
     owl:sameAs fiunju:ABDII .
 
-fiunju:CalSoftTest a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Calidad de Software y Testing"@es ;
-    fiunju:perteneceAlAño 4 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg,
-        fiunju:ModOrientObjetos ;
-    owl:sameAs fiunju:CalSoftTest .
-
-fiunju:CalcNum a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Cálculo Numérico"@es ;
-    fiunju:esRequisitoPara fiunju:MetSim,
-        fiunju:SistInt ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AnalMatemI,
-        fiunju:AnalMatemII ;
-    owl:sameAs fiunju:CalcNum .
-
 fiunju:Compiladores a fiunju:Materia,
         fiunju:Optativa ;
     rdfs:label "Compiladores"@es ;
@@ -819,6 +1741,59 @@ fiunju:DesArqAvanSoft a fiunju:Materia,
         fiunju:MetProg,
         fiunju:ModOrientObjetos ;
     owl:sameAs fiunju:DesArqAvanSoft .
+
+fiunju:DesSistProg a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Desarrollo Sistemático de Programas"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice,
+        fiunju:ExamenTeoricoEscrito ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:DesSistProg .
+
+fiunju:ElecMag a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Electricidad y Magnetismo"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
+        fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI,
+        fiunju:FisicaMec ;
+    owl:sameAs fiunju:ElecMag .
+
+fiunju:FEPIED a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Formulacion, Evaluacion de Proyectos Informáticos y Emprendedorismo Digital"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:FEPIED .
+
+fiunju:FisicaMec a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Fisica Mecanica"@es ;
+    fiunju:esRequisitoPara fiunju:ElecMag,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 1 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
+        fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI ;
+    fiunju:tieneTopicoRelevante fiunju:Consejo_Fisica_Resiliencia,
+        fiunju:Consejo_Fisica_Unidades ;
+    owl:sameAs fiunju:FisicaMec .
 
 fiunju:GestAmbiental a fiunju:Materia,
         fiunju:Optativa ;
@@ -842,17 +1817,18 @@ fiunju:IPDI a fiunju:Materia,
         fiunju:ProgCon ;
     owl:sameAs fiunju:IPDI .
 
-fiunju:LogComp a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Lógica Computacional"@es ;
-    fiunju:esRequisitoPara fiunju:IngCon,
-        fiunju:IntArt,
-        fiunju:TeoAutoLengComp ;
-    fiunju:perteneceAlAño 3 ;
+fiunju:ModProNeg a fiunju:Materia,
+        fiunju:Optativa ;
+    rdfs:label "Modelado y Proceso de Negocios"@es ;
+    fiunju:otorgaCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal ;
-    owl:sameAs fiunju:LogComp .
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
+        fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:OEMN ;
+    owl:sameAs fiunju:ModProNeg .
 
 fiunju:RaIn a fiunju:Materia,
         fiunju:Optativa ;
@@ -888,20 +1864,40 @@ fiunju:TallerMetInvCient a fiunju:Materia,
         fiunju:ProbEstad ;
     owl:sameAs fiunju:TallerMetInvCient .
 
-fiunju:BaseDatos a fiunju:Materia,
+0 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 0 .
+
+fiunju:CalSoftTest a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Bases de Datos"@es ;
-    fiunju:esRequisitoPara fiunju:ABDI,
-        fiunju:ABDII ;
+    rdfs:label "Calidad de Software y Testing"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:ModOrientObjetos ;
+    owl:sameAs fiunju:CalSoftTest .
+
+fiunju:CalcNum a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Cálculo Numérico"@es ;
+    fiunju:esRequisitoPara fiunju:MetSim,
+        fiunju:PPS,
+        fiunju:SistInt ;
     fiunju:perteneceAlAño 2 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
     fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoExamenOral,
-        fiunju:TopicoMaterialEstudio ;
-    owl:sameAs fiunju:BaseDatos .
+    fiunju:tieneRequisito fiunju:AnalMatemI,
+        fiunju:AnalMatemII ;
+    owl:sameAs fiunju:CalcNum .
+
+fiunju:ExamenNormal a fiunju:NivelDificultadExamen ;
+    rdfs:label "Normal"@es ;
+    fiunju:tieneValor 2 ;
+    owl:sameAs fiunju:ExamenNormal .
 
 fiunju:IntArt a fiunju:Materia,
         fiunju:Optativa ;
@@ -916,18 +1912,18 @@ fiunju:IntArt a fiunju:Materia,
         fiunju:TeoAutoLengComp ;
     owl:sameAs fiunju:IntArt .
 
-fiunju:MetSim a fiunju:Materia,
+fiunju:LogComp a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Metodos de Simulacion"@es ;
+    rdfs:label "Lógica Computacional"@es ;
+    fiunju:esRequisitoPara fiunju:IngCon,
+        fiunju:IntArt,
+        fiunju:PPS,
+        fiunju:TeoAutoLengComp ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal,
-        fiunju:AnalMatemI,
-        fiunju:AnalMatemII,
-        fiunju:CalcNum,
-        fiunju:ProbEstad ;
-    owl:sameAs fiunju:MetSim .
+    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal ;
+    owl:sameAs fiunju:LogComp .
 
 fiunju:NivAptIng a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -939,41 +1935,78 @@ fiunju:NivAptIng a fiunju:Materia,
     fiunju:tieneRequisito fiunju:NivSufIng ;
     owl:sameAs fiunju:NivAptIng .
 
-fiunju:Nivel_3 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Difícil"@es ;
-    fiunju:tieneValor 3 ;
-    owl:sameAs fiunju:Nivel_3 .
-
-fiunju:OrgComp a fiunju:Materia,
+fiunju:OEMN a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Organización de Computadoras"@es ;
-    fiunju:esRequisitoPara fiunju:ArqParalelas,
-        fiunju:ArqRedes,
-        fiunju:SegAudInf,
-        fiunju:SistOpI,
-        fiunju:SistOpII ;
-    fiunju:perteneceAlAño 1 ;
+    rdfs:label "Organización Empresarial y Modelos de Negocios"@es ;
+    fiunju:esRequisitoPara fiunju:ModProNeg,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 3 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    owl:sameAs fiunju:OEMN .
+
+fiunju:BaseDatos a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Bases de Datos"@es ;
+    fiunju:esRequisitoPara fiunju:ABDI,
+        fiunju:ABDII,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg ;
+    fiunju:tieneTopicoRelevante fiunju:Consejo_BD_Cartesiano,
+        fiunju:Consejo_BD_Profesional,
+        fiunju:InstanciaGeneral_Oral,
+        fiunju:TopicoMaterialEstudio ;
+    owl:sameAs fiunju:BaseDatos .
+
+fiunju:ExamenMuyDificil a fiunju:NivelDificultadExamen ;
+    rdfs:label "Muy Difícil"@es ;
+    fiunju:tieneValor 4 ;
+    owl:sameAs fiunju:ExamenMuyDificil .
+
+fiunju:MetSim a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Metodos de Simulacion"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
-    owl:sameAs fiunju:OrgComp .
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI,
+        fiunju:AnalMatemII,
+        fiunju:CalcNum,
+        fiunju:ProbEstad ;
+    owl:sameAs fiunju:MetSim .
 
 fiunju:ProgCon a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Programación Concurrente"@es ;
     fiunju:esRequisitoPara fiunju:Compiladores,
-        fiunju:IPDI ;
+        fiunju:IPDI,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 2 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
     fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
     fiunju:tieneRequisito fiunju:EstDatos,
         fiunju:IntroProg,
         fiunju:MetProg ;
+    fiunju:tieneTopicoRelevante fiunju:Consejo_ProgCon_Error,
+        fiunju:Consejo_ProgCon_HW,
+        fiunju:Consejo_ProgCon_Impacto ;
     owl:sameAs fiunju:ProgCon .
 
 fiunju:TeoAutoLengComp a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Teoria de Automatas, lenguajes y Computación"@es ;
-    fiunju:esRequisitoPara fiunju:IntArt ;
+    fiunju:esRequisitoPara fiunju:IntArt,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 3 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
     fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
@@ -984,15 +2017,12 @@ fiunju:TeoAutoLengComp a fiunju:Materia,
         fiunju:LogComp ;
     owl:sameAs fiunju:TeoAutoLengComp .
 
-5 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 5 .
-
 fiunju:ArqRedes a fiunju:Materia,
         fiunju:MateriaDeAltoEsfuerzo,
         fiunju:Obligatoria ;
     rdfs:label "Arquitectura de Redes"@es ;
-    fiunju:esRequisitoPara fiunju:ArqParalelas ;
+    fiunju:esRequisitoPara fiunju:ArqParalelas,
+        fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
     fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
@@ -1003,9 +2033,30 @@ fiunju:ArqRedes a fiunju:Materia,
         fiunju:SistOpI ;
     owl:sameAs fiunju:ArqRedes .
 
+fiunju:OrgComp a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Organización de Computadoras"@es ;
+    fiunju:esRequisitoPara fiunju:ArqParalelas,
+        fiunju:ArqRedes,
+        fiunju:PPS,
+        fiunju:SegAudInf,
+        fiunju:SistOpI,
+        fiunju:SistOpII,
+        fiunju:TIC ;
+    fiunju:perteneceAlAño 1 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
+    fiunju:tieneTopicoRelevante fiunju:InstanciaGeneral_Choice ;
+    owl:sameAs fiunju:OrgComp .
+
+5 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 5 .
+
 fiunju:IngCon a fiunju:Materia,
         fiunju:Obligatoria ;
     rdfs:label "Ingeniería del Conocimiento"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
     fiunju:perteneceAlAño 4 ;
     fiunju:requiereCreditos 90 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
@@ -1018,88 +2069,6 @@ fiunju:IngCon a fiunju:Materia,
         fiunju:ModOrientObjetos,
         fiunju:NivSufIng ;
     owl:sameAs fiunju:IngCon .
-
-fiunju:SegAudInf a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Seguridad y Auditoria informatica"@es ;
-    fiunju:perteneceAlAño 4 ;
-    fiunju:requiereCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg,
-        fiunju:NivSufIng,
-        fiunju:OrgComp,
-        fiunju:SistOpI,
-        fiunju:SistOpII ;
-    owl:sameAs fiunju:SegAudInf .
-
-fiunju:SistInf a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Sistemas de información"@es ;
-    fiunju:esRequisitoPara fiunju:IngSoftI,
-        fiunju:IngSoftII ;
-    fiunju:perteneceAlAño 4 ;
-    fiunju:requiereCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg,
-        fiunju:ModOrientObjetos,
-        fiunju:NivSufIng ;
-    owl:sameAs fiunju:SistInf .
-
-fiunju:SistOpII a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Sistemas Operativos II"@es ;
-    fiunju:esRequisitoPara fiunju:ArqParalelas,
-        fiunju:SegAudInf ;
-    fiunju:perteneceAlAño 3 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
-    fiunju:tieneRequisito fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg,
-        fiunju:OrgComp,
-        fiunju:SistOpI ;
-    owl:sameAs fiunju:SistOpII .
-
-owl:ObjectProperty owl:sameAs owl:ObjectProperty .
-
-fiunju:AnalMatemII a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Análisis Matemático II"@es ;
-    fiunju:esRequisitoPara fiunju:CalcNum,
-        fiunju:GestAmbiental,
-        fiunju:MetSim,
-        fiunju:ProbEstad,
-        fiunju:SistInt,
-        fiunju:TallerFormProf,
-        fiunju:TallerMetInvCient ;
-    fiunju:perteneceAlAño 1 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
-    fiunju:tieneRequisito fiunju:AnalMatemI ;
-    owl:sameAs fiunju:AnalMatemII .
-
-fiunju:ArqParalelas a fiunju:Materia,
-        fiunju:Obligatoria ;
-    rdfs:label "Arquitectura de Computadoras Paralelas"@es ;
-    fiunju:perteneceAlAño 4 ;
-    fiunju:requiereCreditos 90 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
-    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
-        fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:ArqRedes,
-        fiunju:EstDatos,
-        fiunju:IntroProg,
-        fiunju:MetProg,
-        fiunju:NivSufIng,
-        fiunju:OrgComp,
-        fiunju:SistOpI,
-        fiunju:SistOpII ;
-    owl:sameAs fiunju:ArqParalelas .
 
 fiunju:IngSoftI a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1132,26 +2101,39 @@ fiunju:IngSoftII a fiunju:Materia,
         fiunju:SistInf ;
     owl:sameAs fiunju:IngSoftII .
 
-fiunju:Nivel_2 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Normal"@es ;
-    fiunju:tieneValor 2 ;
-    owl:sameAs fiunju:Nivel_2 .
-
-fiunju:ProbEstad a fiunju:Materia,
+fiunju:SegAudInf a fiunju:Materia,
         fiunju:Obligatoria ;
-    rdfs:label "Probabilidad y Estadística"@es ;
-    fiunju:esRequisitoPara fiunju:GestAmbiental,
-        fiunju:MetSim,
-        fiunju:SistInt,
-        fiunju:TallerFormProf,
-        fiunju:TallerMetInvCient ;
-    fiunju:perteneceAlAño 2 ;
-    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    rdfs:label "Seguridad y Auditoria informatica"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:requiereCreditos 90 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
     fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
-    fiunju:tieneRequisito fiunju:AlgebraLineal,
-        fiunju:AnalMatemI,
-        fiunju:AnalMatemII ;
-    owl:sameAs fiunju:ProbEstad .
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:NivSufIng,
+        fiunju:OrgComp,
+        fiunju:SistOpI,
+        fiunju:SistOpII ;
+    owl:sameAs fiunju:SegAudInf .
+
+fiunju:SistInf a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Sistemas de información"@es ;
+    fiunju:esRequisitoPara fiunju:IngSoftI,
+        fiunju:IngSoftII,
+        fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:requiereCreditos 90 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:ModOrientObjetos,
+        fiunju:NivSufIng ;
+    owl:sameAs fiunju:SistInf .
 
 fiunju:SistInt a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1170,12 +2152,86 @@ fiunju:SistInt a fiunju:Materia,
         fiunju:ProbEstad ;
     owl:sameAs fiunju:SistInt .
 
+fiunju:SistOpII a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Sistemas Operativos II"@es ;
+    fiunju:esRequisitoPara fiunju:ArqParalelas,
+        fiunju:PPS,
+        fiunju:SegAudInf ;
+    fiunju:perteneceAlAño 3 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
+    fiunju:tieneRequisito fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:OrgComp,
+        fiunju:SistOpI ;
+    owl:sameAs fiunju:SistOpII .
+
+fiunju:AnalMatemII a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Análisis Matemático II"@es ;
+    fiunju:esRequisitoPara fiunju:CalcNum,
+        fiunju:GestAmbiental,
+        fiunju:MetSim,
+        fiunju:PPS,
+        fiunju:ProbEstad,
+        fiunju:SistInt,
+        fiunju:TallerFormProf,
+        fiunju:TallerMetInvCient ;
+    fiunju:perteneceAlAño 1 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_4 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito ;
+    fiunju:tieneRequisito fiunju:AnalMatemI ;
+    owl:sameAs fiunju:AnalMatemII .
+
+fiunju:ArqParalelas a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Arquitectura de Computadoras Paralelas"@es ;
+    fiunju:esRequisitoPara fiunju:PPS ;
+    fiunju:perteneceAlAño 4 ;
+    fiunju:requiereCreditos 90 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_3 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoEscrito,
+        fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:ArqRedes,
+        fiunju:EstDatos,
+        fiunju:IntroProg,
+        fiunju:MetProg,
+        fiunju:NivSufIng,
+        fiunju:OrgComp,
+        fiunju:SistOpI,
+        fiunju:SistOpII ;
+    owl:sameAs fiunju:ArqParalelas .
+
+fiunju:ExamenDificil a fiunju:NivelDificultadExamen ;
+    rdfs:label "Difícil"@es ;
+    fiunju:tieneValor 3 ;
+    owl:sameAs fiunju:ExamenDificil .
+
+fiunju:ProbEstad a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Probabilidad y Estadística"@es ;
+    fiunju:esRequisitoPara fiunju:GestAmbiental,
+        fiunju:MetSim,
+        fiunju:PPS,
+        fiunju:SistInt,
+        fiunju:TallerFormProf,
+        fiunju:TallerMetInvCient ;
+    fiunju:perteneceAlAño 2 ;
+    fiunju:tieneDificultadCursada fiunju:Nivel_2 ;
+    fiunju:tieneModalidadExamen fiunju:ExamenTeoricoOral ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI,
+        fiunju:AnalMatemII ;
+    owl:sameAs fiunju:ProbEstad .
+
 fiunju:SistOpI a fiunju:Materia,
         fiunju:MateriaDeAltoEsfuerzo,
         fiunju:Obligatoria ;
     rdfs:label "Sistemas Operativos I"@es ;
     fiunju:esRequisitoPara fiunju:ArqParalelas,
         fiunju:ArqRedes,
+        fiunju:PPS,
         fiunju:SegAudInf,
         fiunju:SistOpII ;
     fiunju:perteneceAlAño 3 ;
@@ -1186,9 +2242,13 @@ fiunju:SistOpI a fiunju:Materia,
         fiunju:IntroProg,
         fiunju:MetProg,
         fiunju:OrgComp ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoExamenOral,
-        fiunju:TopicoGestionTiempo ;
+    fiunju:tieneTopicoRelevante fiunju:Consejo_SistOp_Capilla,
+        fiunju:Consejo_SistOp_Integral,
+        fiunju:Consejo_SistOp_Libros,
+        fiunju:Consejo_SistOp_Vidas ;
     owl:sameAs fiunju:SistOpI .
+
+owl:AnnotationProperty owl:sameAs owl:AnnotationProperty .
 
 fiunju:NivSufIng a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1199,14 +2259,11 @@ fiunju:NivSufIng a fiunju:Materia,
         fiunju:IngSoftII,
         fiunju:LegEticaProf,
         fiunju:NivAptIng,
+        fiunju:PPS,
         fiunju:SegAudInf,
         fiunju:SistInf,
         fiunju:SistInt ;
     owl:sameAs fiunju:NivSufIng .
-
-owl:AnnotationProperty owl:sameAs owl:AnnotationProperty .
-
-owl:DatatypeProperty owl:sameAs owl:DatatypeProperty .
 
 fiunju:AnalMatemI a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1217,6 +2274,7 @@ fiunju:AnalMatemI a fiunju:Materia,
         fiunju:FisicaMec,
         fiunju:GestAmbiental,
         fiunju:MetSim,
+        fiunju:PPS,
         fiunju:ProbEstad,
         fiunju:SistInt,
         fiunju:TallerFormProf,
@@ -1234,6 +2292,7 @@ fiunju:ModOrientObjetos a fiunju:Materia,
         fiunju:IngCon,
         fiunju:IngSoftI,
         fiunju:IngSoftII,
+        fiunju:PPS,
         fiunju:RaIn,
         fiunju:SistInf ;
     fiunju:perteneceAlAño 3 ;
@@ -1244,33 +2303,28 @@ fiunju:ModOrientObjetos a fiunju:Materia,
         fiunju:MetProg ;
     owl:sameAs fiunju:ModOrientObjetos .
 
-fiunju:Nivel_4 a fiunju:NivelDificultadCursada ;
-    rdfs:label "Muy difícil"@es ;
-    fiunju:tieneValor 4 ;
-    owl:sameAs fiunju:Nivel_4 .
+fiunju:Nivel_3 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Difícil"@es ;
+    fiunju:tieneValor 3 ;
+    owl:sameAs fiunju:Nivel_3 .
 
 xsd:decimal a rdfs:Datatype ;
     owl:disjointWith xsd:string ;
     owl:sameAs xsd:decimal .
 
-4 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 4 .
+owl:ObjectProperty owl:sameAs owl:ObjectProperty .
 
-xsd:integer a rdfs:Datatype ;
-    owl:sameAs xsd:integer .
+fiunju:Optativa rdfs:subClassOf fiunju:Materia ;
+    owl:sameAs fiunju:Optativa .
 
-3 a xsd:decimal,
+90 a xsd:decimal,
         xsd:integer ;
-    owl:sameAs 3 .
+    owl:sameAs 90 .
 
-1 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 1 .
-
-2 a xsd:decimal,
-        xsd:integer ;
-    owl:sameAs 2 .
+fiunju:Nivel_2 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Normal"@es ;
+    fiunju:tieneValor 2 ;
+    owl:sameAs fiunju:Nivel_2 .
 
 fiunju:AlgebraLineal a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1283,6 +2337,7 @@ fiunju:AlgebraLineal a fiunju:Materia,
         fiunju:LogComp,
         fiunju:MatDisc,
         fiunju:MetSim,
+        fiunju:PPS,
         fiunju:ProbEstad,
         fiunju:SistInt,
         fiunju:TallerFormProf,
@@ -1293,17 +2348,19 @@ fiunju:AlgebraLineal a fiunju:Materia,
     fiunju:tieneModalidadExamen fiunju:ExamenMultipleChoice ;
     owl:sameAs fiunju:AlgebraLineal .
 
-fiunju:Optativa rdfs:subClassOf fiunju:Materia ;
-    owl:sameAs fiunju:Optativa .
+xsd:integer a rdfs:Datatype ;
+    owl:sameAs xsd:integer .
 
-rdfs:Class owl:sameAs rdfs:Class .
+owl:DatatypeProperty owl:sameAs owl:DatatypeProperty .
 
-90 a xsd:decimal,
+4 a xsd:decimal,
         xsd:integer ;
-    owl:sameAs 90 .
+    owl:sameAs 4 .
 
-xsd:string a rdfs:Datatype ;
-    owl:sameAs xsd:string .
+fiunju:Nivel_4 a fiunju:NivelDificultadCursada ;
+    rdfs:label "Muy difícil"@es ;
+    fiunju:tieneValor 4 ;
+    owl:sameAs fiunju:Nivel_4 .
 
 fiunju:MetProg a fiunju:Materia,
         fiunju:Obligatoria ;
@@ -1323,7 +2380,9 @@ fiunju:MetProg a fiunju:Materia,
         fiunju:IngSoftI,
         fiunju:IngSoftII,
         fiunju:ModOrientObjetos,
+        fiunju:ModProNeg,
         fiunju:OEMN,
+        fiunju:PPS,
         fiunju:ProgCon,
         fiunju:RaIn,
         fiunju:SegAudInf,
@@ -1333,7 +2392,10 @@ fiunju:MetProg a fiunju:Materia,
     fiunju:perteneceAlAño 1 ;
     fiunju:tieneDificultadCursada fiunju:Nivel_1 ;
     fiunju:tieneRequisito fiunju:IntroProg ;
-    fiunju:tieneTopicoRelevante fiunju:TopicoAprobacionTI ;
+    fiunju:tieneTopicoRelevante fiunju:Consejo_Intro_Logica,
+        fiunju:Consejo_MetProg_Grupo,
+        fiunju:InstanciaGeneral_TI,
+        fiunju:TopicoAprobacionTI ;
     owl:sameAs fiunju:MetProg .
 
 fiunju:Nivel_1 a fiunju:NivelDificultadCursada ;
@@ -1360,7 +2422,9 @@ fiunju:EstDatos a fiunju:Materia,
         fiunju:IngSoftII,
         fiunju:IntArt,
         fiunju:ModOrientObjetos,
+        fiunju:ModProNeg,
         fiunju:OEMN,
+        fiunju:PPS,
         fiunju:ProgCon,
         fiunju:RaIn,
         fiunju:SegAudInf,
@@ -1396,7 +2460,9 @@ fiunju:IntroProg a fiunju:Materia,
         fiunju:IntArt,
         fiunju:MetProg,
         fiunju:ModOrientObjetos,
+        fiunju:ModProNeg,
         fiunju:OEMN,
+        fiunju:PPS,
         fiunju:ProgCon,
         fiunju:RaIn,
         fiunju:SegAudInf,
@@ -1409,277 +2475,65 @@ fiunju:IntroProg a fiunju:Materia,
     fiunju:tieneTopicoRelevante fiunju:TopicoAprobacionTI ;
     owl:sameAs fiunju:IntroProg .
 
+rdfs:Class owl:sameAs rdfs:Class .
+
+fiunju:PPS a fiunju:Materia,
+        fiunju:Obligatoria ;
+    rdfs:label "Practica Profesional Supervisada"@es ;
+    fiunju:perteneceAlAño 5 ;
+    fiunju:requiereCreditos 270 ;
+    fiunju:requiereCuartoAnoAprobado true ;
+    fiunju:tieneRequisito fiunju:AlgebraLineal,
+        fiunju:AnalMatemI,
+        fiunju:AnalMatemII,
+        fiunju:ArqParalelas,
+        fiunju:ArqRedes,
+        fiunju:BaseDatos,
+        fiunju:CalSoftTest,
+        fiunju:CalcNum,
+        fiunju:DesSistProg,
+        fiunju:ElecMag,
+        fiunju:EstDatos,
+        fiunju:FEPIED,
+        fiunju:FisicaMec,
+        fiunju:IngCon,
+        fiunju:IntroProg,
+        fiunju:LogComp,
+        fiunju:MatDisc,
+        fiunju:MetProg,
+        fiunju:MetSim,
+        fiunju:ModOrientObjetos,
+        fiunju:NivSufIng,
+        fiunju:OEMN,
+        fiunju:OrgComp,
+        fiunju:ProbEstad,
+        fiunju:ProgCon,
+        fiunju:SegAudInf,
+        fiunju:SistInf,
+        fiunju:SistOpI,
+        fiunju:SistOpII,
+        fiunju:TIC,
+        fiunju:TeoAutoLengComp ;
+    owl:sameAs fiunju:PPS .
+
 rdfs:Datatype owl:sameAs rdfs:Datatype .
 
 fiunju:Obligatoria rdfs:subClassOf fiunju:Materia ;
     owl:disjointWith fiunju:Optativa ;
     owl:sameAs fiunju:Obligatoria .
 
-### PATCH START ###
+3 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 3 .
 
-### Classes and Properties
-fiunju:EstrategiaRecomendacion a owl:Class ;
-    rdfs:label "Estrategia de Recomendación"@es .
+2 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 2 .
 
-fiunju:ordenPrioridad a owl:DatatypeProperty ;
-    rdfs:domain fiunju:EstrategiaRecomendacion ;
-    rdfs:range xsd:integer .
+1 a xsd:decimal,
+        xsd:integer ;
+    owl:sameAs 1 .
 
-fiunju:descripcionPlan a owl:DatatypeProperty ;
-    rdfs:domain fiunju:EstrategiaRecomendacion ;
-    rdfs:range xsd:string .
+xsd:string a rdfs:Datatype ;
+    owl:sameAs xsd:string .
 
-fiunju:cantidadMaterias a owl:DatatypeProperty ;
-    rdfs:domain fiunju:EstrategiaRecomendacion ;
-    rdfs:range xsd:integer .
-
-fiunju:cantidadMinimaRequerida a owl:DatatypeProperty ;
-    rdfs:domain fiunju:EstrategiaRecomendacion ;
-    rdfs:range xsd:integer .
-
-fiunju:requiereDisponibilidadDe a owl:ObjectProperty ;
-    rdfs:domain fiunju:EstrategiaRecomendacion ;
-    rdfs:range fiunju:NivelDificultadCursada .
-
-fiunju:tieneEstrategiaPosible a owl:ObjectProperty ;
-    rdfs:domain fiunju:ArquetipoEstudiante ;
-    rdfs:range fiunju:EstrategiaRecomendacion .
-
-### 1. Perfil Crítico
-fiunju:ArquetipoCritico a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Crítico"@es ;
-    fiunju:tieneColorIdentificativo "red" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Critico_A, fiunju:Estrategia_Critico_B, fiunju:Estrategia_Critico_C, fiunju:Estrategia_Critico_D .
-
-fiunju:Estrategia_Critico_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 2 Fáciles (Prioridad Alta)"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_Critico_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 1 Normal"@es ;
-    fiunju:cantidadMaterias 1 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Critico_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: 1 Difícil"@es ;
-    fiunju:cantidadMaterias 1 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Critico_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 1 Muy Difícil (No recomendado, pero única opción)"@es ;
-    fiunju:cantidadMaterias 1 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-### 2. Perfil Bajo
-fiunju:ArquetipoBajo a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Bajo"@es ;
-    fiunju:tieneColorIdentificativo "orange" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Bajo_A, fiunju:Estrategia_Bajo_B, fiunju:Estrategia_Bajo_C, fiunju:Estrategia_Bajo_D .
-
-fiunju:Estrategia_Bajo_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 2 Fáciles (Ideal)"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_Bajo_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 2 Normales"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_Bajo_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: 1 Difícil"@es ;
-    fiunju:cantidadMaterias 1 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Bajo_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 1 Muy Difícil"@es ;
-    fiunju:cantidadMaterias 1 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-### 3. Perfil Medio-Bajo
-fiunju:ArquetipoMedioBajo a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Medio-Bajo"@es ;
-    fiunju:tieneColorIdentificativo "yellow" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_MedioBajo_A, fiunju:Estrategia_MedioBajo_B, fiunju:Estrategia_MedioBajo_C, fiunju:Estrategia_MedioBajo_D .
-
-fiunju:Estrategia_MedioBajo_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 1 Difícil + 2 Normales"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_MedioBajo_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 3 Normales"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
-    fiunju:cantidadMinimaRequerida 3 .
-
-fiunju:Estrategia_MedioBajo_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: 2 Difíciles"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_MedioBajo_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 1 Muy Difícil + 1 Fácil"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-### 4. Perfil Equilibrado
-fiunju:ArquetipoEquilibrado a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Equilibrado"@es ;
-    fiunju:tieneColorIdentificativo "green" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Equilibrado_A, fiunju:Estrategia_Equilibrado_B, fiunju:Estrategia_Equilibrado_C, fiunju:Estrategia_Equilibrado_D .
-
-fiunju:Estrategia_Equilibrado_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Equilibrado_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Equilibrado_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: 3 Normales"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
-    fiunju:cantidadMinimaRequerida 3 .
-
-fiunju:Estrategia_Equilibrado_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-### 5. Perfil Medio-Alto
-fiunju:ArquetipoMedioAlto a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Medio-Alto"@es ;
-    fiunju:tieneColorIdentificativo "blue" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_MedioAlto_A, fiunju:Estrategia_MedioAlto_B, fiunju:Estrategia_MedioAlto_C, fiunju:Estrategia_MedioAlto_D .
-
-fiunju:Estrategia_MedioAlto_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 2 Muy Difíciles + 2 Fáciles"@es ;
-    fiunju:cantidadMaterias 4 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_MedioAlto_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 2 Difíciles"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_MedioAlto_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: 2 Normales + 2 Fáciles"@es ;
-    fiunju:cantidadMaterias 4 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_2 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_MedioAlto_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 3 Difíciles"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
-    fiunju:cantidadMinimaRequerida 3 .
-
-### 6. Perfil Super Alto
-fiunju:ArquetipoSuperAlto a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Super Alto"@es ;
-    fiunju:tieneColorIdentificativo "violet" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_SuperAlto_A, fiunju:Estrategia_SuperAlto_B, fiunju:Estrategia_SuperAlto_C, fiunju:Estrategia_SuperAlto_D .
-
-fiunju:Estrategia_SuperAlto_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 3 Muy Difíciles + 1 Difícil"@es ;
-    fiunju:cantidadMaterias 4 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 3 .
-
-fiunju:Estrategia_SuperAlto_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 5 Variadas (Mix)"@es ;
-    fiunju:cantidadMaterias 5 ;
-    fiunju:cantidadMinimaRequerida 0 .
-
-fiunju:Estrategia_SuperAlto_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: Solo Fáciles (Max)"@es ;
-    fiunju:cantidadMaterias 5 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_1 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_SuperAlto_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 3 Muy Difíciles"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 3 .
-
-### 7. Perfil Atípico
-fiunju:ArquetipoAtipico a fiunju:ArquetipoEstudiante ;
-    fiunju:tieneNombreArquetipo "Perfil Atípico"@es ;
-    fiunju:tieneColorIdentificativo "brown" ;
-    fiunju:tieneEstrategiaPosible fiunju:Estrategia_Atipico_A, fiunju:Estrategia_Atipico_B, fiunju:Estrategia_Atipico_C, fiunju:Estrategia_Atipico_D .
-
-fiunju:Estrategia_Atipico_A a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 1 ;
-    fiunju:descripcionPlan "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Atipico_B a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 2 ;
-    fiunju:descripcionPlan "Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil"@es ;
-    fiunju:cantidadMaterias 3 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 1 .
-
-fiunju:Estrategia_Atipico_C a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 3 ;
-    fiunju:descripcionPlan "Plan C: 2 Difíciles"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_3 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-fiunju:Estrategia_Atipico_D a fiunju:EstrategiaRecomendacion ;
-    fiunju:ordenPrioridad 4 ;
-    fiunju:descripcionPlan "Plan D: 2 Muy Difíciles"@es ;
-    fiunju:cantidadMaterias 2 ;
-    fiunju:requiereDisponibilidadDe fiunju:Nivel_4 ;
-    fiunju:cantidadMinimaRequerida 2 .
-
-### PATCH END ###

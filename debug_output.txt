@@ -1,0 +1,8 @@
+Topics for http://fi.unju.edu.ar/ontologia/informatica#SistOpI:
+URI: http://fi.unju.edu.ar/ontologia/informatica#Consejo_SistOp_Capilla, Label: Estrategia de Unidad Específica
+URI: http://fi.unju.edu.ar/ontologia/informatica#Consejo_SistOp_Integral, Label: El 'Integral' Salvavidas
+URI: http://fi.unju.edu.ar/ontologia/informatica#Consejo_SistOp_Libros, Label: Libros Obligatorios
+URI: http://fi.unju.edu.ar/ontologia/informatica#Consejo_SistOp_Vidas, Label: El Sistema de las '3 Vidas'
+
+Description for http://fi.unju.edu.ar/ontologia/informatica#Consejo_SistOp_Vidas:
+Toman cuestionarios con penalización al inicio de cada teórica. Si desapruebas 3, quedas LIBRE.

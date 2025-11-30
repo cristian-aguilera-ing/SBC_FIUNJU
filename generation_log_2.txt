@@ -1,1 +1,3 @@
-zsh: command not found: python
+  File "/Users/cristianaguilera/Desktop/SBC_FIUNJU/backend/generar_ontologia.py", line 645
+    g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, inst_gen_oral))
+IndentationError: unexpected indent

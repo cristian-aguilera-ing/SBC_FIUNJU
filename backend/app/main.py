@@ -290,24 +290,25 @@ WHERE {{
     except StopIteration:
         return {"consejos": ["Error: No se encontraron datos de dificultad."]}
 
-    condicion_laboral = current_user.condicion_laboral
+    # Query para obtener la descripción del tópico específico (Instancia)
+    query_consejo_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?descripcion
+WHERE {{
+    <{topico_uri}> fiunju:descripcion ?descripcion .
+}}"""
     
-    if topico_uri == "http://fi.unju.edu.ar/ontologia/informatica#TopicoGestionTiempo":
-        consejo = f"Consejo de 'Gestión del Tiempo' para '{materia_label}': "
-        if dificultad_valor >= 3: 
-            if condicion_laboral == "tiempo_completo":
-                consejo += "¡Atención! Esta es una materia difícil y trabajas a tiempo completo..."
-            else:
-                consejo += "Esta materia es difícil. Aunque tengas tiempo, no te confíes..."
-        else:
-            consejo += "Esta materia tiene una dificultad moderada..."
-        consejos.append(consejo)
-            
-    elif topico_uri == "http://fi.unju.edu.ar/ontologia/informatica#TopicoAprobacionTP":
-        consejo = f"Consejo de 'Aprobación de TPs' para '{materia_label}': "
-        consejos.append(consejo)
-    else:
-        consejos.append(f"No se encontró un consejo específico para '{topico_uri.split('#')[-1]}'.")
+    results_consejo = kg.query(query_consejo_str)
+    
+    found_description = False
+    for row in results_consejo:
+        consejos.append(str(row.descripcion))
+        found_description = True
+        
+    if not found_description:
+        # Fallback por si acaso, o si es un tópico genérico sin instancia específica vinculada de esta forma
+        # (Aunque el frontend manda URIs de instancias específicas vinculadas a la materia)
+        consejos.append(f"No se encontró una descripción detallada para este consejo.")
 
     return {"consejos": consejos}
 
@@ -340,28 +341,22 @@ WHERE {{
     
     results = kg.query(query_str)
     
-    condicion_laboral = current_user.condicion_laboral
-    
-    for row in results:
-        materia_label = str(row.labelMateria)
-        modalidad_label = str(row.labelModalidad)
-        
-        dificultad_label = str(row.labelDificultad)
-        dificultad_num = int(row.valorNumerico)
+    # Query para obtener la descripción del tópico específico (Instancia)
+    query_consejo_str = f"""PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+SELECT ?descripcion
+WHERE {{
+    <{topico_uri}> fiunju:descripcion ?descripcion .
+}}"""
 
-        if topico_uri == "http://fi.unju.edu.ar/ontologia/informatica#TopicoExamenOral" and "Oral" in modalidad_label:
-            consejo = f"Consejo de 'Examen Oral' para '{materia_label}' (Dificultad: {dificultad_label}): "
-            if dificultad_num == 4: # Muy Difícil
-                consejo += "Este es un final oral de dificultad MÁXIMA..."
-                if condicion_laboral == CondicionLaboral.TIEMPO_COMPLETO:
-                    consejo += " Dado que trabajas a tiempo completo, es vital que practiques y organices bien tus tiempos..."
-                else:
-                    consejo += " Aunque tengas tiempo, ¡úsalas bien!"
-            else:
-                consejo += "En este final oral se evalúa la claridad conceptual..."
-            consejos.append(consejo)
+    results_consejo = kg.query(query_consejo_str)
+    
+    found_description = False
+    for row in results_consejo:
+        consejos.append(str(row.descripcion))
+        found_description = True
         
-    if not consejos:
-        consejos.append(f"No se encontró un consejo de examen específico para ese tópico.")
+    if not found_description:
+        consejos.append(f"No se encontró una descripción detallada para este consejo.")
 
     return {"consejos": consejos}

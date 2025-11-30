@@ -43,6 +43,34 @@ g.add((fiunju.Optativa, RDFS.subClassOf, fiunju.Materia))
 g.add((fiunju.Obligatoria, RDFS.subClassOf, fiunju.Materia))
 g.add((fiunju.MateriaDeAltoEsfuerzo, RDFS.subClassOf, fiunju.Materia))
 
+# --- 2.3. Definición de Categorías de Consejos (NUEVO BLOQUE INTEGRADO) ---
+# Definimos los tópicos como CLASES, subclases de TopicoDeConsejo
+topicos = [
+    (fiunju.TopicoGestionTiempo, "Gestión del Tiempo"), # G
+    (fiunju.TopicoAprobacionTI, "Trabajo Integrador"), # T
+    (fiunju.TopicoExamenOral, "Examen Oral"), # E
+    (fiunju.TopicoExamenEscrito, "Examen Escrito"), # E
+    (fiunju.TopicoMultipleChoice, "Multiple Choice"), # M
+    (fiunju.TopicoDinamicaSocial, "Dinámica de Grupo"), # D
+    (fiunju.TopicoRequisitoHardware, "Requisito de Hardware"), # R
+    (fiunju.TopicoMochilaTecnica, "Conocimiento Previo"), # C
+    (fiunju.TopicoFuentesInfo, "Bibliografía vs Apuntes"), # B
+    (fiunju.TopicoErroresComunes, "Errores Clásicos"), # E
+    (fiunju.TopicoAplicacionProf, "Aplicación Profesional"), # A
+    (fiunju.TopicoFrustracion, "Resistencia y Mentalidad"), # R
+    (fiunju.TopicoCriterioCorreccion, "Criterio de Corrección"), # C
+    (fiunju.TopicoImpactoEstrategico, "Impacto Estratégico"), # I
+    (fiunju.TopicoValorClase, "Valor de la Clase") # V
+]
+
+# Ordenamos la lista alfabéticamente por el label (segundo elemento de la tupla)
+topicos.sort(key=lambda x: x[1])
+
+for uri, label in topicos:
+    g.add((uri, RDF.type, RDFS.Class))
+    g.add((uri, RDFS.subClassOf, fiunju.TopicoDeConsejo))
+    g.add((uri, RDFS.label, Literal(label, lang="es")))
+
 # --- 2.3. Propiedades de Objeto (ObjectProperty) ---
 g.add((fiunju.esRequisitoPara, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneRequisito, RDF.type, OWL.ObjectProperty))
@@ -50,12 +78,21 @@ g.add((fiunju.tieneModalidadExamen, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneDificultadCursada, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneDificultadExamen, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.esMasDificilQue, RDF.type, OWL.ObjectProperty))
+
+# Relación Materia -> Instancia de Consejo (que a su vez tiene un tipo Tópico)
 g.add((fiunju.tieneTopicoRelevante, RDF.type, OWL.ObjectProperty))
+g.add((fiunju.tieneTopicoRelevante, RDFS.domain, fiunju.Materia))
+g.add((fiunju.tieneTopicoRelevante, RDFS.range, fiunju.TopicoDeConsejo))
 
 # --- 2.4. Propiedades de Dato (DatatypeProperty) ---
 g.add((fiunju.perteneceAlAño, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.comentarioExperto, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.tieneValor, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.tienePrioridad, RDF.type, OWL.DatatypeProperty))
+
+# --- NUEVA PROPIEDAD: DESCRIPCIÓN DEL CONSEJO ---
+g.add((fiunju.descripcion, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.descripcion, RDFS.range, XSD.string))
 
 # --- NUEVAS PROPIEDADES DE ARQUETIPO ---
 g.add((fiunju.tieneNombreArquetipo, RDF.type, OWL.DatatypeProperty))
@@ -69,6 +106,11 @@ g.add((fiunju.tieneColorIdentificativo, RDFS.range, XSD.string))
 g.add((fiunju.tieneConsejoBase, RDF.type, OWL.DatatypeProperty))
 g.add((fiunju.tieneConsejoBase, RDFS.domain, fiunju.ArquetipoEstudiante))
 g.add((fiunju.tieneConsejoBase, RDFS.range, XSD.string))
+
+g.add((fiunju.tieneConsejoClave, RDF.type, OWL.DatatypeProperty))     # Corrección nombre vs script original
+g.add((fiunju.tieneTarjetaDiagnostico, RDF.type, OWL.DatatypeProperty)) # Corrección nombre vs script original
+
+
 
 # --- NUEVA CLASE: Estrategia de Recomendación ---
 g.add((fiunju.EstrategiaRecomendacion, RDF.type, RDFS.Class))
@@ -163,55 +205,87 @@ print("TBox (Esquema) definido.")
 # --- 3. Población del Grafo (ABox) - Los "Hechos" ---
 print("PASO 3: Poblando el grafo (ABox)...")
 
+# --- 3.1. INSTANCIAS MAESTRAS (Consejos Generales) ---
+# Generico: Aprobación TI
+inst_gen_ti = fiunju.InstanciaGeneral_TI
+g.add((inst_gen_ti, RDF.type, fiunju.TopicoAprobacionTI))
+g.add((inst_gen_ti, RDFS.label, Literal("Estrategia para Trabajo Integrador", lang="es")))
+g.add((inst_gen_ti, fiunju.descripcion, Literal("Esta materia requiere la aprobación de un Trabajo Integrador obligatorio. No dejes la codificación para el final; la defensa es individual y debes explicar la lógica de tu código.", lang="es")))
+
+# Generico: Gestión del Tiempo
+inst_gen_tiempo = fiunju.InstanciaGeneral_Tiempo
+g.add((inst_gen_tiempo, RDF.type, fiunju.TopicoGestionTiempo))
+g.add((inst_gen_tiempo, RDFS.label, Literal("Administración Inteligente", lang="es")))
+g.add((inst_gen_tiempo, fiunju.descripcion, Literal("Asignatura de alta carga horaria. Prioriza la práctica sobre la teoría pura si estás corto de tiempo. Intenta bloques de estudio de 40min con descansos.", lang="es")))
+
+# Generico: Examen Oral
+inst_gen_oral = fiunju.InstanciaGeneral_Oral
+g.add((inst_gen_oral, RDF.type, fiunju.TopicoExamenOral))
+g.add((inst_gen_oral, RDFS.label, Literal("Claves para el Final Oral", lang="es")))
+g.add((inst_gen_oral, fiunju.descripcion, Literal("Prepara un 'tema de capilla' sólido para iniciar con confianza. Practica oratoria frente al espejo; evalúan tanto lo técnico como tu expresión.", lang="es")))
+
+# Generico: Examen Escrito
+inst_gen_escrito = fiunju.InstanciaGeneral_Escrito
+g.add((inst_gen_escrito, RDF.type, fiunju.TopicoExamenEscrito))
+g.add((inst_gen_escrito, RDFS.label, Literal("Estrategia Final Escrito", lang="es")))
+g.add((inst_gen_escrito, fiunju.descripcion, Literal("Dedica 5 minutos a leer todo antes de empezar. Sé prolijo y justifica siempre tus respuestas teóricas.", lang="es")))
+
+# Generico: Multiple Choice
+inst_gen_choice = fiunju.InstanciaGeneral_Choice
+g.add((inst_gen_choice, RDF.type, fiunju.TopicoMultipleChoice))
+g.add((inst_gen_choice, RDFS.label, Literal("Tips Multiple Choice", lang="es")))
+g.add((inst_gen_choice, fiunju.descripcion, Literal("Estudia definiciones exactas, no 'guitarrees'. Ante la duda, usa la técnica de descarte para aumentar tus probabilidades.", lang="es")))
+
+
 # --- 3.0. NUEVO: Definición de Arquetipos (Individuos) ---
 # 1. Perfil Crítico
 g.add((fiunju.ArquetipoCritico, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoCritico, fiunju.tieneNombreArquetipo, Literal("Perfil Crítico", lang="es")))
 g.add((fiunju.ArquetipoCritico, fiunju.tieneColorIdentificativo, Literal("red", datatype=XSD.string)))
 g.add((fiunju.ArquetipoCritico, fiunju.tieneConsejoClave, Literal("Necesitas cursar muy pocas materias y priorizar las más fáciles. La perseverancia es clave.", lang="es")))
-g.add((fiunju.ArquetipoCritico, fiunju.tieneTarjetaDiagnostico, Literal("Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.\n\n* trabajas tiempo completo\n* Vivis lejos\n* vivis solo\n* tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoCritico, fiunju.tieneTarjetaDiagnostico, Literal("Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.\n* trabajas tiempo completo\n* Vivis lejos\n* vivis solo\n* tenes hijo/s", lang="es")))
 
 # 2. Perfil Bajo
 g.add((fiunju.ArquetipoBajo, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoBajo, fiunju.tieneNombreArquetipo, Literal("Perfil Bajo", lang="es")))
 g.add((fiunju.ArquetipoBajo, fiunju.tieneColorIdentificativo, Literal("orange", datatype=XSD.string)))
 g.add((fiunju.ArquetipoBajo, fiunju.tieneConsejoClave, Literal("Balancea tus prioridades a las materias que querés cursar, procura que sea una materia con menor carga horaria y con parciales accesibles. Aprovecha tus tiempos libres, para estudiar en lugares tranquilos como la facultad.", lang="es")))
-g.add((fiunju.ArquetipoBajo, fiunju.tieneTarjetaDiagnostico, Literal("Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.\n\n* trabajas tiempo completo\n* Vivis en Capital\n* No vives solo\n* tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoBajo, fiunju.tieneTarjetaDiagnostico, Literal("Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.\n* trabajas tiempo completo\n* Vivis en Capital\n* No vives solo\n* tenes hijo/s", lang="es")))
 
 # 3. Perfil Medio-Bajo
 g.add((fiunju.ArquetipoMedioBajo, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneNombreArquetipo, Literal("Perfil Medio-Bajo", lang="es")))
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneColorIdentificativo, Literal("yellow", datatype=XSD.string)))
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneConsejoClave, Literal("Prioriza las materias troncales, y organízate bien para no perder la promoción. Usá parciales de años anteriores y apuntes de compañeros.", lang="es")))
-g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneTarjetaDiagnostico, Literal("Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.\n\n* trabajas medio tiempo\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneTarjetaDiagnostico, Literal("Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.\n* trabajas medio tiempo\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s", lang="es")))
 
 # 4. Perfil Equilibrado
 g.add((fiunju.ArquetipoEquilibrado, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneNombreArquetipo, Literal("Perfil Equilibrado", lang="es")))
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneColorIdentificativo, Literal("green", datatype=XSD.string)))
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneConsejoClave, Literal("Prioriza las materias troncales, y organízate bien para no perder la promoción. Si no entiendes un tema, asiste a consultas. Estudiar en la facultad te ayuda a concentrarte más. Resuelve parciales de años anteriores.", lang="es")))
-g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneTarjetaDiagnostico, Literal("Es el balance perfecto. Puede asumir carga, pero no extrema.\n\n* trabajas medio tiempo\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneTarjetaDiagnostico, Literal("Es el balance perfecto. Puede asumir carga, pero no extrema.\n* trabajas medio tiempo\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s", lang="es")))
 
 # 5. Perfil Medio-Alto
 g.add((fiunju.ArquetipoMedioAlto, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneNombreArquetipo, Literal("Perfil Medio-Alto", lang="es")))
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneColorIdentificativo, Literal("blue", datatype=XSD.string)))
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneConsejoClave, Literal("Prioriza todas las materias, y organízate bien para no perder la promoción. No descuides tus tiempos libres, aprovéchalos para estudiar. Tenés mucho tiempo de estudio, pero vivir solo y lejos igual consume horas. Organízate, práctica parciales y usá apuntes de compañeros.", lang="es")))
-g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneTarjetaDiagnostico, Literal("Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la \"energía mental\".\n\n* No trabajas\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneTarjetaDiagnostico, Literal("Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la \"energía mental\".\n* No trabajas\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s", lang="es")))
 
 # 6. Perfil Super Alto
 g.add((fiunju.ArquetipoSuperAlto, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneNombreArquetipo, Literal("Perfil Super Alto", lang="es")))
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneColorIdentificativo, Literal("violet", datatype=XSD.string)))
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneConsejoClave, Literal("Tenés el perfil con más disponibilidad. Prioriza todas las materias, y organízate bien para no perder la promoción. No te quedes libre. No descuides tus tiempos libres, aprovechalos para estudiar hace apuntes de cada tema, para estar al día.", lang="es")))
-g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneTarjetaDiagnostico, Literal("Disponibilidad total. Su única restricción es su propia capacidad de concentración.\n\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneTarjetaDiagnostico, Literal("Disponibilidad total. Su única restricción es su propia capacidad de concentración.\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s", lang="es")))
 
 # 7. Perfil Atípico
 g.add((fiunju.ArquetipoAtipico, RDF.type, fiunju.ArquetipoEstudiante))
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneNombreArquetipo, Literal("Perfil Atípico", lang="es")))
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneColorIdentificativo, Literal("brown", datatype=XSD.string)))
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneConsejoClave, Literal("Cuidá tus tiempos, tomá buenas notas y mantente constante para no perder promoción. Practica con materiales de otros años. Prioriza materias troncales.", lang="es")))
-g.add((fiunju.ArquetipoAtipico, fiunju.tieneTarjetaDiagnostico, Literal("Tiempo libre de trabajo, pero los hijos interrumpen el \"flow\" de estudio constante.\n\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* Tenes hijo/s", lang="es")))
+g.add((fiunju.ArquetipoAtipico, fiunju.tieneTarjetaDiagnostico, Literal("Tiempo libre de trabajo, pero los hijos interrumpen el \"flujo\" de estudio constante.\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* Tenes hijo/s", lang="es")))
 
 # ---------------------------------------------------------
 
@@ -491,18 +565,6 @@ for uri_key, data in niveles_cursada_data.items():
     g.add((nivel_uri, RDFS.label, Literal(data["label"], lang="es")))
     g.add((nivel_uri, fiunju.tieneValor, Literal(data["valor"], datatype=XSD.integer)))
 
-# --- 3.3. Individuos: Tópicos de Consejo ---
-g.add((fiunju.TopicoGestionTiempo, RDF.type, fiunju.TopicoDeConsejo))
-g.add((fiunju.TopicoGestionTiempo, RDFS.label, Literal("Gestión del Tiempo", lang="es")))
-g.add((fiunju.TopicoMaterialEstudio, RDF.type, fiunju.TopicoDeConsejo))
-g.add((fiunju.TopicoMaterialEstudio, RDFS.label, Literal("Material de Estudio", lang="es")))
-g.add((fiunju.TopicoAprobacionTI, RDF.type, fiunju.TopicoDeConsejo))
-g.add((fiunju.TopicoAprobacionTI, RDFS.label, Literal("Aprobación de Trabajos Integrador", lang="es")))
-g.add((fiunju.TopicoExamenOral, RDF.type, fiunju.TopicoDeConsejo))
-g.add((fiunju.TopicoExamenOral, RDFS.label, Literal("Preparación para Examen Oral", lang="es")))
-g.add((fiunju.TopicoExamenEscrito, RDF.type, fiunju.TopicoDeConsejo))
-g.add((fiunju.TopicoExamenEscrito, RDFS.label, Literal("Preparación para Examen Escrito", lang="es")))
-
 # --- 3.4. Individuos: Materias ---
 print("Cargando datos de materias...")
 
@@ -534,8 +596,6 @@ g.add((fiunju.SistOpI, fiunju.tieneDificultadCursada, fiunju.Nivel_4))
 g.add((fiunju.SistOpI, fiunju.tieneRequisito, fiunju.OrgComp))
 g.add((fiunju.SistOpI, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.SistOpI, fiunju.tieneRequisito, fiunju.EstDatos))
-g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, fiunju.TopicoGestionTiempo))
-g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, fiunju.TopicoExamenOral))
 g.add((fiunju.SistOpI, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Estructura de Datos ---
@@ -582,7 +642,7 @@ g.add((fiunju.BaseDatos, fiunju.tieneRequisito, fiunju.MetProg))
 g.add((fiunju.BaseDatos, fiunju.tieneRequisito, fiunju.EstDatos))
 g.add((fiunju.BaseDatos, fiunju.tieneDificultadCursada, fiunju.Nivel_2))
 g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, fiunju.TopicoMaterialEstudio))
-g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, fiunju.TopicoExamenOral))
+g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, inst_gen_oral))
 g.add((fiunju.BaseDatos, fiunju.esRequisitoPara, fiunju.PPS))
 
 # --- Programación Concurrente---
@@ -959,6 +1019,120 @@ g.add((fiunju.ModProNeg, fiunju.tieneModalidadExamen, fiunju.ExamenTeoricoEscrit
 g.add((fiunju.ModProNeg, fiunju.tieneRequisito, fiunju.OEMN))
 g.add((fiunju.ModProNeg, fiunju.tieneDificultadCursada, fiunju.Nivel_1))
 g.add((fiunju.ModProNeg, fiunju.otorgaCreditos, Literal(90, datatype=XSD.integer))) # <-- Créditos
+
+# 3.6. VINCULACIÓN DE CONSEJOS ESPECÍFICOS (NUEVO BLOQUE)
+# =============================================================================
+print("PASO 3.6: Vinculando consejos específicos a materias...")
+
+# --- SISTEMAS OPERATIVOS I ---
+# Consejo Específico: Las 3 Vidas
+cons_sistop_vidas = fiunju.Consejo_SistOp_Vidas
+g.add((cons_sistop_vidas, RDF.type, fiunju.TopicoValorClase))
+g.add((cons_sistop_vidas, RDFS.label, Literal("El Sistema de las '3 Vidas'", lang="es")))
+g.add((cons_sistop_vidas, fiunju.descripcion, Literal("Toman cuestionarios con penalización al inicio de cada teórica. Si desapruebas 3, quedas LIBRE.", lang="es")))
+g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_vidas))
+
+
+# Consejo Específico: Capilla (Oral)
+cons_sistop_capilla = fiunju.Consejo_SistOp_Capilla
+g.add((cons_sistop_capilla, RDF.type, fiunju.TopicoExamenOral))
+g.add((cons_sistop_capilla, RDFS.label, Literal("Estrategia de Unidad Específica", lang="es")))
+g.add((cons_sistop_capilla, fiunju.descripcion, Literal("Si rinden pocos, es Oral. Prepara un tema 'blindado' para iniciar.", lang="es")))
+g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_capilla))
+
+# Consejo Específico: Libros
+cons_sistop_libros = fiunju.Consejo_SistOp_Libros
+g.add((cons_sistop_libros, RDF.type, fiunju.TopicoFuentesInfo))
+g.add((cons_sistop_libros, RDFS.label, Literal("Libros Obligatorios", lang="es")))
+g.add((cons_sistop_libros, fiunju.descripcion, Literal("Los apuntes no alcanzan. Apóyate en Stallings o Tanenbaum.", lang="es")))
+g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_libros))
+
+# Consejo Específico: Integral
+cons_sistop_integral = fiunju.Consejo_SistOp_Integral
+g.add((cons_sistop_integral, RDF.type, fiunju.TopicoCriterioCorreccion))
+g.add((cons_sistop_integral, RDFS.label, Literal("El 'Integral' Salvavidas", lang="es")))
+g.add((cons_sistop_integral, fiunju.descripcion, Literal("Existe una última instancia: un Examen Integral Teórico-Práctico al final.", lang="es")))
+g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_integral))
+
+
+# --- BASE DE DATOS ---
+# Consejo: Error Cartesiano
+cons_bd_cartesiano = fiunju.Consejo_BD_Cartesiano
+g.add((cons_bd_cartesiano, RDF.type, fiunju.TopicoErroresComunes))
+g.add((cons_bd_cartesiano, RDFS.label, Literal("Cuidado con el Producto Cartesiano", lang="es")))
+g.add((cons_bd_cartesiano, fiunju.descripcion, Literal("Si olvidas el JOIN/WHERE, combinas todas las filas. Error grave que anula el ejercicio.", lang="es")))
+g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, cons_bd_cartesiano))
+
+# Consejo: Valor Profesional
+cons_bd_profesional = fiunju.Consejo_BD_Profesional
+g.add((cons_bd_profesional, RDF.type, fiunju.TopicoAplicacionProf))
+g.add((cons_bd_profesional, RDFS.label, Literal("Valor en el Mercado", lang="es")))
+g.add((cons_bd_profesional, fiunju.descripcion, Literal("Normalización y SQL Avanzado son habilidades críticas para tu primer empleo IT.", lang="es")))
+g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, cons_bd_profesional))
+
+
+# --- FISICA MECANICA ---
+# Consejo: Unidades
+cons_fisica_unidades = fiunju.Consejo_Fisica_Unidades
+g.add((cons_fisica_unidades, RDF.type, fiunju.TopicoErroresComunes))
+g.add((cons_fisica_unidades, RDFS.label, Literal("Trampa de Unidades", lang="es")))
+g.add((cons_fisica_unidades, fiunju.descripcion, Literal("El error #1 es mezclar sistemas. Pasa siempre todo al Sistema Internacional.", lang="es")))
+g.add((fiunju.FisicaMec, fiunju.tieneTopicoRelevante, cons_fisica_unidades))
+
+# Consejo: Resiliencia
+cons_fisica_resiliencia = fiunju.Consejo_Fisica_Resiliencia
+g.add((cons_fisica_resiliencia, RDF.type, fiunju.TopicoFrustracion))
+g.add((cons_fisica_resiliencia, RDFS.label, Literal("Resistencia al 1er Parcial", lang="es")))
+g.add((cons_fisica_resiliencia, fiunju.descripcion, Literal("Es normal desaprobar el primero. La mayoría regulariza en recuperatorio.", lang="es")))
+g.add((fiunju.FisicaMec, fiunju.tieneTopicoRelevante, cons_fisica_resiliencia))
+
+
+# --- PROGRAMACIÓN CONCURRENTE ---
+# Consejo: Impacto
+cons_progcon_impacto = fiunju.Consejo_ProgCon_Impacto
+g.add((cons_progcon_impacto, RDF.type, fiunju.TopicoImpactoEstrategico))
+g.add((cons_progcon_impacto, RDFS.label, Literal("Prioridad Absoluta", lang="es")))
+g.add((cons_progcon_impacto, fiunju.descripcion, Literal("Es el 'tapón' de la carrera. Bloquea materias de 3ro y 4to.", lang="es")))
+g.add((fiunju.ProgCon, fiunju.tieneTopicoRelevante, cons_progcon_impacto))
+
+# Consejo: Java HW
+cons_progcon_hw = fiunju.Consejo_ProgCon_HW
+g.add((cons_progcon_hw, RDF.type, fiunju.TopicoRequisitoHardware))
+g.add((cons_progcon_hw, RDFS.label, Literal("Entorno Java", lang="es")))
+g.add((cons_progcon_hw, fiunju.descripcion, Literal("Lleva notebook con Java+IDE a las prácticas para probar hilos en tiempo real.", lang="es")))
+g.add((fiunju.ProgCon, fiunju.tieneTopicoRelevante, cons_progcon_hw))
+
+# Consejo: Hilos
+cons_progcon_error = fiunju.Consejo_ProgCon_Error
+g.add((cons_progcon_error, RDF.type, fiunju.TopicoErroresComunes))
+g.add((cons_progcon_error, RDFS.label, Literal("La Trampa de los Hilos", lang="es")))
+g.add((cons_progcon_error, fiunju.descripcion, Literal("Que corra bien una vez no significa que esté bien. Prueba múltiples ejecuciones.", lang="es")))
+g.add((fiunju.ProgCon, fiunju.tieneTopicoRelevante, cons_progcon_error))
+
+
+# --- METODOLOGIA DE LA PROGRAMACIÓN ---
+# Consejo: Grupo
+cons_metprog_grupo = fiunju.Consejo_MetProg_Grupo
+g.add((cons_metprog_grupo, RDF.type, fiunju.TopicoDinamicaSocial))
+g.add((cons_metprog_grupo, RDFS.label, Literal("El Equipo es Todo", lang="es")))
+g.add((cons_metprog_grupo, fiunju.descripcion, Literal("Busca compañeros responsables YA. Cambiar de grupo a mitad de cuatrimestre es fatal.", lang="es")))
+g.add((fiunju.MetProg, fiunju.tieneTopicoRelevante, cons_metprog_grupo))
+
+# Link al Genérico de TI
+g.add((fiunju.MetProg, fiunju.tieneTopicoRelevante, inst_gen_ti))
+
+# Consejo: Lógica
+cons_metprog_logica = fiunju.Consejo_Intro_Logica
+g.add((cons_metprog_logica, RDF.type, fiunju.TopicoMochilaTecnica))
+g.add((cons_metprog_logica, RDFS.label, Literal("Lógica antes de Código", lang="es")))
+g.add((cons_metprog_logica, fiunju.descripcion, Literal("Valoran más el pseudocódigo bien planteado que un programa que 'corre de casualidad'.", lang="es")))
+g.add((fiunju.MetProg, fiunju.tieneTopicoRelevante, cons_metprog_logica))
+
+
+# --- ORGANIZACIÓN DE COMPUTADORAS ---
+# Link al Genérico de MC
+g.add((fiunju.OrgComp, fiunju.tieneTopicoRelevante, inst_gen_choice))
+
 
 print("ABox (Datos) poblada.")
 

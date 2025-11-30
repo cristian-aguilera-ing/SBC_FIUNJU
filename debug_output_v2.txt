@@ -1,0 +1,7 @@
+Topics for http://fi.unju.edu.ar/ontologia/informatica#BaseDatos:
+URI: http://fi.unju.edu.ar/ontologia/informatica#Consejo_BD_Cartesiano, Label: Cuidado con el Producto Cartesiano
+URI: http://fi.unju.edu.ar/ontologia/informatica#Consejo_BD_Profesional, Label: Valor en el Mercado
+URI: http://fi.unju.edu.ar/ontologia/informatica#InstanciaGeneral_Oral, Label: Claves para el Final Oral
+
+Description for http://fi.unju.edu.ar/ontologia/informatica#InstanciaGeneral_Oral:
+Prepara un 'tema de capilla' sólido para iniciar con confianza. Practica oratoria frente al espejo; evalúan tanto lo técnico como tu expresión.
