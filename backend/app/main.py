@@ -105,6 +105,9 @@ class TipoConsejo(str, Enum):
     CURSADA = "cursada"
     EXAMEN = "examen"
 
+# En backend/app/main.py
+# Reemplaza la función 'get_topicos_for_materia' existente con esta:
+
 @app.get("/ontologia/materias/topicos", response_model=list[TopicoOntology])
 def get_topicos_for_materia(
     materia_uri: str, 
@@ -112,29 +115,59 @@ def get_topicos_for_materia(
     current_user: User = Depends(get_current_user)
 ):
     kg = app.state.knowledge_graph
-    print(f"Buscando tópicos para {materia_uri} (Tipo: {tipo})")
     
-    filtro_sparql = ""
-    # Queries en una sola línea para evitar errores de indentación
-    if tipo == TipoConsejo.EXAMEN:
-        filtro_sparql = """FILTER(REGEX(STR(?topico), "ExamenOral$") || REGEX(STR(?topico), "ExamenEscrito$") || REGEX(STR(?topico), "ExamenMultipleChoice$"))"""
-    else: # 'cursada'
-        filtro_sparql = """FILTER(!REGEX(STR(?topico), "ExamenOral$") && !REGEX(STR(?topico), "ExamenEscrito$") && !REGEX(STR(?topico), "ExamenMultipleChoice$"))"""
-
+    # --- LÓGICA SEMÁNTICA PURA ---
+    # Preguntamos si la clase del tópico es hija de TopicoDeFinal.
+    # ?es_final será 'true' SOLO si hereda de TopicoDeFinal.
+    
     query_str = f"""
         PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        SELECT ?topico ?label
-            WHERE {{
-                BIND(<{materia_uri}> AS ?materia) .
-                ?materia fiunju:tieneTopicoRelevante ?topico .
-                ?topico rdfs:label ?label .
-                {filtro_sparql} 
-            }}
-            ORDER BY ?label"""
-
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        
+        SELECT ?topico ?label ?es_final
+        WHERE {{
+            BIND(<{materia_uri}> AS ?materia) .
+            ?materia fiunju:tieneTopicoRelevante ?topico .
+            ?topico rdfs:label ?label .
+            
+            # Verificación Semántica de Jerarquía
+            # Check if ANY type of the topic is a subclass of TopicoDeFinal
+            BIND(EXISTS {{ 
+                ?topico rdf:type ?clase .
+                ?clase rdfs:subClassOf* fiunju:TopicoDeFinal 
+            }} AS ?es_final)
+        }}
+    """
+    
     results = kg.query(query_str)
-    return [TopicoOntology(uri=str(row.topico), label=str(row.label)) for row in results]
+    
+    filtered_topics = []
+    
+    for row in results:
+        uri = str(row.topico)
+        label = str(row.label)
+        
+        # Conversión segura del booleano SPARQL a Python
+        es_de_examen = False
+        if row.es_final and hasattr(row.es_final, 'toPython'):
+             es_de_examen = row.es_final.toPython()
+        
+        # --- FILTRADO EXCLUYENTE ---
+        # Un tópico NO puede entrar en ambos if/elif al mismo tiempo.
+        
+        if tipo == TipoConsejo.EXAMEN and es_de_examen:
+            # Si el usuario pide EXAMEN y es_de_examen es True -> Entra aquí
+            filtered_topics.append(TopicoOntology(uri=uri, label=label))
+            
+        elif tipo == TipoConsejo.CURSADA and not es_de_examen:
+            # Si el usuario pide CURSADA y es_de_examen es False -> Entra aquí
+            filtered_topics.append(TopicoOntology(uri=uri, label=label))
+
+    # Eliminamos duplicados por seguridad
+    unique_topics = {t.uri: t for t in filtered_topics}.values()
+    
+    return list(unique_topics)
 
 # --- Endpoints de Perfil y Usuarios ---
 

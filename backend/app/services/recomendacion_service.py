@@ -325,9 +325,33 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         
         # Construir plan
         if uris_cursando:
-             # MODO ESTRICTO: Si el usuario seleccionó materias, el plan ES esa selección.
-             # No rellenamos con nada más.
-             plan_seleccionado = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
+             # MODO FILTRADO: Ajustamos la selección del usuario a la estrategia recomendada
+             
+             # 1. Identificar materias seleccionadas por el usuario
+             seleccion_usuario = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
+             
+             # 2. Filtrar las que coinciden con el requisito de dificultad (si existe)
+             if dificultad_req:
+                 primary = [m for m in seleccion_usuario if m["dificultad"] == dificultad_req]
+                 others = [m for m in seleccion_usuario if m["dificultad"] != dificultad_req]
+             else:
+                 primary = seleccion_usuario
+                 others = []
+                 
+             # 3. Construir plan respetando cantidad sugerida
+             plan_seleccionado = []
+             
+             # Tomar prioritarias (hasta cant_a_sugerir)
+             # Ordenamos las primary por impacto o alguna metrica si hay muchas? 
+             # Por ahora confiamos en el orden de 'materias_habilitadas' (que ya tiene logica de sort)
+             plan_seleccionado.extend(primary[:cant_a_sugerir])
+             
+             # Si falta para llegar a la cantidad, rellenar con las otras
+             if len(plan_seleccionado) < cant_a_sugerir:
+                 faltantes = cant_a_sugerir - len(plan_seleccionado)
+                 # Ordenar 'others' por dificultad ascendente (rellenar con lo más fácil posible de lo que eligió)
+                 others.sort(key=lambda x: x["dificultad"]) 
+                 plan_seleccionado.extend(others[:faltantes])
         else:
             # MODO AUTOMÁTICO: Llenamos según estrategia
             seleccion = candidatas[:cant_a_sugerir]
@@ -343,15 +367,10 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         uris_sel = {m["uri"] for m in plan_seleccionado}
         
         if uris_cursando:
-            # Si el usuario seleccionó materias, "Omitidas" (Postergar) son SOLO las que él eligió
-            # pero que no entraron en el plan (aunque en modo estricto, todas entran en plan_seleccionado,
-            # salvo que queramos mostrar las que NO eligió como "disponibles pero no elegidas"?
-            # El usuario pidió: "seleccione 2 materias... calcular solo de esas materias".
-            # Si plan_seleccionado == uris_cursando, entonces omitidas (de cursando) es vacío.
-            # Pero si el usuario seleccionó 4 y el plan ideal era de 2, ¿qué hacemos?
-            # El usuario dijo: "seleccione 2 materias... calcular solo de esas materias".
-            # Entonces el plan recomendado son esas 2.
-            omitidas = [] 
+            # Si el usuario seleccionó materias, "Omitidas" son las que él eligió
+            # pero que la estrategia filtró por exceso de carga/dificultad.
+            uris_plan = {m["uri"] for m in plan_seleccionado}
+            omitidas = [m for m in materias_habilitadas if m["uri"] in uris_cursando and m["uri"] not in uris_plan] 
         else:
             # Comportamiento default: Todo lo que sobra
             omitidas = [m for m in materias_habilitadas if m["uri"] not in uris_sel]

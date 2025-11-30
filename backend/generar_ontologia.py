@@ -43,32 +43,51 @@ g.add((fiunju.Optativa, RDFS.subClassOf, fiunju.Materia))
 g.add((fiunju.Obligatoria, RDFS.subClassOf, fiunju.Materia))
 g.add((fiunju.MateriaDeAltoEsfuerzo, RDFS.subClassOf, fiunju.Materia))
 
-# --- 2.3. Definición de Categorías de Consejos (NUEVO BLOQUE INTEGRADO) ---
-# Definimos los tópicos como CLASES, subclases de TopicoDeConsejo
-topicos = [
-    (fiunju.TopicoGestionTiempo, "Gestión del Tiempo"), # G
-    (fiunju.TopicoAprobacionTI, "Trabajo Integrador"), # T
-    (fiunju.TopicoExamenOral, "Examen Oral"), # E
-    (fiunju.TopicoExamenEscrito, "Examen Escrito"), # E
-    (fiunju.TopicoMultipleChoice, "Multiple Choice"), # M
-    (fiunju.TopicoDinamicaSocial, "Dinámica de Grupo"), # D
-    (fiunju.TopicoRequisitoHardware, "Requisito de Hardware"), # R
-    (fiunju.TopicoMochilaTecnica, "Conocimiento Previo"), # C
-    (fiunju.TopicoFuentesInfo, "Bibliografía vs Apuntes"), # B
-    (fiunju.TopicoErroresComunes, "Errores Clásicos"), # E
-    (fiunju.TopicoAplicacionProf, "Aplicación Profesional"), # A
-    (fiunju.TopicoFrustracion, "Resistencia y Mentalidad"), # R
-    (fiunju.TopicoCriterioCorreccion, "Criterio de Corrección"), # C
-    (fiunju.TopicoImpactoEstrategico, "Impacto Estratégico"), # I
-    (fiunju.TopicoValorClase, "Valor de la Clase") # V
+# --- 2.3. Definición de Categorías de Consejos (JERARQUÍA ESTRUCTURADA) ---
+
+# 1. Definimos las Clases "Padres" Intermedias
+g.add((fiunju.TopicoDeCursada, RDF.type, RDFS.Class))
+g.add((fiunju.TopicoDeCursada, RDFS.subClassOf, fiunju.TopicoDeConsejo))
+g.add((fiunju.TopicoDeCursada, RDFS.label, Literal("Tópicos de Cursada", lang="es")))
+
+g.add((fiunju.TopicoDeFinal, RDF.type, RDFS.Class))
+g.add((fiunju.TopicoDeFinal, RDFS.subClassOf, fiunju.TopicoDeConsejo))
+g.add((fiunju.TopicoDeFinal, RDFS.label, Literal("Tópicos de Examen Final", lang="es")))
+
+# 2. Lista de Tópicos que pertenecen a la CURSADA
+topicos_cursada = [
+    (fiunju.TopicoGestionTiempo, "Gestión del Tiempo"),
+    (fiunju.TopicoAprobacionTI, "Trabajo Integrador"),
+    (fiunju.TopicoDinamicaSocial, "Dinámica de Grupo"),
+    (fiunju.TopicoRequisitoHardware, "Requisito de Hardware"),
+    (fiunju.TopicoMochilaTecnica, "Conocimiento Previo"),
+    (fiunju.TopicoFuentesInfo, "Bibliografía vs Apuntes"),
+    (fiunju.TopicoErroresComunes, "Errores Clásicos"),
+    (fiunju.TopicoAplicacionProf, "Aplicación Profesional"),
+    (fiunju.TopicoFrustracion, "Resistencia y Mentalidad"),
+    (fiunju.TopicoValorClase, "Valor de la Clase")
 ]
 
-# Ordenamos la lista alfabéticamente por el label (segundo elemento de la tupla)
-topicos.sort(key=lambda x: x[1])
+# 3. Lista de Tópicos que pertenecen al FINAL
+topicos_final = [
+    (fiunju.TopicoExamenOral, "Examen Oral"),
+    (fiunju.TopicoExamenEscrito, "Examen Escrito"),
+    (fiunju.TopicoMultipleChoice, "Multiple Choice"),
+    (fiunju.TopicoEstrategiaFinal, "Estrategia de Final"), # El nuevo que creamos
+    (fiunju.TopicoCriterioCorreccion, "Criterio de Corrección"),
+    (fiunju.TopicoImpactoEstrategico, "Impacto Estratégico")
+]
 
-for uri, label in topicos:
+# 4. Bucle para crear las clases de CURSADA (Hijos de TopicoDeCursada)
+for uri, label in topicos_cursada:
     g.add((uri, RDF.type, RDFS.Class))
-    g.add((uri, RDFS.subClassOf, fiunju.TopicoDeConsejo))
+    g.add((uri, RDFS.subClassOf, fiunju.TopicoDeCursada)) # <--- HERENCIA CLAVE
+    g.add((uri, RDFS.label, Literal(label, lang="es")))
+
+# 5. Bucle para crear las clases de FINAL (Hijos de TopicoDeFinal)
+for uri, label in topicos_final:
+    g.add((uri, RDF.type, RDFS.Class))
+    g.add((uri, RDFS.subClassOf, fiunju.TopicoDeFinal))   # <--- HERENCIA CLAVE
     g.add((uri, RDFS.label, Literal(label, lang="es")))
 
 # --- 2.3. Propiedades de Objeto (ObjectProperty) ---
@@ -235,7 +254,6 @@ inst_gen_choice = fiunju.InstanciaGeneral_Choice
 g.add((inst_gen_choice, RDF.type, fiunju.TopicoMultipleChoice))
 g.add((inst_gen_choice, RDFS.label, Literal("Tips Multiple Choice", lang="es")))
 g.add((inst_gen_choice, fiunju.descripcion, Literal("Estudia definiciones exactas, no 'guitarrees'. Ante la duda, usa la técnica de descarte para aumentar tus probabilidades.", lang="es")))
-
 
 # --- 3.0. NUEVO: Definición de Arquetipos (Individuos) ---
 # 1. Perfil Crítico
@@ -1025,33 +1043,36 @@ g.add((fiunju.ModProNeg, fiunju.otorgaCreditos, Literal(90, datatype=XSD.integer
 print("PASO 3.6: Vinculando consejos específicos a materias...")
 
 # --- SISTEMAS OPERATIVOS I ---
-# Consejo Específico: Las 3 Vidas
+
+# 1. Consejo de Cursada: Las 3 Vidas
 cons_sistop_vidas = fiunju.Consejo_SistOp_Vidas
-g.add((cons_sistop_vidas, RDF.type, fiunju.TopicoValorClase))
+g.add((cons_sistop_vidas, RDF.type, fiunju.TopicoValorClase)) # Clase hija de Cursada
 g.add((cons_sistop_vidas, RDFS.label, Literal("El Sistema de las '3 Vidas'", lang="es")))
 g.add((cons_sistop_vidas, fiunju.descripcion, Literal("Toman cuestionarios con penalización al inicio de cada teórica. Si desapruebas 3, quedas LIBRE.", lang="es")))
 g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_vidas))
 
-
-# Consejo Específico: Capilla (Oral)
+# 2. Consejo de Examen Final: Estrategia Oral (Capilla)
 cons_sistop_capilla = fiunju.Consejo_SistOp_Capilla
-g.add((cons_sistop_capilla, RDF.type, fiunju.TopicoExamenOral))
+g.add((cons_sistop_capilla, RDF.type, fiunju.TopicoExamenOral)) # Clase hija de Final
 g.add((cons_sistop_capilla, RDFS.label, Literal("Estrategia de Unidad Específica", lang="es")))
-g.add((cons_sistop_capilla, fiunju.descripcion, Literal("Si rinden pocos, es Oral. Prepara un tema 'blindado' para iniciar.", lang="es")))
+g.add((cons_sistop_capilla, fiunju.descripcion, Literal("Si se presentan a la mesa menos de 5 alumnos, el examen es Oral. Prepara un tema 'blindado' para iniciar. Si ven solidez, 'bajan la guardia'.", lang="es")))
 g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_capilla))
+# Le agregamos el genérico de Multiple Choice (ya que es su modalidad)
+g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, inst_gen_choice))
 
-# Consejo Específico: Libros
+# 4. Consejo de Cursada: Libros
 cons_sistop_libros = fiunju.Consejo_SistOp_Libros
-g.add((cons_sistop_libros, RDF.type, fiunju.TopicoFuentesInfo))
+g.add((cons_sistop_libros, RDF.type, fiunju.TopicoFuentesInfo)) # Clase hija de Cursada
 g.add((cons_sistop_libros, RDFS.label, Literal("Libros Obligatorios", lang="es")))
 g.add((cons_sistop_libros, fiunju.descripcion, Literal("Los apuntes no alcanzan. Apóyate en Stallings o Tanenbaum.", lang="es")))
 g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_libros))
 
-# Consejo Específico: Integral
+# 5. Consejo de Cursada: Integral Salvavidas
 cons_sistop_integral = fiunju.Consejo_SistOp_Integral
-g.add((cons_sistop_integral, RDF.type, fiunju.TopicoCriterioCorreccion))
+# Nota: Lo asignamos a 'TopicoValorClase' para forzar que aparezca en CURSADA (si usamos CriterioCorreccion saldría en Final)
+g.add((cons_sistop_integral, RDF.type, fiunju.TopicoValorClase)) 
 g.add((cons_sistop_integral, RDFS.label, Literal("El 'Integral' Salvavidas", lang="es")))
-g.add((cons_sistop_integral, fiunju.descripcion, Literal("Existe una última instancia: un Examen Integral Teórico-Práctico al final.", lang="es")))
+g.add((cons_sistop_integral, fiunju.descripcion, Literal("Existe una última instancia: un Examen Integral Teórico-Práctico al final del cuatrimestre para salvar la cursada.", lang="es")))
 g.add((fiunju.SistOpI, fiunju.tieneTopicoRelevante, cons_sistop_integral))
 
 
@@ -1070,6 +1091,23 @@ g.add((cons_bd_profesional, RDFS.label, Literal("Valor en el Mercado", lang="es"
 g.add((cons_bd_profesional, fiunju.descripcion, Literal("Normalización y SQL Avanzado son habilidades críticas para tu primer empleo IT.", lang="es")))
 g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, cons_bd_profesional))
 
+# --------------------- CONSEJO ESPECIFICO PARA EXAMEN FINAL DE BD ---------
+# Consejo Especifico para examen oral
+cons_bd_oral = fiunju.Consejo_BD_Ruleta
+g.add((cons_bd_oral, RDF.type, fiunju.TopicoExamenOral))
+g.add((cons_bd_oral, fiunju.descripcion, Literal("La Ruleta de Colores", lang="es")))
+g.add((cons_bd_profesional, fiunju.descripcion, Literal("El examen no es con tema a elección. Una app sortea 5 colores (unidades temáticas) al azar y debes responder preguntas puntuales sobre cada uno para sumar puntos. Debes estudiar todo el programa, no puedes 'especular' con un solo tema.", lang="es")))
+g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, cons_bd_oral))
+
+# --- NUEVO: Consejo de Final para Base de Datos ---
+cons_bd_final = fiunju.Consejo_BD_Final_Relacional
+# Nota importante: Usamos la CLASE que creamos arriba (TopicoEstrategiaFinal)
+g.add((cons_bd_final, RDF.type, fiunju.TopicoEstrategiaFinal))
+g.add((cons_bd_final, RDFS.label, Literal("Defensa del Modelo en el Final", lang="es")))
+g.add((cons_bd_final, fiunju.descripcion, Literal("En el final oral te pedirán justificar tu DER (Diagrama Entidad-Relación). No digas 'lo hice así porque quedaba bien'. Debes justificar usando las Formas Normales (1FN, 2FN, 3FN) y explicar cómo evitaste redundancia.", lang="es")))
+
+# Vinculamos el consejo a la materia Base de Datos
+g.add((fiunju.BaseDatos, fiunju.tieneTopicoRelevante, cons_bd_final))
 
 # --- FISICA MECANICA ---
 # Consejo: Unidades
@@ -1086,6 +1124,13 @@ g.add((cons_fisica_resiliencia, RDFS.label, Literal("Resistencia al 1er Parcial"
 g.add((cons_fisica_resiliencia, fiunju.descripcion, Literal("Es normal desaprobar el primero. La mayoría regulariza en recuperatorio.", lang="es")))
 g.add((fiunju.FisicaMec, fiunju.tieneTopicoRelevante, cons_fisica_resiliencia))
 
+ # --------------------- CONSEJO ESPECIFICO PARA EXAMEN FINAL DE FISICA MECANICA ---------
+#Consejo para examen escrito
+cons_fisica_escrito = fiunju.Consejo_Fisica_Escrito
+g.add((cons_fisica_escrito, RDF.type, fiunju.TopicoExamenEscrito))
+g.add((cons_fisica_escrito, RDFS.label, Literal("Estructura: 3 Puntos (Teórico-Práctico)", lang="es")))
+g.add((cons_fisica_escrito, fiunju.descripcion, Literal("Es un escrito de desarrollo (Tema A o B) con 3 puntos. No es solo definir; buscan un 'mix' donde apliques la teoría exacta en demostraciones y cálculos puntuales.", lang="es")))
+g.add((fiunju.FisicaMec, fiunju.tieneTopicoRelevante, cons_fisica_escrito))
 
 # --- PROGRAMACIÓN CONCURRENTE ---
 # Consejo: Impacto
