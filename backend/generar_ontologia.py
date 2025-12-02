@@ -435,8 +435,8 @@ g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaPosible, e_mb_e))
 e_eq_a = crear_estrategia("Estrategia_Equilibrado_A", 1, "Plan A: 2 Fáciles + 1 Muy Difícil. (Carga balanceada para no atrasarse y mantener buen ritmo).", 3, [(fiunju.Nivel_1, 2), (fiunju.Nivel_4, 1)])
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_a))
 
-# Plan B: 1 Muy Difícil + 1 Difícil (EXACTO)
-e_eq_b = crear_estrategia("Estrategia_Equilibrado_B", 2, "Plan B: 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas).", 2, [(fiunju.Nivel_4, 1), (fiunju.Nivel_3, 1)])
+# Plan B: 2 Materias de Cualquier Dificultad
+e_eq_b = crear_estrategia("Estrategia_Equilibrado_B", 2, "Plan B: 2 Materias. (Podes cursar dos materias de cualquier dificultad, tu perfil es equilibrado podes Promocionar).", 2, None)
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_b))
 
 # Plan C: 3 Normales
@@ -446,10 +446,6 @@ g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_c))
 # Plan D: 2 Muy Difíciles
 e_eq_d = crear_estrategia("Estrategia_Equilibrado_D", 4, "Plan D: 2 Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas).", 2, [(fiunju.Nivel_4, 2)])
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_d))
-
-# Plan E: Fallback - 1 Materia de Cualquier Dificultad
-e_eq_e = crear_estrategia("Estrategia_Equilibrado_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
-g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_e))
 
 
 # --- 5. Perfil Medio-Alto ---
