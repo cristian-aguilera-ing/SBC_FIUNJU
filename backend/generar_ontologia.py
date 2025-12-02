@@ -480,7 +480,7 @@ e_sa_a = crear_estrategia("Estrategia_SuperAlto_A", 1, "Plan A: 3 Muy Difíciles
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_a))
 
 # Plan B: 5 Variadas (Mix) - Plan flexible
-e_sa_b = crear_estrategia("Estrategia_SuperAlto_B", 2, "Plan B: 5 Variadas. (Priorizá correlatives; no curses por cursar si no te traban la carrera).", 5, None)
+e_sa_b = crear_estrategia("Estrategia_SuperAlto_B", 2, "Plan B: <= 5 Materias. (Podes Cursar hasta cinco materias, Priorizá correlatives; no curses por cursar si no te vas a atascar).", 5, None)
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_b))
 
 # Plan C: 5 Fáciles (EXACTO)
