@@ -2,6 +2,7 @@ import React from 'react';
 import { PlanCursadaRecomendado } from '@/types';
 import WidgetDinamico from './WidgetDinamico';
 import { CheckCircle, AlertTriangle, BookOpen, Clock, Trophy, Target, ArrowRight, Info, X, Lightbulb, XCircle } from 'lucide-react';
+import { obtenerDiagnostico } from '@/constants/diagnosticos';
 
 // Componente para renderizar la tarjeta de recomendación estética (Estrategia Específica)
 const RecommendationCard = ({ text, color }: { text: string, color: string }) => {
@@ -141,7 +142,7 @@ const PlanResults = ({ plan, isLoading }: { plan: PlanCursadaRecomendado | null,
                     </h3>
 
                     <div className="text-gray-300 text-xs md:text-sm leading-relaxed whitespace-pre-wrap">
-                        {plan.arquetipo.diagnostico || "Diagnóstico no disponible."}
+                        {obtenerDiagnostico(plan.arquetipo.nombre, plan.arquetipo.diagnostico)}
                     </div>
                 </div>
             </div>
