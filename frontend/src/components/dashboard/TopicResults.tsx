@@ -6,8 +6,8 @@ import axios from "axios";
 import { toast } from "sonner";
 
 interface TopicResultsProps {
-  materiasPerfil: MateriaPerfil[];
-  token: string | null;
+    materiasPerfil: MateriaPerfil[];
+    token: string | null;
 }
 
 // Subcomponente para mostrar un tópico y pedir consejo
@@ -24,9 +24,24 @@ const TopicItem = ({
 }) => {
     const [consejo, setConsejo] = useState<string[] | null>(null);
     const [loading, setLoading] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(false);
 
     const handleAsk = async () => {
         if (!token) return;
+
+        // Si ya está expandido, solo contraer
+        if (isExpanded) {
+            setIsExpanded(false);
+            return;
+        }
+
+        // Si ya tenemos el consejo, solo expandir
+        if (consejo) {
+            setIsExpanded(true);
+            return;
+        }
+
+        // Si no tenemos el consejo, pedirlo
         setLoading(true);
         try {
             const endpoint = tipo === 'cursada'
@@ -39,9 +54,10 @@ const TopicItem = ({
             };
 
             const response = await axios.post<ConsejoResponse>(
-                endpoint, body, { headers: { Authorization: `Bearer ${token}` }}
+                endpoint, body, { headers: { Authorization: `Bearer ${token}` } }
             );
             setConsejo(response.data.consejos);
+            setIsExpanded(true);
         } catch (error) {
             toast.error("Error al obtener consejo");
         } finally {
@@ -50,21 +66,31 @@ const TopicItem = ({
     };
 
     return (
-        <div className="ml-4 mb-2">
-            <Button
-                variant="ghost"
-                size="sm"
+        <div className="mb-2">
+            <button
                 onClick={handleAsk}
                 disabled={loading}
-                className="text-gray-300 hover:text-blue-300 hover:bg-blue-900/20 text-xs flex items-center gap-2 w-full justify-start"
+                className="group w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800/30 border-l-2 border-blue-500/50 hover:border-blue-400 hover:bg-gray-800/50 transition-all duration-200 disabled:opacity-50"
             >
-                <MessageSquare className="w-3 h-3" />
-                {topico.label}
-            </Button>
-            {consejo && (
-                 <div className="ml-6 mt-1 p-2 bg-blue-900/30 border border-blue-800 rounded text-xs text-blue-200 animate-in fade-in-0">
-                    {consejo.map((c, i) => <p key={i}>• {c}</p>)}
-                 </div>
+                <MessageSquare className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
+                <span className="text-sm text-gray-300 group-hover:text-white transition-colors flex-1 text-left">
+                    {topico.label}
+                </span>
+                {loading && (
+                    <div className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                )}
+            </button>
+            {consejo && isExpanded && (
+                <div className="mt-3 ml-6 p-4 bg-gradient-to-br from-emerald-900/20 via-blue-900/20 to-purple-900/20 border-l-4 border-emerald-500/60 rounded-r-xl animate-in slide-in-from-left-2 duration-300 shadow-lg">
+                    <div className="space-y-3">
+                        {consejo.map((c, i) => (
+                            <div key={i} className="flex items-start gap-3 text-sm leading-relaxed">
+                                <span className="flex-shrink-0 w-2 h-2 rounded-full bg-emerald-400 mt-1.5 shadow-sm shadow-emerald-400/50" />
+                                <p className="flex-1 text-gray-200">{c}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
         </div>
     );
@@ -107,51 +133,74 @@ const MateriaExpandable = ({ materia, token, tipos }: { materia: MateriaPerfil, 
     };
 
     return (
-        <div className="border border-gray-700 rounded bg-gray-800/80 overflow-hidden mb-3">
+        <div className="border border-white/10 rounded-xl bg-gradient-to-br from-gray-800/50 to-gray-900/50 overflow-hidden mb-3 backdrop-blur-sm hover:border-white/20 transition-all duration-300 shadow-lg">
             <button
                 onClick={toggle}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-700 transition-colors"
+                className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-colors group"
             >
                 <div className="flex flex-col items-start">
-                    <span className="font-semibold text-sm text-gray-200">{materia.label}</span>
+                    <span className="font-semibold text-base text-gray-100 group-hover:text-white transition-colors">{materia.label}</span>
                     <span className="text-[10px] text-gray-400 uppercase tracking-wider">
                         {tipos.includes('cursada') && tipos.includes('examen') ? "Cursada y Final" : tipos.includes('cursada') ? "Cursando" : "Final"}
                     </span>
                 </div>
-                {expanded ? <ChevronDown className="w-4 h-4 text-gray-400" /> : <ChevronRight className="w-4 h-4 text-gray-400" />}
+                <div className="flex items-center gap-2">
+                    {(topicosCursada.length > 0 || topicosExamen.length > 0) && (
+                        <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">
+                            {topicosCursada.length + topicosExamen.length}
+                        </span>
+                    )}
+                    {expanded ?
+                        <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" /> :
+                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
+                    }
+                </div>
             </button>
 
             {expanded && (
-                <div className="p-3 bg-gray-900/30 border-t border-gray-700 animate-in slide-in-from-top-2">
+                <div className="p-4 bg-black/20 border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
                     {loadingTopicos ? (
-                        <p className="text-xs text-gray-500 italic">Cargando temas...</p>
+                        <div className="flex items-center justify-center gap-2 py-8">
+                            <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                            <p className="text-sm text-gray-400">Cargando temas...</p>
+                        </div>
                     ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {/* Sección Cursada */}
                             {tipos.includes('cursada') && (
-                                <div>
-                                    <h5 className="text-xs font-bold text-green-400 uppercase mb-2 flex items-center gap-1 border-b border-gray-700/50 pb-1">
-                                        <BookOpen className="w-3 h-3"/> Durante la Cursada
+                                <div className="p-4 rounded-xl bg-gradient-to-br from-green-900/10 to-emerald-900/10 border border-green-500/20">
+                                    <h5 className="text-sm font-bold text-green-400 uppercase mb-3 flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-lg bg-green-500/20 flex items-center justify-center">
+                                            <BookOpen className="w-4 h-4" />
+                                        </div>
+                                        Durante la Cursada
                                     </h5>
                                     {topicosCursada.length > 0 ? (
-                                        topicosCursada.map(t => (
-                                            <TopicItem key={t.uri} topico={t} materiaUri={materia.materia_uri} tipo="cursada" token={token} />
-                                        ))
-                                    ) : <p className="text-xs text-gray-500 ml-4 italic">Sin tópicos específicos.</p>}
+                                        <div className="space-y-2">
+                                            {topicosCursada.map(t => (
+                                                <TopicItem key={t.uri} topico={t} materiaUri={materia.materia_uri} tipo="cursada" token={token} />
+                                            ))}
+                                        </div>
+                                    ) : <p className="text-xs text-gray-500 ml-2">Sin tópicos específicos.</p>}
                                 </div>
                             )}
 
                             {/* Sección Examen */}
                             {tipos.includes('examen') && (
-                                <div>
-                                    <h5 className="text-xs font-bold text-purple-400 uppercase mb-2 flex items-center gap-1 border-b border-gray-700/50 pb-1">
-                                        <GraduationCap className="w-3 h-3"/> Para el Final
+                                <div className="p-4 rounded-xl bg-gradient-to-br from-purple-900/10 to-fuchsia-900/10 border border-purple-500/20">
+                                    <h5 className="text-sm font-bold text-purple-400 uppercase mb-3 flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                                            <GraduationCap className="w-4 h-4" />
+                                        </div>
+                                        Para el Final
                                     </h5>
                                     {topicosExamen.length > 0 ? (
-                                        topicosExamen.map(t => (
-                                            <TopicItem key={t.uri} topico={t} materiaUri={materia.materia_uri} tipo="examen" token={token} />
-                                        ))
-                                    ) : <p className="text-xs text-gray-500 ml-4 italic">Sin tópicos específicos.</p>}
+                                        <div className="space-y-2">
+                                            {topicosExamen.map(t => (
+                                                <TopicItem key={t.uri} topico={t} materiaUri={materia.materia_uri} tipo="examen" token={token} />
+                                            ))}
+                                        </div>
+                                    ) : <p className="text-xs text-gray-500 ml-2">Sin tópicos específicos.</p>}
                                 </div>
                             )}
                         </div>
@@ -183,15 +232,18 @@ const TopicResults = ({ materiasPerfil, token }: TopicResultsProps) => {
     }
 
     return (
-        <div className="bg-gray-800 p-5 rounded-lg shadow-lg border border-gray-700 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <h3 className="font-bold text-lg text-blue-300 mb-4 flex items-center gap-2">
-                <MessageSquare className="w-5 h-5"/> Consulta por Tópicos
-            </h3>
-            <p className="text-sm text-gray-400 mb-6">
-                Explora consejos específicos sobre los temas de tus materias actuales.
-            </p>
+        <div className="p-6 bg-gradient-to-br from-gray-800/40 to-gray-900/40 rounded-2xl border border-white/10 backdrop-blur-sm shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="mb-5">
+                <h3 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-blue-400" />
+                    </div>
+                    Explorar Tópicos
+                </h3>
+                <p className="text-sm text-gray-400">Explora consejos específicos sobre los temas de tus materias actuales.</p>
+            </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
                 {materiasCursando.map(m => (
                     <MateriaExpandable key={`cur-${m.id}`} materia={m} token={token} tipos={['cursada']} />
                 ))}

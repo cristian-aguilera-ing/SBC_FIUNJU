@@ -155,6 +155,24 @@ g.add((fiunju.requiereDisponibilidadDe, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.requiereDisponibilidadDe, RDFS.domain, fiunju.EstrategiaRecomendacion))
 g.add((fiunju.requiereDisponibilidadDe, RDFS.range, fiunju.NivelDificultadCursada))
 
+# Propiedades adicionales para soportar múltiples requisitos de dificultad
+g.add((fiunju.requiereDisponibilidadDe2, RDF.type, OWL.ObjectProperty))
+g.add((fiunju.requiereDisponibilidadDe2, RDFS.domain, fiunju.EstrategiaRecomendacion))
+g.add((fiunju.requiereDisponibilidadDe2, RDFS.range, fiunju.NivelDificultadCursada))
+
+g.add((fiunju.requiereDisponibilidadDe3, RDF.type, OWL.ObjectProperty))
+g.add((fiunju.requiereDisponibilidadDe3, RDFS.domain, fiunju.EstrategiaRecomendacion))
+g.add((fiunju.requiereDisponibilidadDe3, RDFS.range, fiunju.NivelDificultadCursada))
+
+# Propiedades para especificar cuántas materias de cada dificultad
+g.add((fiunju.cantidadRequerida2, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.cantidadRequerida2, RDFS.domain, fiunju.EstrategiaRecomendacion))
+g.add((fiunju.cantidadRequerida2, RDFS.range, XSD.integer))
+
+g.add((fiunju.cantidadRequerida3, RDF.type, OWL.DatatypeProperty))
+g.add((fiunju.cantidadRequerida3, RDFS.domain, fiunju.EstrategiaRecomendacion))
+g.add((fiunju.cantidadRequerida3, RDFS.range, XSD.integer))
+
 # Relación Arquetipo -> Estrategia
 g.add((fiunju.tieneEstrategiaPosible, RDF.type, OWL.ObjectProperty))
 g.add((fiunju.tieneEstrategiaPosible, RDFS.domain, fiunju.ArquetipoEstudiante))
@@ -309,146 +327,195 @@ g.add((fiunju.ArquetipoAtipico, fiunju.tieneTarjetaDiagnostico, Literal("Tiempo 
 
 # --- 3.0.1. Población de Estrategias por Arquetipo ---
 
-def crear_estrategia(id_estrategia, orden, descripcion, cant_materias, dificultad_req_uri, min_req):
+def crear_estrategia(id_estrategia, orden, descripcion, cant_materias, requisitos):
+    """
+    Crea una estrategia de recomendación con soporte para múltiples requisitos de dificultad.
+    
+    Args:
+        id_estrategia: ID único de la estrategia
+        orden: Orden de prioridad
+        descripcion: Descripción del plan
+        cant_materias: Cantidad total de materias
+        requisitos: Lista de tuplas (dificultad_uri, cantidad) o None para planes flexibles
+                   Ejemplo: [(fiunju.Nivel_4, 1), (fiunju.Nivel_1, 1)] = 1 Muy Difícil + 1 Fácil
+    """
     est_uri = fiunju[id_estrategia]
     g.add((est_uri, RDF.type, fiunju.EstrategiaRecomendacion))
     g.add((est_uri, fiunju.ordenPrioridad, Literal(orden, datatype=XSD.integer)))
     g.add((est_uri, fiunju.descripcionPlan, Literal(descripcion, lang="es")))
     g.add((est_uri, fiunju.cantidadMaterias, Literal(cant_materias, datatype=XSD.integer)))
-    if dificultad_req_uri:
-        g.add((est_uri, fiunju.requiereDisponibilidadDe, dificultad_req_uri))
-    g.add((est_uri, fiunju.cantidadMinimaRequerida, Literal(min_req, datatype=XSD.integer)))
+    
+    if requisitos:
+        # Agregar requisitos de dificultad
+        if len(requisitos) >= 1:
+            g.add((est_uri, fiunju.requiereDisponibilidadDe, requisitos[0][0]))
+            g.add((est_uri, fiunju.cantidadMinimaRequerida, Literal(requisitos[0][1], datatype=XSD.integer)))
+        
+        if len(requisitos) >= 2:
+            g.add((est_uri, fiunju.requiereDisponibilidadDe2, requisitos[1][0]))
+            g.add((est_uri, fiunju.cantidadRequerida2, Literal(requisitos[1][1], datatype=XSD.integer)))
+        
+        if len(requisitos) >= 3:
+            g.add((est_uri, fiunju.requiereDisponibilidadDe3, requisitos[2][0]))
+            g.add((est_uri, fiunju.cantidadRequerida3, Literal(requisitos[2][1], datatype=XSD.integer)))
+    else:
+        # Plan flexible (sin requisitos específicos de dificultad)
+        g.add((est_uri, fiunju.cantidadMinimaRequerida, Literal(0, datatype=XSD.integer)))
+    
     return est_uri
 
 # --- 1. Perfil Crítico ---
 # Plan A: 2 Fáciles
-e_crit_a = crear_estrategia("Estrategia_Critico_A", 1, "Plan A: 2 Fáciles. (Es el límite real de tu energía diaria; no te sobreexijas). ", 2, fiunju.Nivel_1, 2)
+e_crit_a = crear_estrategia("Estrategia_Critico_A", 1, "Plan A: 2 Fáciles. (Es el límite real de tu energía diaria; no te sobreexijas). ", 2, [(fiunju.Nivel_1, 2)])
 g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaPosible, e_crit_a))
 
 # Plan B: 1 Normal
-e_crit_b = crear_estrategia("Estrategia_Critico_B", 2, "Plan B: 1 Normal. (No se recomienda cursar 2 normales, el riesgo de abandono es altísimo). ", 1, fiunju.Nivel_2, 1)
+e_crit_b = crear_estrategia("Estrategia_Critico_B", 2, "Plan B: 1 Normal. (No se recomienda cursar 2 normales, el riesgo de abandono es altísimo). ", 1, [(fiunju.Nivel_2, 1)])
 g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaPosible, e_crit_b))
 
 # Plan C: 1 Difícil
-e_crit_c = crear_estrategia("Estrategia_Critico_C", 3, "Plan C: 1 Difícil. (Advertencia: Solo si es la única actividad académica). ", 1, fiunju.Nivel_3, 1)
+e_crit_c = crear_estrategia("Estrategia_Critico_C", 3, "Plan C: 1 Difícil. (Advertencia: Solo si es la única actividad académica). ", 1, [(fiunju.Nivel_3, 1)])
 g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaPosible, e_crit_c))
 
 # Plan D: 1 Muy Difícil
-e_crit_d = crear_estrategia("Estrategia_Critico_D", 4, "Plan D: 1 Muy Difícil. No cursar este cuatrimestre o cursar 1 Muy Difícil sabiendo que requerirá sacrificar fines de semana. ", 1, fiunju.Nivel_4, 1)
+e_crit_d = crear_estrategia("Estrategia_Critico_D", 4, "Plan D: 1 Muy Difícil. No cursar este cuatrimestre o cursar 1 Muy Difícil sabiendo que requerirá sacrificar fines de semana. ", 1, [(fiunju.Nivel_4, 1)])
 g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaPosible, e_crit_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_crit_e = crear_estrategia("Estrategia_Critico_E", 5, "Plan E: 1 Materia. (Siem pre es posible cursar al menos una materia, sin importar la dificultad).", 1, None)
+g.add((fiunju.ArquetipoCritico, fiunju.tieneEstrategiaPosible, e_crit_e))
 
 
 # --- 2. Perfil Bajo ---
 # Plan A: 2 Fáciles
-e_bajo_a = crear_estrategia("Estrategia_Bajo_A", 1, "Plan A: 2 Fáciles. (Combinación segura gracias a que tenés buen soporte en casa).", 2, fiunju.Nivel_1, 2)
+e_bajo_a = crear_estrategia("Estrategia_Bajo_A", 1, "Plan A: 2 Fáciles. (Combinación segura gracias a que tenés buen soporte en casa).", 2, [(fiunju.Nivel_1, 2)])
 g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaPosible, e_bajo_a))
 
 # Plan B: 2 Normales
-e_bajo_b = crear_estrategia("Estrategia_Bajo_B", 2, "Plan B: 2 Normales. (Riesgoso: Solo recomendable si las fechas de parciales no caen en la misma semana).", 2, fiunju.Nivel_2, 2)
+e_bajo_b = crear_estrategia("Estrategia_Bajo_B", 2, "Plan B: 2 Normales. (Riesgoso: Solo recomendable si las fechas de parciales no caen en la misma semana).", 2, [(fiunju.Nivel_2, 2)])
 g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaPosible, e_bajo_b))
 
 # Plan C: 1 Difícil
-e_bajo_c = crear_estrategia("Estrategia_Bajo_C", 3, "Plan C: 1 Difícil. (Advertencia: Estudiar en lugares tranquilos como la facultad, para evitar las distracciones del entorno).", 1, fiunju.Nivel_3, 1)
+e_bajo_c = crear_estrategia("Estrategia_Bajo_C", 3, "Plan C: 1 Difícil. (Advertencia: Estudiar en lugares tranquilos como la facultad, para evitar las distracciones del entorno).", 1, [(fiunju.Nivel_3, 1)])
 g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaPosible, e_bajo_c))
 
 # Plan D: 1 Muy Difícil
-e_bajo_d = crear_estrategia("Estrategia_Bajo_D", 4, "Plan D: 1 Muy Difícil. (Solo si no hay otra opción y podes concentrar toda tu atención durante toda la cursada).", 1, fiunju.Nivel_4, 1)
+e_bajo_d = crear_estrategia("Estrategia_Bajo_D", 4, "Plan D: 1 Muy Difícil. (Solo si no hay otra opción y podes concentrar toda tu atención durante toda la cursada).", 1, [(fiunju.Nivel_4, 1)])
 g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaPosible, e_bajo_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_bajo_e = crear_estrategia("Estrategia_Bajo_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
+g.add((fiunju.ArquetipoBajo, fiunju.tieneEstrategiaPosible, e_bajo_e))
 
 
 # --- 3. Perfil Medio-Bajo ---
-# Plan A: 1 Difícil + 2 Normales (Total 3) - REVISAR LOGICA ORIGINAL: "1 Dificil y 2 Normales"
-# La logica original dice: if len(dificiles) >= 1 and len(normales) >= 2: ...
-# Aquí modelamos el requisito PRINCIPAL. Como OWL no es un lenguaje de programación imperativo, 
-# definiremos el requisito más fuerte o una combinación. 
-# Para simplificar en esta iteración: Requerimos 1 Difícil. El motor luego intentará llenar con Normales.
-e_mb_a = crear_estrategia("Estrategia_MedioBajo_A", 1, "Plan A: 1 Difícil + 2 Normales. (Tenés horas libres, pero el viaje largo consume mucha energía mental).", 3, fiunju.Nivel_3, 1) 
-# NOTA: El motor deberá ser inteligente para completar. O podemos hacer estrategias compuestas en el futuro.
+# Plan A: 1 Difícil + 2 Normales (EXACTO)
+e_mb_a = crear_estrategia("Estrategia_MedioBajo_A", 1, "Plan A: 1 Difícil + 2 Normales. (Tenés horas libres, pero el viaje largo consume mucha energía mental).", 3, [(fiunju.Nivel_3, 1), (fiunju.Nivel_2, 2)]) 
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaPosible, e_mb_a))
 
 # Plan B: 3 Normales
-e_mb_b = crear_estrategia("Estrategia_MedioBajo_B", 2, "Plan B: 3 Normales. (Debes dedicarle más tiempo al estudio sin perder el ritmo).", 3, fiunju.Nivel_2, 3)
+e_mb_b = crear_estrategia("Estrategia_MedioBajo_B", 2, "Plan B: 3 Normales. (Debes dedicarle más tiempo al estudio sin perder el ritmo).", 3, [(fiunju.Nivel_2, 3)])
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaPosible, e_mb_b))
 
 # Plan C: 2 Difíciles
-e_mb_c = crear_estrategia("Estrategia_MedioBajo_C", 3, "Plan C: 2 Difíciles. (Riesgoso, requiere mucha disciplina y usar tus horas de viaje para leer).", 2, fiunju.Nivel_3, 2)
+e_mb_c = crear_estrategia("Estrategia_MedioBajo_C", 3, "Plan C: 2 Difíciles. (Riesgoso, requiere mucha disciplina y usar tus horas de viaje para leer).", 2, [(fiunju.Nivel_3, 2)])
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaPosible, e_mb_c))
 
-# Plan D: 1 Muy Difícil + 1 Fácil
-e_mb_d = crear_estrategia("Estrategia_MedioBajo_D", 4, "Plan D: 1 Muy Difícil + 1 Fácil. (Es el tope máximo de carga cognitiva para tu rutina).", 2, fiunju.Nivel_4, 1)
+# Plan D: 1 Muy Difícil + 1 Fácil (EXACTO)
+e_mb_d = crear_estrategia("Estrategia_MedioBajo_D", 4, "Plan D: 1 Muy Difícil + 1 Fácil. (Es el tope máximo de carga cognitiva para tu rutina).", 2, [(fiunju.Nivel_4, 1), (fiunju.Nivel_1, 1)])
 g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaPosible, e_mb_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_mb_e = crear_estrategia("Estrategia_MedioBajo_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
+g.add((fiunju.ArquetipoMedioBajo, fiunju.tieneEstrategiaPosible, e_mb_e))
 
 
 # --- 4. Perfil Equilibrado ---
-# Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal
-e_eq_a = crear_estrategia("Estrategia_Equilibrado_A", 1, "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Carga balanceada para no atrasarse y mantener buen ritmo).", 3, fiunju.Nivel_4, 1)
+# Plan A: 2 Fáciles + 1 Muy Difícil (EXACTO)
+e_eq_a = crear_estrategia("Estrategia_Equilibrado_A", 1, "Plan A: 2 Fáciles + 1 Muy Difícil. (Carga balanceada para no atrasarse y mantener buen ritmo).", 3, [(fiunju.Nivel_1, 2), (fiunju.Nivel_4, 1)])
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_a))
 
-# Plan B: 1 Muy Difícil + 1 Difícil
-e_eq_b = crear_estrategia("Estrategia_Equilibrado_B", 2, "Plan B: 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas).", 2, fiunju.Nivel_4, 1)
+# Plan B: 1 Muy Difícil + 1 Difícil (EXACTO)
+e_eq_b = crear_estrategia("Estrategia_Equilibrado_B", 2, "Plan B: 1 Muy Difícil + 1 Difícil. (Se prioriza calidad sobre cantidad para asegurar la promoción de ambas).", 2, [(fiunju.Nivel_4, 1), (fiunju.Nivel_3, 1)])
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_b))
 
 # Plan C: 3 Normales
-e_eq_c = crear_estrategia("Estrategia_Equilibrado_C", 3, "Plan C: 3 Normales. (Ideal para limpiar materias pendientes, pero cuidado con subestimarlas y relajarte).", 3, fiunju.Nivel_2, 3)
+e_eq_c = crear_estrategia("Estrategia_Equilibrado_C", 3, "Plan C: 3 Normales. (Ideal para limpiar materias pendientes, pero cuidado con subestimarlas y relajarte).", 3, [(fiunju.Nivel_2, 3)])
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_c))
 
 # Plan D: 2 Muy Difíciles
-e_eq_d = crear_estrategia("Estrategia_Equilibrado_D", 4, "Plan D: 2 Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas).", 2, fiunju.Nivel_4, 2)
+e_eq_d = crear_estrategia("Estrategia_Equilibrado_D", 4, "Plan D: 2 Muy Difíciles. (Advertencia: Solo si no tenés otras actividades extra curriculares previstas).", 2, [(fiunju.Nivel_4, 2)])
 g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_eq_e = crear_estrategia("Estrategia_Equilibrado_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
+g.add((fiunju.ArquetipoEquilibrado, fiunju.tieneEstrategiaPosible, e_eq_e))
 
 
 # --- 5. Perfil Medio-Alto ---
-# Plan A: 2 Muy Difíciles + 2 Fáciles
-e_ma_a = crear_estrategia("Estrategia_MedioAlto_A", 1, "Plan A: 2 Muy Difíciles + 2 Fáciles. (Tu prioridad absoluta es estudiar, tenes tiempo, pero también lee durante tu viajes).", 4, fiunju.Nivel_4, 2)
+# Plan A: 2 Muy Difíciles + 2 Fáciles (EXACTO)
+e_ma_a = crear_estrategia("Estrategia_MedioAlto_A", 1, "Plan A: 2 Muy Difíciles + 2 Fáciles. (Tu prioridad absoluta es estudiar, tenes tiempo, pero también lee durante tu viajes).", 4, [(fiunju.Nivel_4, 2), (fiunju.Nivel_1, 2)])
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaPosible, e_ma_a))
 
-# Plan B: 1 Muy Difícil + 2 Difíciles
-e_ma_b = crear_estrategia("Estrategia_MedioAlto_B", 2, "Plan B: 1 Muy Difícil + 2 Difíciles. (Advertencia: Alto riesgo de saturación, aprovecha todos tus tiempos libres para estudiar).", 3, fiunju.Nivel_4, 1)
+# Plan B: 1 Muy Difícil + 2 Difíciles (EXACTO)
+e_ma_b = crear_estrategia("Estrategia_MedioAlto_B", 2, "Plan B: 1 Muy Difícil + 2 Difíciles. (Advertencia: Alto riesgo de saturación, aprovecha todos tus tiempos libres para estudiar).", 3, [(fiunju.Nivel_4, 1), (fiunju.Nivel_3, 2)])
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaPosible, e_ma_b))
 
-# Plan C: 2 Normales + 2 Fáciles
-e_ma_c = crear_estrategia("Estrategia_MedioAlto_C", 3, "Plan C: 2 Normales + 2 Fáciles. (Aprovechá para adelantar, pero ojo con coordinar grupos viviendo lejos).", 4, fiunju.Nivel_2, 2)
+# Plan C: 2 Normales + 2 Fáciles (EXACTO)
+e_ma_c = crear_estrategia("Estrategia_MedioAlto_C", 3, "Plan C: 2 Normales + 2 Fáciles. (Aprovechá para adelantar, pero ojo con coordinar grupos viviendo lejos).", 4, [(fiunju.Nivel_2, 2), (fiunju.Nivel_1, 2)])
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaPosible, e_ma_c))
 
 # Plan D: 3 Difíciles
-e_ma_d = crear_estrategia("Estrategia_MedioAlto_D", 4, "Plan D: 3 Difíciles. (Límite extremo: requiere una disciplina estricta de estudio diario).", 3, fiunju.Nivel_3, 3)
+e_ma_d = crear_estrategia("Estrategia_MedioAlto_D", 4, "Plan D: 3 Difíciles. (Límite extremo: requiere una disciplina estricta de estudio diario).", 3, [(fiunju.Nivel_3, 3)])
 g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaPosible, e_ma_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_ma_e = crear_estrategia("Estrategia_MedioAlto_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
+g.add((fiunju.ArquetipoMedioAlto, fiunju.tieneEstrategiaPosible, e_ma_e))
 
 
 # --- 6. Perfil Super Alto ---
-# Plan A: 3 Muy Difíciles + 1 Difícil
-e_sa_a = crear_estrategia("Estrategia_SuperAlto_A", 1, "Plan A: 3 Muy Difíciles + 1 Difícil. (Tenés capacidad total, el único límite son los horarios de cursada).", 4, fiunju.Nivel_4, 3)
+# Plan A: 3 Muy Difíciles + 1 Difícil (EXACTO)
+e_sa_a = crear_estrategia("Estrategia_SuperAlto_A", 1, "Plan A: 3 Muy Difíciles + 1 Difícil. (Tenés capacidad total, el único límite son los horarios de cursada).", 4, [(fiunju.Nivel_4, 3), (fiunju.Nivel_3, 1)])
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_a))
 
-# Plan B: 5 Variadas (Mix) - Sin requisito fuerte específico, solo cantidad
-e_sa_b = crear_estrategia("Estrategia_SuperAlto_B", 2, "Plan B: 5 Variadas. (Priorizá correlativas; no curses por cursar si no te traban la carrera).", 5, None, 0)
+# Plan B: 5 Variadas (Mix) - Plan flexible
+e_sa_b = crear_estrategia("Estrategia_SuperAlto_B", 2, "Plan B: 5 Variadas. (Priorizá correlatives; no curses por cursar si no te traban la carrera).", 5, None)
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_b))
 
-# Plan C: Solo Fáciles (Max permitido, ej 5)
-e_sa_c = crear_estrategia("Estrategia_SuperAlto_C", 3, "Plan C: Solo Fáciles: Máximo permitido. (Usalo para subir promedio, pero no pierdas el hábito de estudio fuerte).", 5, fiunju.Nivel_1, 1)
+# Plan C: 5 Fáciles (EXACTO)
+e_sa_c = crear_estrategia("Estrategia_SuperAlto_C", 3, "Plan C: Solo Fáciles: Máximo permitido. (Usalo para subir promedio, pero no pierdas el hábito de estudio fuerte).", 5, [(fiunju.Nivel_1, 5)])
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_c))
 
 # Plan D: 3 Muy Difíciles
-e_sa_d = crear_estrategia("Estrategia_SuperAlto_D", 4, "Plan D: 3 Muy Difíciles. (Advertencia: Si procrastinas, perdés el cuatrimestre entero; requiere constancia).", 3, fiunju.Nivel_4, 3)
+e_sa_d = crear_estrategia("Estrategia_SuperAlto_D", 4, "Plan D: 3 Muy Difíciles. (Advertencia: Si procrastinas, perdés el cuatrimestre entero; requiere constancia).", 3, [(fiunju.Nivel_4, 3)])
 g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_sa_e = crear_estrategia("Estrategia_SuperAlto_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
+g.add((fiunju.ArquetipoSuperAlto, fiunju.tieneEstrategiaPosible, e_sa_e))
 
 
 # --- 7. Perfil Atípico ---
-# Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal
-e_at_a = crear_estrategia("Estrategia_Atipico_A", 1, "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Tus tiempos libres úsalos correctamente para estudiar al 100%).", 3, fiunju.Nivel_4, 1)
+# Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal (EXACTO)
+e_at_a = crear_estrategia("Estrategia_Atipico_A", 1, "Plan A: 1 Muy Difícil + 1 Difícil + 1 Normal. (Tus tiempos libres úsalos correctamente para estudiar al 100%).", 3, [(fiunju.Nivel_4, 1), (fiunju.Nivel_3, 1), (fiunju.Nivel_2, 1)])
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaPosible, e_at_a))
 
-# Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil
-e_at_b = crear_estrategia("Estrategia_Atipico_B", 2, "Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil. (Tus tiempos libres úsalos correctamente para estudiar al 100%).", 3, fiunju.Nivel_4, 1)
+# Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil (EXACTO)
+e_at_b = crear_estrategia("Estrategia_Atipico_B", 2, "Plan B: 1 Muy Difícil + 1 Difícil + 1 Fácil. (Tus tiempos libres úsalos correctamente para estudiar al 100%).", 3, [(fiunju.Nivel_4, 1), (fiunju.Nivel_3, 1), (fiunju.Nivel_1, 1)])
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaPosible, e_at_b))
 
 # Plan C: 2 Difíciles
-e_at_c = crear_estrategia("Estrategia_Atipico_C", 3, "Plan C: 2 Difíciles. (Solo es viable si tenés soporte externo o grupo de estudio virtual para no viajar tanto).", 2, fiunju.Nivel_3, 2)
+e_at_c = crear_estrategia("Estrategia_Atipico_C", 3, "Plan C: 2 Difíciles. (Solo es viable si tenés soporte externo o grupo de estudio virtual para no viajar tanto).", 2, [(fiunju.Nivel_3, 2)])
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaPosible, e_at_c))
 
 # Plan D: 2 Muy Difíciles
-e_at_d = crear_estrategia("Estrategia_Atipico_D", 4, "Plan D: 2 Muy Difíciles. (Advertencia: Concentra todo el esfuerzo acá para asegurar el éxito sin riesgos).", 2, fiunju.Nivel_4, 2)
+e_at_d = crear_estrategia("Estrategia_Atipico_D", 4, "Plan D: 2 Muy Difíciles. (Advertencia: Concentra todo el esfuerzo acá para asegurar el éxito sin riesgos).", 2, [(fiunju.Nivel_4, 2)])
 g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaPosible, e_at_d))
+
+# Plan E: Fallback - 1 Materia de Cualquier Dificultad
+e_at_e = crear_estrategia("Estrategia_Atipico_E", 5, "Plan E: 1 Materia. (Siempre es posible cursar al menos una materia).", 1, None)
+g.add((fiunju.ArquetipoAtipico, fiunju.tieneEstrategiaPosible, e_at_e))
 
 # ---------------------------------------------------------
 # --- 3.0.2. Población de Estrategias de EXAMEN por Arquetipo ---

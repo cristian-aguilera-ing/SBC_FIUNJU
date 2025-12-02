@@ -213,7 +213,7 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     query_estrategias = f"""
     PREFIX fiunju: <http://fi.unju.edu.ar/ontologia/informatica#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-    SELECT ?orden ?desc ?cant ?minReq ?difValor
+    SELECT ?orden ?desc ?cant ?minReq ?difValor ?difValor2 ?difValor3 ?cantReq2 ?cantReq3
     WHERE {{
         fiunju:{arquetipo_uri} fiunju:tieneEstrategiaPosible ?est .
         
@@ -222,9 +222,24 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
              fiunju:cantidadMaterias ?cant ;
              fiunju:cantidadMinimaRequerida ?minReq .
              
+        # Primer requisito de dificultad (OPCIONAL - para planes flexibles)
         OPTIONAL {{ 
             ?est fiunju:requiereDisponibilidadDe ?difNode .
             ?difNode fiunju:tieneValor ?difValor .
+        }}
+        
+        # Segundo requisito de dificultad (OPCIONAL)
+        OPTIONAL {{
+            ?est fiunju:requiereDisponibilidadDe2 ?difNode2 .
+            ?difNode2 fiunju:tieneValor ?difValor2 .
+            ?est fiunju:cantidadRequerida2 ?cantReq2 .
+        }}
+        
+        # Tercer requisito de dificultad (OPCIONAL)
+        OPTIONAL {{
+            ?est fiunju:requiereDisponibilidadDe3 ?difNode3 .
+            ?difNode3 fiunju:tieneValor ?difValor3 .
+            ?est fiunju:cantidadRequerida3 ?cantReq3 .
         }}
     }}
     ORDER BY ?orden
@@ -290,15 +305,62 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     for row in results:
         desc = str(row.desc)
         cant_a_sugerir = int(row.cant)
-        min_req = int(row.minReq)
-        dificultad_req = int(row.difValor) if row.difValor else None
+        
+        # Construir lista de requisitos de dificultad
+        requisitos_dificultad = []
+        
+        # Primer requisito
+        dificultad_req = None # Initialize for the 'if dificultad_req is not None' later
+        min_req = int(row.minReq) # Always define min_req from the first requirement
+        if row.difValor:
+            dificultad_req = int(row.difValor)
+            requisitos_dificultad.append((dificultad_req, min_req))
+        
+        # Segundo requisito
+        if row.difValor2 and row.cantReq2:
+            dificultad_req2 = int(row.difValor2)
+            cant_req2 = int(row.cantReq2)
+            requisitos_dificultad.append((dificultad_req2, cant_req2))
+        
+        # Tercer requisito
+        if row.difValor3 and row.cantReq3:
+            dificultad_req3 = int(row.difValor3)
+            cant_req3 = int(row.cantReq3)
+            requisitos_dificultad.append((dificultad_req3, cant_req3))
         
         print(f"\nDEBUG: Evaluando estrategia: {desc}")
-        print(f"DEBUG:   - dificultad_req: {dificultad_req}")
-        print(f"DEBUG:   - min_req: {min_req}")
+        print(f"DEBUG:   - requisitos_dificultad: {requisitos_dificultad}")
         print(f"DEBUG:   - cant_a_sugerir: {cant_a_sugerir}")
         
-        # Filtrar materias que cumplen con el requisito de dificultad de la estrategia
+        # NUEVA VALIDACIÓN: Verificar requisitos múltiples de dificultad
+        # Si hay requisitos, validar que se puedan cumplir TODOS EXACTAMENTE con la selección del usuario
+        if uris_cursando and requisitos_dificultad:
+            seleccion_usuario_plan = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
+            
+            # Verificar que podemos cumplir TODOS los requisitos
+            total_requerido = 0
+            puede_cumplir = True
+            
+            for (dif_req, cant_req) in requisitos_dificultad:
+                materias_con_dificultad = [m for m in seleccion_usuario_plan if m["dificultad"] == dif_req]
+                total_requerido += cant_req
+                
+                print(f"DEBUG:     - Req: {cant_req} materias de dif {dif_req}, disponibles: {len(materias_con_dificultad)}")
+                
+                if len(materias_con_dificultad) < cant_req:
+                    print(f"DEBUG:     - ❌ No cumple: falta {cant_req - len(materias_con_dificultad)} materias de dif {dif_req}")
+                    puede_cumplir = False
+                    break
+            
+            if not puede_cumplir:
+                print(f"DEBUG:   - Estrategia descartada (no cumple todos los requisitos de dificultad)")
+                continue
+            
+            # Verificar que la cantidad total coincide con cant_a_sugerir
+            if total_requerido != cant_a_sugerir:
+                print(f"DEBUG:   - ⚠️ Advertencia: total_requerido ({total_requerido}) != cant_a_sugerir ({cant_a_sugerir})")
+        
+        # Filtrar candidatas para MODO AUTOMÁTICO (antigua lógica)
         candidatas = []
         if dificultad_req is not None:
             candidatas = [m for m in materias_habilitadas if m["dificultad"] == dificultad_req]
@@ -306,68 +368,81 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
             candidatas = materias_habilitadas
         
         print(f"DEBUG:   - candidatas disponibles: {len(candidatas)}")
-            
-        # Verificar si es válida
-        if len(candidatas) >= min_req:
+        
+        # Verificar candidatas suficientes para min_req
+        # IMPORTANTE: Si es MODO FILTRADO con múltiples requisitos, ya validamos arriba,
+        # así que saltamos esta validación antigua que solo mira la primera dificultad
+        if uris_cursando and len(requisitos_dificultad) > 1:
+            # Ya validamos todo arriba, continuar con el scoring
+            print(f"DEBUG:   - Plan multi-requisito ya validado, continuar con scoring")
+        elif len(candidatas) < min_req:
+            print(f"DEBUG:   - Estrategia descartada (candidatas < min_req)")
+            continue
+        
+        # Calcular Score de Ajuste si hay selección de usuario
+        if len(candidatas) >= min_req or (uris_cursando and len(requisitos_dificultad) > 1):
             # Calcular Score de Ajuste si hay selección de usuario
             score = 0
+            correlativas_count = 0
+            
             if uris_cursando:
-                # Priorizamos coincidencia en la dificultad requerida
+                # NUEVO SCORING: Dificultades BAJAS tienen MÁS prioridad
                 if dificultad_req:
                     user_count = user_selection_counts.get(dificultad_req, 0)
-                    # Score base alto para dificultades altas
-                    weight = dificultad_req * 100 
+                    
+                    # Score base INVERTIDO: dificultades bajas = más puntos
+                    # Dif 1 = 400, Dif 2 = 300, Dif 3 = 200, Dif 4 = 100
+                    weight = (5 - dificultad_req) * 100
+                    
                     # Penalizamos la diferencia entre lo que pide el plan y lo que tiene el usuario
                     diff = abs(min_req - user_count)
                     score = weight - (diff * 10)
                     
                     print(f"DEBUG:   - user_count para dif {dificultad_req}: {user_count}")
-                    print(f"DEBUG:   - score inicial (base): {score}")
-                    
-                    # --- PENALIZACIÓN POR CONTRADICCIÓN (APLICAR PRIMERO) ---
-                    # Si la estrategia pide dificultad BAJA (ej: 1 o 2) pero el usuario eligió materias MUY DIFICILES (3 o 4),
-                    # esta estrategia no debería ganar.
-                    # Ejemplo: Plan "Solo Fáciles" (Req: 1) vs Usuario con "Analisis II" (4).
-                    if dificultad_req <= 2:
-                        print(f"DEBUG:   - Verificando contradicciones (dif_req <= 2)")
-                        # Contamos cuantas materias de dificultad > dificultad_req tiene el usuario
-                        contradictions = 0
-                        for d_key, count in user_selection_counts.items():
-                            if d_key > dificultad_req and count > 0:
-                                contradictions += count
-                                print(f"DEBUG:     - Contradicción: {count} materias de nivel {d_key}")
-                        
-                        if contradictions > 0:
-                            # Penalización masiva para descartar este plan
-                            penalty = 1000 * contradictions
-                            score -= penalty
-                            print(f"DEBUG:   - PENALIZACIÓN APLICADA: -{penalty}, score después de penalización: {score}")
+                    print(f"DEBUG:   - score inicial (invertido para priorizar fáciles): {score}")
                     
                     # Bonus si el usuario tiene EXACTAMENTE o MÁS de lo requerido en esa dificultad
-                    # (solo si no hay contradicciones que ya hayan hundido el score)
                     if user_count >= min_req:
                         score += 50
-                        print(f"DEBUG:   - bonus aplicado (+50), score: {score}")
-
+                        print(f"DEBUG:   - bonus por match exacto (+50), score: {score}")
+                    
+                    # BONUS POR CORRELATIVAS: Contar materias que desbloquea este plan
+                    # Simular el plan para ver cuántas correlativas desbloquea
+                    if dificultad_req is not None:
+                        primary = [m for m in seleccion_usuario_plan if m["dificultad"] == dificultad_req]
+                        plan_simulado = primary[:min_req]
+                        
+                        # Contar cuántas materias se desbloquearían
+                        for materia in plan_simulado:
+                            # Cada materia que corta otras suma al score
+                            # Esto es una estimación - asumimos que materias difíciles cortan más
+                            correlativas_count += (5 - materia.get("dificultad", 1))
+                        
+                        # Bonus proporcional a correlativas desbloqueadas
+                        correlativas_bonus = correlativas_count * 5
+                        score += correlativas_bonus
+                        print(f"DEBUG:   - bonus por correlativas estimadas (+{correlativas_bonus}), score: {score}")
                 else:
-                    # Estrategia sin requisito de dificultad (ej: "Variadas")
-                    score = 10 # Prioridad baja frente a matches específicos
-                    print(f"DEBUG:   - Sin requisito de dificultad, score: {score}")
+                    # Estrategia sin requisito de dificultad - PRIORIDAD BAJA (es fallback)
+                    score = 50  # Menor que cualquier plan con requisitos específicos
+                    print(f"DEBUG:   - Sin requisito de dificultad (fallback), score: {score}")
             
             print(f"DEBUG:   - Score final: {score}")
             estrategias_validas.append({
                 "row": row,
                 "candidatas": candidatas,
                 "score": score,
-                "orden": int(row.orden)
+                "orden": int(row.orden),
+                "nombre": str(row.desc),
+                "correlativas_count": correlativas_count
             })
         else:
             print(f"DEBUG:   - Estrategia descartada (candidatas < min_req)")
 
     # Ordenar estrategias válidas
     if uris_cursando:
-        # Mayor score primero, luego menor orden de prioridad (original)
-        estrategias_validas.sort(key=lambda x: (-x["score"], x["orden"]))
+        # Ordenar por SCORE (mayor mejor) - prioriza dificultades bajas y correlativas
+        estrategias_validas.sort(key=lambda x: -x["score"])
     else:
         # Solo orden original
         estrategias_validas.sort(key=lambda x: x["orden"])
@@ -383,35 +458,33 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
         cant_a_sugerir = int(row.cant)
         
         # Construir plan
+        # Reconstruir requisitos_dificultad desde row para usar en construcción del plan
+        requisitos_dificultad_plan = []
+        min_req_plan = int(row.minReq)
+        if row.difValor:
+            requisitos_dificultad_plan.append((int(row.difValor), min_req_plan))
+        if row.difValor2 and row.cantReq2:
+            requisitos_dificultad_plan.append((int(row.difValor2), int(row.cantReq2)))
+        if row.difValor3 and row.cantReq3:
+            requisitos_dificultad_plan.append((int(row.difValor3), int(row.cantReq3)))
+        
         if uris_cursando:
-             # MODO FILTRADO: Ajustamos la selección del usuario a la estrategia recomendada
-             
-             # 1. Identificar materias seleccionadas por el usuario
+             # MODO FILTRADO: Seleccionar EXACTAMENTE según requisitos múltiples
              seleccion_usuario = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
-             
-             # 2. Obtener parámetros de la estrategia
-             min_req = int(row.minReq)
-             dificultad_req = int(row.difValor) if row.difValor else None
-             
-             # 3. Construir plan respetando cantidad y distribución de dificultades
              plan_seleccionado = []
              
-             if dificultad_req is not None:
-                 # Separar materias por dificultad
-                 primary = [m for m in seleccion_usuario if m["dificultad"] == dificultad_req]
-                 others = [m for m in seleccion_usuario if m["dificultad"] != dificultad_req]
+             if requisitos_dificultad_plan:
+                 # Plan con requisitos específicos: seleccionar según cada requisito
+                 print(f"DEBUG: Construyendo plan con requisitos: {requisitos_dificultad_plan}")
                  
-                 # Tomar EXACTAMENTE min_req de la dificultad requerida (no más)
-                 plan_seleccionado.extend(primary[:min_req])
-                 
-                 # Rellenar con materias más fáciles de la selección del usuario
-                 if len(plan_seleccionado) < cant_a_sugerir:
-                     faltantes = cant_a_sugerir - len(plan_seleccionado)
-                     # Ordenar 'others' por dificultad ascendente (más fáciles primero)
-                     others.sort(key=lambda x: x["dificultad"]) 
-                     plan_seleccionado.extend(others[:faltantes])
+                 for (dif_req, cant_req) in requisitos_dificultad_plan:
+                     materias_dif = [m for m in seleccion_usuario if m["dificultad"] == dif_req and m not in plan_seleccionado]
+                     seleccionadas = materias_dif[:cant_req]
+                     plan_seleccionado.extend(seleccionadas)
+                     print(f"DEBUG:   - Seleccionadas {len(seleccionadas)} de dif {dif_req} (requeridas: {cant_req})")
              else:
-                 # Sin requisito de dificultad, tomar las primeras disponibles
+                 # Plan flexible (sin requisitos): tomar las primeras disponibles
+                 print(f"DEBUG: Plan flexible, tomando {cant_a_sugerir} materias cualquiera")
                  plan_seleccionado.extend(seleccion_usuario[:cant_a_sugerir])
         else:
             # MODO AUTOMÁTICO: Llenamos según estrategia
