@@ -41,6 +41,16 @@ def _enriquecer_materias_usuario(materias_usuario, kg: Graph):
             })
     return enriquecidas
 
+DIAGNOSTICOS_HARDCODED = {
+    "ArquetipoCritico": "Tu perfil tiene 'muy poco tiempo para estudiar'. No se permiten errores.\n* trabajas tiempo completo\n* Vivis lejos\n* vivis solo\n* tenes hijo/s",
+    "ArquetipoBajo": "Tiene un poco más de tiempo gracias al apoyo familiar y vivir cerca.\n* trabajas tiempo completo\n* Vivis en Capital\n* No vives solo\n* tenes hijo/s",
+    "ArquetipoMedioBajo": "Tiene tiempo, pero viajar largas distancias más las tareas domésticas te quitan energía.\n* trabajas medio tiempo\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s",
+    "ArquetipoEquilibrado": "Es el balance perfecto. Puede asumir carga, pero no extrema.\n* trabajas medio tiempo\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s",
+    "ArquetipoMedioAlto": "Tiempo completo, pero vivir solo viene con tareas domésticas y viajar limita la 'energía mental'.\n* No trabajas\n* Vivis en el Interior\n* Vivis solo\n* No tenes hijo/s",
+    "ArquetipoSuperAlto": "Disponibilidad total. Su única restricción es su propia capacidad de concentración.\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* No tenes hijo/s",
+    "ArquetipoAtipico": "Tiempo libre de trabajo, pero al tener hijos perdes el 'flujo' de estudio constante.\n* No trabajas\n* Vivis en Capital\n* No vivis solo\n* Tenes hijo/s"
+}
+
 def _get_materias_habilitadas(user: User, kg: Graph) -> list[dict]:
     """
     Retorna las materias que el usuario puede cursar mediante una query SPARQL optimizada.
@@ -245,6 +255,15 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
                 consejo_clave = str(res_info[0].consejo)
     except Exception as e:
         print(f"Error fetching archetype info: {e}")
+
+    # Fallback Hardcoded para Diagnóstico (MÁS AGRESIVO)
+    print(f"DEBUG: Diagnostico recuperado de ontologia: '{tarjeta_diagnostico}'")
+    # Usar fallback si está vacío, es None, o es el mensaje por defecto
+    if not tarjeta_diagnostico or tarjeta_diagnostico.strip() == "" or tarjeta_diagnostico == "Diagnóstico no disponible." or "DEBUG" in tarjeta_diagnostico:
+        tarjeta_diagnostico = DIAGNOSTICOS_HARDCODED.get(arquetipo_uri, "Diagnóstico no disponible.")
+        print(f"DEBUG: Usando fallback hardcoded para {arquetipo_uri}: '{tarjeta_diagnostico[:50]}...'")
+    else:
+        print(f"DEBUG: Usando diagnóstico de ontología: '{tarjeta_diagnostico[:50]}...'")
     
     estrategia_encontrada = False
     
@@ -255,20 +274,29 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
     # Analizar selección del usuario
     user_selection_counts = {4: 0, 3: 0, 2: 0, 1: 0}
     if uris_cursando:
+        print(f"DEBUG: Usuario seleccionó {len(uris_cursando)} materias para cursar")
         for m in materias_habilitadas:
             if m["uri"] in uris_cursando:
                 d = m["dificultad"]
+                print(f"DEBUG: Materia seleccionada: {m['label']} - Dificultad: {d}")
                 if d in user_selection_counts:
                     user_selection_counts[d] += 1
                 elif d >= 4:
                     user_selection_counts[4] += 1
+        print(f"DEBUG: user_selection_counts = {user_selection_counts}")
 
     estrategias_validas = []
+    print(f"DEBUG: Evaluando estrategias para arquetipo {arquetipo_uri}")
     for row in results:
         desc = str(row.desc)
         cant_a_sugerir = int(row.cant)
         min_req = int(row.minReq)
         dificultad_req = int(row.difValor) if row.difValor else None
+        
+        print(f"\nDEBUG: Evaluando estrategia: {desc}")
+        print(f"DEBUG:   - dificultad_req: {dificultad_req}")
+        print(f"DEBUG:   - min_req: {min_req}")
+        print(f"DEBUG:   - cant_a_sugerir: {cant_a_sugerir}")
         
         # Filtrar materias que cumplen con el requisito de dificultad de la estrategia
         candidatas = []
@@ -276,6 +304,8 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
             candidatas = [m for m in materias_habilitadas if m["dificultad"] == dificultad_req]
         else:
             candidatas = materias_habilitadas
+        
+        print(f"DEBUG:   - candidatas disponibles: {len(candidatas)}")
             
         # Verificar si es válida
         if len(candidatas) >= min_req:
@@ -291,19 +321,48 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
                     diff = abs(min_req - user_count)
                     score = weight - (diff * 10)
                     
+                    print(f"DEBUG:   - user_count para dif {dificultad_req}: {user_count}")
+                    print(f"DEBUG:   - score inicial (base): {score}")
+                    
+                    # --- PENALIZACIÓN POR CONTRADICCIÓN (APLICAR PRIMERO) ---
+                    # Si la estrategia pide dificultad BAJA (ej: 1 o 2) pero el usuario eligió materias MUY DIFICILES (3 o 4),
+                    # esta estrategia no debería ganar.
+                    # Ejemplo: Plan "Solo Fáciles" (Req: 1) vs Usuario con "Analisis II" (4).
+                    if dificultad_req <= 2:
+                        print(f"DEBUG:   - Verificando contradicciones (dif_req <= 2)")
+                        # Contamos cuantas materias de dificultad > dificultad_req tiene el usuario
+                        contradictions = 0
+                        for d_key, count in user_selection_counts.items():
+                            if d_key > dificultad_req and count > 0:
+                                contradictions += count
+                                print(f"DEBUG:     - Contradicción: {count} materias de nivel {d_key}")
+                        
+                        if contradictions > 0:
+                            # Penalización masiva para descartar este plan
+                            penalty = 1000 * contradictions
+                            score -= penalty
+                            print(f"DEBUG:   - PENALIZACIÓN APLICADA: -{penalty}, score después de penalización: {score}")
+                    
                     # Bonus si el usuario tiene EXACTAMENTE o MÁS de lo requerido en esa dificultad
+                    # (solo si no hay contradicciones que ya hayan hundido el score)
                     if user_count >= min_req:
                         score += 50
+                        print(f"DEBUG:   - bonus aplicado (+50), score: {score}")
+
                 else:
                     # Estrategia sin requisito de dificultad (ej: "Variadas")
                     score = 10 # Prioridad baja frente a matches específicos
+                    print(f"DEBUG:   - Sin requisito de dificultad, score: {score}")
             
+            print(f"DEBUG:   - Score final: {score}")
             estrategias_validas.append({
                 "row": row,
                 "candidatas": candidatas,
                 "score": score,
                 "orden": int(row.orden)
             })
+        else:
+            print(f"DEBUG:   - Estrategia descartada (candidatas < min_req)")
 
     # Ordenar estrategias válidas
     if uris_cursando:
@@ -330,28 +389,30 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
              # 1. Identificar materias seleccionadas por el usuario
              seleccion_usuario = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
              
-             # 2. Filtrar las que coinciden con el requisito de dificultad (si existe)
-             if dificultad_req:
-                 primary = [m for m in seleccion_usuario if m["dificultad"] == dificultad_req]
-                 others = [m for m in seleccion_usuario if m["dificultad"] != dificultad_req]
-             else:
-                 primary = seleccion_usuario
-                 others = []
-                 
-             # 3. Construir plan respetando cantidad sugerida
+             # 2. Obtener parámetros de la estrategia
+             min_req = int(row.minReq)
+             dificultad_req = int(row.difValor) if row.difValor else None
+             
+             # 3. Construir plan respetando cantidad y distribución de dificultades
              plan_seleccionado = []
              
-             # Tomar prioritarias (hasta cant_a_sugerir)
-             # Ordenamos las primary por impacto o alguna metrica si hay muchas? 
-             # Por ahora confiamos en el orden de 'materias_habilitadas' (que ya tiene logica de sort)
-             plan_seleccionado.extend(primary[:cant_a_sugerir])
-             
-             # Si falta para llegar a la cantidad, rellenar con las otras
-             if len(plan_seleccionado) < cant_a_sugerir:
-                 faltantes = cant_a_sugerir - len(plan_seleccionado)
-                 # Ordenar 'others' por dificultad ascendente (rellenar con lo más fácil posible de lo que eligió)
-                 others.sort(key=lambda x: x["dificultad"]) 
-                 plan_seleccionado.extend(others[:faltantes])
+             if dificultad_req is not None:
+                 # Separar materias por dificultad
+                 primary = [m for m in seleccion_usuario if m["dificultad"] == dificultad_req]
+                 others = [m for m in seleccion_usuario if m["dificultad"] != dificultad_req]
+                 
+                 # Tomar EXACTAMENTE min_req de la dificultad requerida (no más)
+                 plan_seleccionado.extend(primary[:min_req])
+                 
+                 # Rellenar con materias más fáciles de la selección del usuario
+                 if len(plan_seleccionado) < cant_a_sugerir:
+                     faltantes = cant_a_sugerir - len(plan_seleccionado)
+                     # Ordenar 'others' por dificultad ascendente (más fáciles primero)
+                     others.sort(key=lambda x: x["dificultad"]) 
+                     plan_seleccionado.extend(others[:faltantes])
+             else:
+                 # Sin requisito de dificultad, tomar las primeras disponibles
+                 plan_seleccionado.extend(seleccion_usuario[:cant_a_sugerir])
         else:
             # MODO AUTOMÁTICO: Llenamos según estrategia
             seleccion = candidatas[:cant_a_sugerir]
@@ -362,6 +423,7 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
                 uris_sel = {m["uri"] for m in plan_seleccionado}
                 resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
                 plan_seleccionado.extend(resto[:faltantes])
+            
             
         # Identificar omitidas
         uris_sel = {m["uri"] for m in plan_seleccionado}
@@ -377,11 +439,24 @@ def generar_plan_cursada_optimo(user: User, kg: Graph) -> dict:
 
     # 5. Fallback si ninguna estrategia coincide
     if not estrategia_encontrada:
-        # Tomar las top N por prioridad (ya ordenadas)
-        default_qty = 3
+        # Fallback inteligente: "Minimo 2 materias"
+        # Intentamos recomendar al menos 2 materias, priorizando las más fáciles/impactantes.
+        
+        texto_recomendacion = "Plan de Emergencia: No se pudo aplicar ninguna estrategia estricta. Se recomiendan materias disponibles para mantener la regularidad."
+        
         if uris_cursando:
              plan_seleccionado = [m for m in materias_habilitadas if m["uri"] in uris_cursando]
+             # Si el usuario eligió menos de 2, intentamos rellenar para cumplir el mínimo
+             if len(plan_seleccionado) < 2:
+                 faltantes = 2 - len(plan_seleccionado)
+                 uris_sel = {m["uri"] for m in plan_seleccionado}
+                 resto = [m for m in materias_habilitadas if m["uri"] not in uris_sel]
+                 # Ordenar resto por dificultad (lo más fácil posible)
+                 resto.sort(key=lambda x: x["dificultad"])
+                 plan_seleccionado.extend(resto[:faltantes])
         else:
+             # Si es automático, tomamos 2 materias como base segura.
+             default_qty = 2
              plan_seleccionado = materias_habilitadas[:default_qty]
              
         omitidas = [m for m in materias_habilitadas if m["uri"] not in {x["uri"] for x in plan_seleccionado}]
@@ -678,9 +753,9 @@ def generar_estrategia_examenes(user: User, kg: Graph) -> dict:
     except Exception as e:
         print(f"Error fetching archetype info: {e}")
     
-    # DEBUG: Force diagnostic if empty
-    if tarjeta_diagnostico == "Diagnóstico no disponible.":
-        tarjeta_diagnostico = "DEBUG: El backend está ejecutando el nuevo código, pero la query falló o no trajo datos."
+    # Fallback Hardcoded para Diagnóstico
+    if tarjeta_diagnostico == "Diagnóstico no disponible." or not tarjeta_diagnostico or "DEBUG" in tarjeta_diagnostico:
+        tarjeta_diagnostico = DIAGNOSTICOS_HARDCODED.get(arquetipo_uri, "Diagnóstico no disponible.")
 
     return {
         "plan_recomendado": plan_final,

@@ -1,6 +1,6 @@
 import React from 'react';
 import { PlanExamenRecomendado } from '@/types';
-import { CheckCircle, AlertTriangle, BookOpen, Clock, Trophy, Target, ArrowRight, Info, X, Lightbulb, AlertCircle } from 'lucide-react';
+import { CheckCircle, AlertTriangle, BookOpen, Clock, Trophy, Target, ArrowRight, Info, X, Lightbulb, AlertCircle, LockKeyhole } from 'lucide-react';
 import WidgetDinamico from './WidgetDinamico';
 
 // Componente para renderizar la tarjeta de recomendación estética (Estrategia Específica)
