@@ -392,7 +392,6 @@ La ontología es el "cerebro" del sistema basado en conocimiento. Debes generarl
 2.  Haz clic en el botón **▶️ Run Python File** en la esquina superior derecha
 3.  Alternativamente, abre una terminal integrada y ejecuta:
     ```bash
-    cd backend
     python generar_ontologia.py
     ```
 
@@ -405,7 +404,6 @@ Ahora debes crear las tablas necesarias en la base de datos PostgreSQL.
 Abre una terminal integrada en VS Code (`Terminal > New Terminal`) y ejecuta:
 
 ```bash
-cd backend
 alembic upgrade head
 ```
 
